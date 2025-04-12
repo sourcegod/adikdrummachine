@@ -22,6 +22,12 @@
 
 const double PI = 3.14159265358979323846;
 
+// Mapping des touches et des sons
+std::map<char, int> keyToSoundMap = {
+    {'q', 0}, {'s', 1}, {'d', 2}, {'f', 3},
+    {'g', 4}, {'h', 5}, {'j', 6}, {'k', 7}
+};
+
 struct DrumMachineData {
     std::vector<std::vector<double>> sounds;
     std::vector<double>::iterator currentSound[8];
@@ -127,12 +133,6 @@ int main() {
 
         std::cout << "\nAdik Drum Machine interactive! Appuyez sur les touches q, s, d, f, g, h, j, k pour jouer les sons." << std::endl;
         std::cout << "Appuyez sur Entrée pour arrêter." << std::endl;
-
-        std::map<char, int> keyToSoundMap = {
-            {'q', 0}, {'s', 1}, {'d', 2}, {'f', 3},
-            {'g', 4}, {'h', 5}, {'j', 6}, {'k', 7}
-        };
-
 
         termios oldt = initTermios(0);
         char key;
