@@ -18,26 +18,9 @@
 #include "audiodriver.h" // Inclure le header de AudioDriver
 #include "soundgenerator.h" // Inclure le header de SoundGenerator
 #include "soundfactory.h" // Inclure le header de SoundFactory
+#include "drumplayer.h"
 
 const double PI = 3.14159265358979323846;
-
-class DrumPlayer {
-public:
-    DrumPlayer(int numSounds) : playing(numSounds, false) {}
-
-    void triggerSound(std::vector<std::vector<double>>& sounds, std::vector<double>::iterator currentSound[], int soundIndex) {
-        if (soundIndex >= 0 && soundIndex < sounds.size()) {
-            currentSound[soundIndex] = sounds[soundIndex].begin();
-            playing[soundIndex] = true;
-        }
-    }
-
-    double softClip(double x) {
-        return tanh(x);
-    }
-
-    std::vector<bool> playing;
-};
 
 struct DrumMachineData {
     std::vector<std::vector<double>> sounds;
