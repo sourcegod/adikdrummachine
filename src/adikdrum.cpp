@@ -16,56 +16,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include "audiodriver.h" // Inclure le header de AudioDriver
+#include "soundgenerator.h" // Inclure le header de SoundGenerator
 
 const double PI = 3.14159265358979323846;
-
-class SoundGenerator {
-public:
-    std::vector<double> generateSineWave(double frequency, int sampleRate, double durationSec, double amplitude = 1.0, double attackTime = 0.01, double releaseTime = 0.1) {
-        int numSamples = static_cast<int>(durationSec * sampleRate);
-        std::vector<double> wave(numSamples);
-        for (int i = 0; i < numSamples; ++i) {
-            double time = static_cast<double>(i) / sampleRate;
-            double envelope = 1.0;
-            if (time < attackTime) {
-                envelope = time / attackTime;
-            } else if (time > durationSec - releaseTime) {
-                envelope = (durationSec - time) / releaseTime;
-            }
-            wave[i] = envelope * amplitude * sin(2.0 * PI * frequency * time);
-        }
-        return wave;
-    }
-
-    std::vector<double> generateSquareWave(double frequency, int sampleRate, double durationSec, double amplitude = 1.0) {
-        int numSamples = static_cast<int>(durationSec * sampleRate);
-        std::vector<double> wave(numSamples);
-        for (int i = 0; i < numSamples; ++i) {
-            double time = static_cast<double>(i) / sampleRate;
-            wave[i] = amplitude * (sin(2.0 * PI * frequency * time) >= 0 ? 1.0 : -1.0);
-        }
-        return wave;
-    }
-
-    std::vector<double> generateWhiteNoise(int sampleRate, double durationSec, double amplitude = 1.0, double attackTime = 0.01, double releaseTime = 0.1) {
-        int numSamples = static_cast<int>(durationSec * sampleRate);
-        std::vector<double> wave(numSamples);
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> distrib(-1.0, 1.0);
-        for (int i = 0; i < numSamples; ++i) {
-            double time = static_cast<double>(i) / sampleRate;
-            double envelope = 1.0;
-            if (time < attackTime) {
-                envelope = time / attackTime;
-            } else if (time > durationSec - releaseTime) {
-                envelope = (durationSec - time) / releaseTime;
-            }
-            wave[i] = envelope * amplitude * distrib(gen);
-        }
-        return wave;
-    }
-};
 
 class SoundFactory {
 private:
