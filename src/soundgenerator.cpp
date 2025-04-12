@@ -4,6 +4,13 @@
 
 const double PI = 3.14159265358979323846;
 
+// Fonction pour générer du silence
+std::vector<double> SoundGenerator::generateSilence(int length) {
+    std::vector<double> wave(length, 0.0);
+    return wave;
+}
+
+// Fonction pour générer une onde sinusoïdale
 std::vector<double> SoundGenerator::generateSineWave(double frequency, int sampleRate, double durationSec, double amplitude, double attackTime, double releaseTime) {
     int numSamples = static_cast<int>(durationSec * sampleRate);
     std::vector<double> wave(numSamples);
@@ -30,6 +37,46 @@ std::vector<double> SoundGenerator::generateSquareWave(double frequency, int sam
     return wave;
 }
 
+// Fonction pour générer une onde en dents de scie
+std::vector<double> SoundGenerator::generateSawtoothWave(double frequency, int sampleRate, int durationMs) {
+    int numSamples = static_cast<int>((durationMs / 1000.0) * sampleRate);
+    std::vector<double> wave(numSamples);
+    for (int i = 0; i < numSamples; ++i) {
+        double time = static_cast<double>(i) / sampleRate;
+        wave[i] = 2.0 * (fmod(frequency * time, 1.0) - 0.5);
+    }
+    return wave;
+}
+
+
+// Fonction pour générer une onde triangulaire
+std::vector<double> SoundGenerator::generateTriangleWave(double frequency, int sampleRate, int durationMs) {
+    int numSamples = static_cast<int>((durationMs / 1000.0) * sampleRate);
+    std::vector<double> wave(numSamples);
+    for (int i = 0; i < numSamples; ++i) {
+        double time = static_cast<double>(i) / sampleRate;
+        double phase = fmod(frequency * time, 1.0);
+        if (phase < 0.5) {
+            wave[i] = 2.0 * phase - 1.0;
+        } else {
+            wave[i] = 1.0 - 2.0 * (phase - 0.5);
+        }
+    }
+    return wave;
+}
+
+// Fonction pour générer une onde cosinus
+std::vector<double> SoundGenerator::generateCosineWave(double frequency, int sampleRate, int durationMs) {
+    int numSamples = static_cast<int>((durationMs / 1000.0) * sampleRate);
+    std::vector<double> wave(numSamples);
+    for (int i = 0; i < numSamples; ++i) {
+        double time = static_cast<double>(i) / sampleRate;
+        wave[i] = cos(2.0 * PI * frequency * time);
+    }
+    return wave;
+}
+
+// Fonction pour générer du bruit blanc
 std::vector<double> SoundGenerator::generateWhiteNoise(int sampleRate, double durationSec, double amplitude, double attackTime, double releaseTime) {
     int numSamples = static_cast<int>(durationSec * sampleRate);
     std::vector<double> wave(numSamples);
