@@ -92,6 +92,25 @@ void resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
+void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
+    std::cout << "  ";
+    for (int i = 0; i < NUM_STEPS; ++i) {
+        std::cout << (i + 1) % 10 << " "; // Affiche les numéros de pas de 1 à 16 (modulo 10)
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < NUM_SOUNDS; ++i) {
+        std::cout << (i + 1) % 10 << " "; // Affiche les numéros de son de 1 à 16 (modulo 10)
+        for (int j = 0; j < NUM_STEPS; ++j) {
+            if (cursor.first == j && cursor.second == i) {
+                std::cout << "x "; // Affiche 'x' à la position du curseur
+            } else {
+                std::cout << "- "; // Affiche '-' pour les autres cases
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
 int main() {
     AudioDriver audioDriver;
     PaError err = audioDriver.initialize();
@@ -152,6 +171,8 @@ int main() {
         std::cout << "Appuyez sur Entrée pour arrêter." << std::endl;
 
         termios oldt = initTermios(0);
+
+        displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
         char key;
         while (read(STDIN_FILENO, &key, 1) == 1) {
             if (key == '\n') break;
@@ -159,12 +180,15 @@ int main() {
             if (keyToSoundMap.count(key)) {
                 int soundIndex = keyToSoundMap[key];
                 drumData.player.triggerSound(drumData.sounds, drumData.currentSound, soundIndex);
+
             } else if (key == '\033') { // Code d'échappement pour les séquences de touches spéciales (comme les flèches)
                 read(STDIN_FILENO, &key, 1); // Lit le caractère '['
                 read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
                 if (key == 'A') { // Flèche haut
                     if (cursor_pos.second > 0) {
                         cursor_pos.second--;
+                        displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+
                     } else {
                         beep();
                     }
@@ -173,6 +197,7 @@ int main() {
                 } else if (key == 'B') { // Flèche bas
                     if (cursor_pos.second < NUM_SOUNDS - 1) {
                         cursor_pos.second++;
+                        displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
                     } else {
                         beep();
                     }
@@ -182,6 +207,7 @@ int main() {
                 } else if (key == 'C') { // Flèche droite
                     if (cursor_pos.first < NUM_STEPS - 1) {
                         cursor_pos.first++;
+                        displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
                         std::cout << "Cursor right, step " << cursor_pos.first << std::endl;
                     } else {
                         beep();
@@ -191,6 +217,7 @@ int main() {
                 } else if (key == 'D') { // Flèche gauche
                     if (cursor_pos.first > 0) {
                         cursor_pos.first--;
+                        displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
                         std::cout << "Cursor left, step " << cursor_pos.first << std::endl;
                     } else {
                         beep();
