@@ -91,8 +91,9 @@ termios initTermios(int echo) {
 void resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
-
+/*
 void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
+    // std::cout << "\033[2J\033[H"; // pour effacer l'écran du terminal
     std::cout << "  ";
     for (int i = 0; i < NUM_STEPS; ++i) {
         std::cout << (i + 1) % 10 << " "; // Affiche les numéros de pas de 1 à 16 (modulo 10)
@@ -111,6 +112,31 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
     }
     std::cout << std::endl;
 }
+*/
+
+void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
+    // std::cout << "\033[2J\033[H";
+    std::cout << "  ";
+    for (int i = 0; i < NUM_STEPS; ++i) {
+        std::cout << (i + 1) % 10 << " ";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < NUM_SOUNDS; ++i) {
+        std::cout << (i + 1) % 10 << " ";
+        for (int j = 0; j < NUM_STEPS; ++j) {
+            if (cursor.first == j && cursor.second == i) {
+                std::cout << "x ";
+            } else if (grid[i][j]) {
+                std::cout << "# "; // Affiche '#' si le pas est activé
+            } else {
+                std::cout << "- "; // Affiche '-' si le pas est désactivé
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 int main() {
     AudioDriver audioDriver;
     PaError err = audioDriver.initialize();
@@ -175,9 +201,17 @@ int main() {
         displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
         char key;
         while (read(STDIN_FILENO, &key, 1) == 1) {
-            if (key == '\n') break;
+            if (key == 'X') break;
 
-            if (keyToSoundMap.count(key)) {
+            if (key == '\n') { // Touche Enter
+                pattern[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
+                std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " activated and playing." << std::endl;
+                drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second); // Joue le son
+
+            } else if (key == 127) { // Touche Backspace (code ASCII 127)
+                pattern[cursor_pos.second][cursor_pos.first] = false;
+                std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
+            } else if (keyToSoundMap.count(key)) {
                 int soundIndex = keyToSoundMap[key];
                 drumData.player.triggerSound(drumData.sounds, drumData.currentSound, soundIndex);
 
