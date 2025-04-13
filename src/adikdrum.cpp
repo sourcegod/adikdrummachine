@@ -15,15 +15,20 @@
 #include <map>
 #include <termios.h>
 #include <unistd.h>
+
+#include <utility> // Pour utiliser std::pair
 #include "audiodriver.h" // Inclure le header de AudioDriver
 #include "soundfactory.h" // Inclure le header de SoundFactory
 #include "drumplayer.h"
 
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
+const int NUM_STEPS = 16;
+int current_step = 0;
+std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
+std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 
 // Mapping des touches et des sons
-
 std::map<char, int> keyToSoundMap = {
     {'q', 0}, {'s', 1}, {'d', 2}, {'f', 3},
     {'g', 4}, {'h', 5}, {'j', 6}, {'k', 7},
@@ -41,7 +46,9 @@ struct DrumMachineData {
     DrumMachineData() : player(NUM_SOUNDS), sounds(NUM_SOUNDS) {} // Utilisation de la constante ici aussi
 };
 
-
+void beep() {
+    std::cout << '\a' << std::flush;
+}
 
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
@@ -148,9 +155,49 @@ int main() {
         char key;
         while (read(STDIN_FILENO, &key, 1) == 1) {
             if (key == '\n') break;
+
             if (keyToSoundMap.count(key)) {
                 int soundIndex = keyToSoundMap[key];
                 drumData.player.triggerSound(drumData.sounds, drumData.currentSound, soundIndex);
+            } else if (key == '\033') { // Code d'échappement pour les séquences de touches spéciales (comme les flèches)
+                read(STDIN_FILENO, &key, 1); // Lit le caractère '['
+                read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
+                if (key == 'A') { // Flèche haut
+                    if (cursor_pos.second > 0) {
+                        cursor_pos.second--;
+                    } else {
+                        beep();
+                    }
+                    drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second);
+                    std::cout << "Cursor up, playing sound " << cursor_pos.second << std::endl;
+                } else if (key == 'B') { // Flèche bas
+                    if (cursor_pos.second < NUM_SOUNDS - 1) {
+                        cursor_pos.second++;
+                    } else {
+                        beep();
+                    }
+                    drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second);
+                    std::cout << "Cursor down, playing sound " << cursor_pos.second << std::endl;
+
+                } else if (key == 'C') { // Flèche droite
+                    if (cursor_pos.first < NUM_STEPS - 1) {
+                        cursor_pos.first++;
+                        std::cout << "Cursor right, step " << cursor_pos.first << std::endl;
+                    } else {
+                        beep();
+                        std::cout << "Reached the end (right)." << std::endl;
+                    }
+
+                } else if (key == 'D') { // Flèche gauche
+                    if (cursor_pos.first > 0) {
+                        cursor_pos.first--;
+                        std::cout << "Cursor left, step " << cursor_pos.first << std::endl;
+                    } else {
+                        beep();
+                        std::cout << "Reached the beginning (left)." << std::endl;
+                    }
+
+                }
             }
         }
         resetTermios(oldt);
