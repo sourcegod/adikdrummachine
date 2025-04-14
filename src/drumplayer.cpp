@@ -1,15 +1,32 @@
 #include "drumplayer.h"
 #include <cmath>
 
-DrumPlayer::DrumPlayer(int numSounds, int initialBpm)
+DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::vector<double>>& sounds)
     : playing(numSounds, false),
       isPlaying(false),
       currentStep(0),
       bpm(initialBpm),
-      sampleRate_(44100) // Initialise le sample rate (tu peux le passer en paramètre aussi)
+      sampleRate_(44100),
+      drumSounds_(sounds)
 {
+    currentSound_ = new std::vector<double>::iterator[numSounds];
+    for (int i = 0; i < numSounds; ++i) {
+        currentSound_[i] = drumSounds_[i].begin();
+    }
     setBpm(initialBpm);
 }
+
+DrumPlayer::~DrumPlayer() {
+    delete[] currentSound_;
+}
+
+void DrumPlayer::playSound(int soundIndex) {
+    if (soundIndex >= 0 && soundIndex < drumSounds_.size()) {
+        currentSound_[soundIndex] = drumSounds_[soundIndex].begin();
+        playing[soundIndex] = true;
+    }
+}
+
 
 void DrumPlayer::triggerSound(std::vector<std::vector<double>>& sounds, std::vector<double>::iterator currentSound[], int soundIndex) {
     if (soundIndex >= 0 && soundIndex < sounds.size()) {

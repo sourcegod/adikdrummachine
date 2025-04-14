@@ -11,15 +11,23 @@ public:
     int currentStep;
     int bpm;
     double secondsPerStep;
+    std::vector<std::vector<double>> drumSounds_; // Stocke la liste des sons
+    std::vector<double>::iterator* currentSound_; // Pointeur vers un tableau d'itérateurs
 
 
-    DrumPlayer(int numSounds, int initialBpm);
+    // DrumPlayer(int numSounds, int initialBpm);
+    DrumPlayer(int numSounds, int initialBpm, 
+        const std::vector<std::vector<double>>& sounds);
+
+    ~DrumPlayer();
+    void playSound(int soundIndex);
 
     void triggerSound(std::vector<std::vector<double>>& sounds, std::vector<double>::iterator currentSound[], int soundIndex);
     double softClip(double x);
     void setBpm(int newBpm);
 private:
     int sampleRate_; // Ajoute une variable pour stocker le sample rate (nécessaire pour setBpm)
+
 
 };
 

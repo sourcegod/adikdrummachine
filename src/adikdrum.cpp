@@ -41,13 +41,14 @@ std::map<char, int> keyToSoundMap = {
 };
 
 struct DrumMachineData {
-    std::vector<std::vector<double>> sounds;
-    std::vector<double>::iterator currentSound[NUM_SOUNDS]; // Utilisation de la constante
     DrumPlayer player;
     int sampleRate;
 
     // Ajoute ce constructeur !
-    DrumMachineData() : player(NUM_SOUNDS, 100), sounds(NUM_SOUNDS), sampleRate(44100) {}
+    // DrumMachineData() : player(NUM_SOUNDS, 100), sounds(NUM_SOUNDS), sampleRate(44100) {}
+    DrumMachineData(const std::vector<std::vector<double>>& sounds) 
+      : player(NUM_SOUNDS, 100, sounds), 
+      sampleRate(44100) {}
 
 };
 
@@ -73,7 +74,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
             for (int i = 0; i < NUM_SOUNDS; ++i) {
                 if (pattern[i][data->player.currentStep]) {
-                    data->player.triggerSound(data->sounds, data->currentSound, i);
+                    data->player.playSound(i); // Utilise l'index directement
+
                 }
             }
         }
@@ -81,14 +83,16 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
-        for (int j = 0; j < data->sounds.size(); ++j) {
-            if (data->player.playing[j] && data->currentSound[j] != data->sounds[j].end()) {
-                mixedSample += *data->currentSound[j];
-                data->currentSound[j]++;
+        for (int j = 0; j < NUM_SOUNDS; ++j) { // Utilise NUM_SOUNDS ici
+          if (data->player.playing[j] && data->player.currentSound_[j] != data->player.drumSounds_[j].end()) {
+              mixedSample += *data->player.currentSound_[j];
+              data->player.currentSound_[j]++;
+   
             } else {
                 data->player.playing[j] = false;
             }
         }
+
         *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
     }
 
@@ -97,7 +101,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     }
 
     // beep();
-    callbackCounter++;
+    // callbackCounter++;
     return paContinue;
 }
 
@@ -144,7 +148,7 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 int main() {
     AudioDriver audioDriver;
-    DrumMachineData drumData;
+    // DrumMachineData drumData;
 
     PaError err = audioDriver.initialize();
     if (err != paNoError) {
@@ -173,14 +177,8 @@ int main() {
         drumSounds[13] = soundFactory.generateTestTone(275.0); // Exemple pour HiTom
         drumSounds[14] = soundFactory.generateTestTone(660.0); // Exemple pour CowBell
         drumSounds[15] = soundFactory.generateTestTone(880.0); // Exemple pour Tambourine
-
-
-        drumData.sounds = drumSounds;
-        for (int i = 0; i < NUM_SOUNDS; ++i) {
-            drumData.currentSound[i] = drumData.sounds[i].begin();
-        }
-        drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second);
-
+      
+        DrumMachineData drumData(drumSounds); // Passe la liste des sons au constructeur
         drumData.sampleRate = sampleRate;
 
         err = audioDriver.openStream(sampleRate, drumMachineCallback, &drumData);
@@ -193,6 +191,8 @@ int main() {
         if (err != paNoError) {
             throw std::runtime_error("Erreur lors du démarrage du flux audio.");
         }
+        
+        /*
         std::cout << "Vérification de la fréquence du callback..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1)); // Attend une seconde
         std::cout << "Nombre d'appels du callback en 1 seconde : " << callbackCounter << std::endl;
@@ -200,13 +200,15 @@ int main() {
         // audioDriver.stopStream();
         // Réinitialise le compteur pour une prochaine vérification si tu le souhaites
         // callbackCounter = 0;
+        */
 
 
         std::cout << "Test des sons refactorisés avec AudioDriver..." << std::endl;
         for (int i = 0; i < NUM_SOUNDS; ++i) {
-            drumData.player.triggerSound(drumData.sounds, drumData.currentSound, i);
-            Pa_Sleep(static_cast<int>(drumData.sounds[i].size() * 1000.0 / sampleRate * 0.8));
+            drumData.player.playSound(i);
+            Pa_Sleep(static_cast<int>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8));
         }
+
 
         std::cout << "\nAdik Drum Machine interactive! Appuyez sur les touches q, s, d, f, g, h, j, k pour jouer les sons." << std::endl;
         std::cout << "Appuyez sur Entrée pour arrêter." << std::endl;
@@ -221,7 +223,7 @@ int main() {
             if (key == '\n') { // Touche Enter
                 pattern[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
                 std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " activated and playing." << std::endl;
-                drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second); // Joue le son
+                drumData.player.playSound(cursor_pos.second); // Utilise l'index directement
 
             } else if (key == 127) { // Touche Backspace (code ASCII 127)
                 pattern[cursor_pos.second][cursor_pos.first] = false;
@@ -249,7 +251,7 @@ int main() {
 
             } else if (keyToSoundMap.count(key)) {
                 int soundIndex = keyToSoundMap[key];
-                drumData.player.triggerSound(drumData.sounds, drumData.currentSound, soundIndex);
+                drumData.player.playSound(soundIndex); // Utilise l'index directement
 
             } else if (key == '\033') { // Code d'échappement pour les séquences de touches spéciales (comme les flèches)
                 read(STDIN_FILENO, &key, 1); // Lit le caractère '['
@@ -262,7 +264,7 @@ int main() {
                     } else {
                         beep();
                     }
-                    drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second);
+                    drumData.player.playSound(cursor_pos.second); // Utilise l'index directement
                     std::cout << "Cursor up, playing sound " << cursor_pos.second << std::endl;
                 } else if (key == 'B') { // Flèche bas
                     if (cursor_pos.second < NUM_SOUNDS - 1) {
@@ -271,7 +273,7 @@ int main() {
                     } else {
                         beep();
                     }
-                    drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second);
+                    drumData.player.playSound(cursor_pos.second); // Utilise l'index directement
                     std::cout << "Cursor down, playing sound " << cursor_pos.second << std::endl;
 
                 } else if (key == 'C') { // Flèche droite
