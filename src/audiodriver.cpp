@@ -40,7 +40,7 @@ PaError AudioDriver::openStream(int sampleRate, PaStreamCallback* callback, void
         nullptr, // no input
         &outputParameters,
         sampleRate,
-        256, // framesPerBuffer
+        128, // framesPerBuffer
         paClipOff,
         callback,
         userData);

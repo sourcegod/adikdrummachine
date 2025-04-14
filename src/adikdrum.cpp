@@ -15,8 +15,12 @@
 #include <map>
 #include <termios.h>
 #include <unistd.h>
-
 #include <utility> // Pour utiliser std::pair
+
+// for performance checking
+#include <chrono>
+#include <thread>
+
 #include "audiodriver.h" // Inclure le header de AudioDriver
 #include "soundfactory.h" // Inclure le header de SoundFactory
 #include "drumplayer.h"
@@ -26,6 +30,7 @@ const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
 const int NUM_STEPS = 16;
 std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
 std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
+volatile int callbackCounter =0;
 
 // Mapping des touches et des sons
 std::map<char, int> keyToSoundMap = {
@@ -91,6 +96,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         frameCounter += framesPerBuffer;
     }
 
+    // beep();
+    callbackCounter++;
     return paContinue;
 }
 
@@ -186,6 +193,14 @@ int main() {
         if (err != paNoError) {
             throw std::runtime_error("Erreur lors du démarrage du flux audio.");
         }
+        std::cout << "Vérification de la fréquence du callback..." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Attend une seconde
+        std::cout << "Nombre d'appels du callback en 1 seconde : " << callbackCounter << std::endl;
+
+        // audioDriver.stopStream();
+        // Réinitialise le compteur pour une prochaine vérification si tu le souhaites
+        // callbackCounter = 0;
+
 
         std::cout << "Test des sons refactorisés avec AudioDriver..." << std::endl;
         for (int i = 0; i < NUM_SOUNDS; ++i) {
@@ -198,7 +213,7 @@ int main() {
 
         termios oldt = initTermios(0);
 
-        displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+        // displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
         char key;
         while (read(STDIN_FILENO, &key, 1) == 1) {
             if (key == 'X') break;
@@ -281,6 +296,9 @@ int main() {
 
                 }
             }
+        
+          // beep();
+        
         }
         resetTermios(oldt);
 
