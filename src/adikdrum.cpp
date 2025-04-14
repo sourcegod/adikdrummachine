@@ -24,7 +24,6 @@
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
 const int NUM_STEPS = 16;
-int current_step = 0;
 std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
 std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 
@@ -43,7 +42,8 @@ struct DrumMachineData {
     int sampleRate;
 
     // Ajoute ce constructeur !
-    DrumMachineData() : player(NUM_SOUNDS), sounds(NUM_SOUNDS) {} // Utilisation de la constante ici aussi
+    DrumMachineData() : player(NUM_SOUNDS, 100), sounds(NUM_SOUNDS), sampleRate(44100) {}
+
 };
 
 void beep() {
@@ -57,6 +57,22 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              void* userData) {
     DrumMachineData* data = static_cast<DrumMachineData*>(userData);
     float* out = static_cast<float*>(outputBuffer);
+    static unsigned long frameCounter = 0;
+
+    if (data->player.isPlaying) {
+        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player.secondsPerStep);
+
+        if (frameCounter >= samplesPerStep) {
+            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
+            frameCounter = 0;
+
+            for (int i = 0; i < NUM_SOUNDS; ++i) {
+                if (pattern[i][data->player.currentStep]) {
+                    data->player.triggerSound(data->sounds, data->currentSound, i);
+                }
+            }
+        }
+    }
 
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
@@ -70,9 +86,13 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         }
         *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
     }
+
+    if (data->player.isPlaying) {
+        frameCounter += framesPerBuffer;
+    }
+
     return paContinue;
 }
-
 
 // Fonction pour initialiser le terminal
 termios initTermios(int echo) {
@@ -91,28 +111,6 @@ termios initTermios(int echo) {
 void resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
-/*
-void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
-    // std::cout << "\033[2J\033[H"; // pour effacer l'écran du terminal
-    std::cout << "  ";
-    for (int i = 0; i < NUM_STEPS; ++i) {
-        std::cout << (i + 1) % 10 << " "; // Affiche les numéros de pas de 1 à 16 (modulo 10)
-    }
-    std::cout << std::endl;
-    for (int i = 0; i < NUM_SOUNDS; ++i) {
-        std::cout << (i + 1) % 10 << " "; // Affiche les numéros de son de 1 à 16 (modulo 10)
-        for (int j = 0; j < NUM_STEPS; ++j) {
-            if (cursor.first == j && cursor.second == i) {
-                std::cout << "x "; // Affiche 'x' à la position du curseur
-            } else {
-                std::cout << "- "; // Affiche '-' pour les autres cases
-            }
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-*/
 
 void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
     // std::cout << "\033[2J\033[H";
@@ -139,6 +137,8 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 int main() {
     AudioDriver audioDriver;
+    DrumMachineData drumData;
+
     PaError err = audioDriver.initialize();
     if (err != paNoError) {
         return 1;
@@ -168,12 +168,12 @@ int main() {
         drumSounds[15] = soundFactory.generateTestTone(880.0); // Exemple pour Tambourine
 
 
-        DrumMachineData drumData;
         drumData.sounds = drumSounds;
         for (int i = 0; i < NUM_SOUNDS; ++i) {
             drumData.currentSound[i] = drumData.sounds[i].begin();
         }
-        drumData.player = DrumPlayer(NUM_SOUNDS); // Initialiser DrumPlayer avec le nombre de sons
+        drumData.player.triggerSound(drumData.sounds, drumData.currentSound, cursor_pos.second);
+
         drumData.sampleRate = sampleRate;
 
         err = audioDriver.openStream(sampleRate, drumMachineCallback, &drumData);
@@ -211,6 +211,27 @@ int main() {
             } else if (key == 127) { // Touche Backspace (code ASCII 127)
                 pattern[cursor_pos.second][cursor_pos.first] = false;
                 std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
+            } else if (key == ' ') { // Touche Espace
+                drumData.player.isPlaying = !drumData.player.isPlaying;
+                std::cout << "Play: " << (drumData.player.isPlaying ? "ON" : "OFF") << std::endl;
+
+            } else if (key == '(') {
+                if (drumData.player.bpm > 5) {
+                    drumData.player.setBpm(drumData.player.bpm - 5);
+                    std::cout << "BPM decreased to " << drumData.player.bpm << std::endl;
+                } else {
+                    beep();
+                    std::cout << "Minimum BPM reached." << std::endl;
+                }
+            } else if (key == ')') {
+                if (drumData.player.bpm < 800) {
+                    drumData.player.setBpm(drumData.player.bpm + 5);
+                    std::cout << "BPM increased to " << drumData.player.bpm << std::endl;
+                } else {
+                    beep();
+                    std::cout << "Maximum BPM reached." << std::endl;
+                }
+
             } else if (keyToSoundMap.count(key)) {
                 int soundIndex = keyToSoundMap[key];
                 drumData.player.triggerSound(drumData.sounds, drumData.currentSound, soundIndex);
