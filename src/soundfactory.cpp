@@ -47,6 +47,17 @@ std::vector<double> SoundFactory::generateTestTone(double frequency) {
     return generator.generateSineWave(frequency, sampleRate, defaultDuration, 0.4);
 }
 
+std::vector<double> SoundFactory::generateBuzzer(double frequency, int durationMs) {
+    std::vector<double> sound(static_cast<int>(sampleRate * durationMs / 1000.0));
+    double amplitude = 0.2;
+    for (size_t i = 0; i < sound.size(); ++i) {
+        double time = static_cast<double>(i) / sampleRate;
+        sound[i] = amplitude * sin(2.0 * M_PI * frequency * time);
+    }
+    return sound;
+}
+
+ 
 std::vector<double> SoundFactory::applyEnvelope(std::vector<double> wave, double decayRate) {
     for (size_t i = 0; i < wave.size(); ++i) {
         double time = static_cast<double>(i) / sampleRate;

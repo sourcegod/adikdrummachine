@@ -47,7 +47,7 @@ struct DrumMachineData {
     // Ajoute ce constructeur !
     // DrumMachineData() : player(NUM_SOUNDS, 100), sounds(NUM_SOUNDS), sampleRate(44100) {}
     DrumMachineData(const std::vector<std::vector<double>>& sounds) 
-      : player(NUM_SOUNDS, 100, sounds), 
+      : player(NUM_SOUNDS +2, 100, sounds), 
       sampleRate(44100) {}
 
 };
@@ -71,6 +71,11 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         if (frameCounter >= samplesPerStep) {
             data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
             frameCounter = 0;
+            // beep();
+            // Jouer le métronome seulement tous les 4 pas
+            if (data->player.currentStep % 4 == 0) {
+                data->player.playMetronome();
+            }
 
             for (int i = 0; i < NUM_SOUNDS; ++i) {
                 if (pattern[i][data->player.currentStep]) {
@@ -83,7 +88,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
-        for (int j = 0; j < NUM_SOUNDS; ++j) { // Utilise NUM_SOUNDS ici
+        for (int j = 0; j < NUM_SOUNDS +2; ++j) { // Utilise NUM_SOUNDS ici
           if (data->player.playing[j] && data->player.currentSound_[j] != data->player.drumSounds_[j].end()) {
               mixedSample += *data->player.currentSound_[j];
               data->player.currentSound_[j]++;
@@ -159,7 +164,8 @@ int main() {
         int sampleRate = 44100;
         double defaultDuration = 0.5;
         SoundFactory soundFactory(sampleRate, defaultDuration);
-        std::vector<std::vector<double>> drumSounds(NUM_SOUNDS);
+        std::vector<std::vector<double>> drumSounds(NUM_SOUNDS + 2); // +2 pour les sons du métronome
+
         // ... (génération des sons) ...
         drumSounds[0] = soundFactory.generateKick();
         drumSounds[1] = soundFactory.generateSnare();
@@ -177,7 +183,12 @@ int main() {
         drumSounds[13] = soundFactory.generateTestTone(275.0); // Exemple pour HiTom
         drumSounds[14] = soundFactory.generateTestTone(660.0); // Exemple pour CowBell
         drumSounds[15] = soundFactory.generateTestTone(880.0); // Exemple pour Tambourine
-      
+        
+        // Générer les sons du métronome
+        drumSounds[16] = soundFactory.generateBuzzer(880.0, 50); // Son aigu
+        drumSounds[17] = soundFactory.generateBuzzer(440.0, 50); // Son grave
+
+
         DrumMachineData drumData(drumSounds); // Passe la liste des sons au constructeur
         drumData.sampleRate = sampleRate;
 
@@ -204,7 +215,7 @@ int main() {
 
 
         std::cout << "Test des sons refactorisés avec AudioDriver..." << std::endl;
-        for (int i = 0; i < NUM_SOUNDS; ++i) {
+        for (int i = 0; i < NUM_SOUNDS +2; ++i) {
             drumData.player.playSound(i);
             Pa_Sleep(static_cast<int>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8));
         }

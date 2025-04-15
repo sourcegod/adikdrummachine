@@ -15,6 +15,7 @@ public:
     std::vector<double> generateHiHat(double durationScale = 0.25);
     std::vector<double> generateCymbal(double durationScale = 3.0);
     std::vector<double> generateTestTone(double frequency);
+    std::vector<double> generateBuzzer(double frequency, int durationMs); // Nouvelle fonction
 
 private:
     SoundGenerator generator;
