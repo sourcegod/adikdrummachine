@@ -27,11 +27,12 @@ void DrumPlayer::playSound(int soundIndex) {
     }
 }
 
+void DrumPlayer::stopAllSounds() {
+    isPlaying = false;
+    currentStep = 0; 
 
-void DrumPlayer::triggerSound(std::vector<std::vector<double>>& sounds, std::vector<double>::iterator currentSound[], int soundIndex) {
-    if (soundIndex >= 0 && soundIndex < sounds.size()) {
-        currentSound[soundIndex] = sounds[soundIndex].begin();
-        playing[soundIndex] = true;
+    for (int i = 0; i < playing.size(); ++i) {
+        playing[i] = false;
     }
 }
 

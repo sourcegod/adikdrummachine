@@ -15,14 +15,11 @@ public:
     std::vector<double>::iterator* currentSound_; // Pointeur vers un tableau d'itérateurs
 
 
-    // DrumPlayer(int numSounds, int initialBpm);
     DrumPlayer(int numSounds, int initialBpm, 
         const std::vector<std::vector<double>>& sounds);
-
     ~DrumPlayer();
     void playSound(int soundIndex);
-
-    void triggerSound(std::vector<std::vector<double>>& sounds, std::vector<double>::iterator currentSound[], int soundIndex);
+    void stopAllSounds();
     double softClip(double x);
     void setBpm(int newBpm);
 private:

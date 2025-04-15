@@ -231,6 +231,9 @@ int main() {
             } else if (key == ' ') { // Touche Espace
                 drumData.player.isPlaying = !drumData.player.isPlaying;
                 std::cout << "Play: " << (drumData.player.isPlaying ? "ON" : "OFF") << std::endl;
+            } else if (key == 'v') {
+                drumData.player.stopAllSounds();
+                std::cout << "All sounds stopped." << std::endl;
 
             } else if (key == '(') {
                 if (drumData.player.bpm > 5) {
