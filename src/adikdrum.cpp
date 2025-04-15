@@ -64,28 +64,46 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     DrumMachineData* data = static_cast<DrumMachineData*>(userData);
     float* out = static_cast<float*>(outputBuffer);
     static unsigned long frameCounter = 0;
+    unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player.secondsPerStep);
 
     if (data->player.isPlaying) {
-        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player.secondsPerStep);
-
         if (frameCounter >= samplesPerStep) {
-            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
             frameCounter = 0;
+            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
             // beep();
+            // sychronize with the metronome
+            data->player.clickStep = data->player.currentStep;
             // Jouer le métronome seulement tous les 4 pas
-            if (data->player.currentStep % 4 == 0) {
+            if (data->player.isClicking && data->player.clickStep % 4 == 0) {
                 data->player.playMetronome();
             }
 
+            // play pattern
             for (int i = 0; i < NUM_SOUNDS; ++i) {
                 if (pattern[i][data->player.currentStep]) {
                     data->player.playSound(i); // Utilise l'index directement
 
                 }
+
             }
+
+        }
+
+    } else if (data->player.isClicking) {
+        if (frameCounter >= samplesPerStep) {
+            frameCounter = 0;
+            // Jouer le métronome seulement tous les 4 pas
+            if (data->player.clickStep % 4 == 0) {
+                data->player.playMetronome();
+            }
+            data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
+
+    
         }
     }
 
+
+    // mixer les sons
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
         for (int j = 0; j < NUM_SOUNDS +2; ++j) { // Utilise NUM_SOUNDS ici
@@ -101,7 +119,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
     }
 
-    if (data->player.isPlaying) {
+    if (data->player.isPlaying || data->player.isClicking) {
         frameCounter += framesPerBuffer;
     }
 
@@ -245,7 +263,9 @@ int main() {
             } else if (key == 'v') {
                 drumData.player.stopAllSounds();
                 std::cout << "All sounds stopped." << std::endl;
-
+            } else if (key == 'c') {
+                drumData.player.isClicking = !drumData.player.isClicking;
+                std::cout << "Metronome: " << (drumData.player.isClicking ? "ON" : "OFF") << std::endl;
             } else if (key == '(') {
                 if (drumData.player.bpm > 5) {
                     drumData.player.setBpm(drumData.player.bpm - 5);

@@ -8,11 +8,13 @@ public:
 
     std::vector<bool> playing;
     bool isPlaying;
+    bool isClicking; // Nouvelle variable pour activer/désactiver le métronome
     int currentStep;
     int bpm;
     double secondsPerStep;
     std::vector<std::vector<double>> drumSounds_; // Stocke la liste des sons
     std::vector<double>::iterator* currentSound_; // Pointeur vers un tableau d'itérateurs
+    int clickStep; // Nouvelle variable pour le pas du métronome
 
 
     DrumPlayer(int numSounds, int initialBpm, 
