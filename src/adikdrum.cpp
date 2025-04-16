@@ -229,10 +229,10 @@ int main() {
         */
 
 
-        std::cout << "Test des sons refactorisés avec AudioDriver..." << std::endl;
-        for (int i = 0; i < NUM_SOUNDS +2; ++i) {
+        for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
             drumData.player.playSound(i);
-            Pa_Sleep(static_cast<int>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8));
+            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
         }
 
 
