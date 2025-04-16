@@ -172,15 +172,6 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 int main() {
     AudioDriver audioDriver;
-    // DrumMachineData drumData;
-
-    /*
-    PaError err = audioDriver.initialize();
-    if (err != paNoError) {
-        return 1;
-    }
-    */
-
 
     try {
         int sampleRate = 44100;
@@ -211,7 +202,6 @@ int main() {
         drumSounds[17] = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
 
-        // DrumMachineData drumData(drumSounds); // Passe la liste des sons au constructeur
         DrumMachineData drumData(drumSounds, NUM_STEPS);
         drumData.sampleRate = sampleRate;
         drumData.player.pattern_ = pattern; // Assign the global pattern to the player
@@ -226,20 +216,6 @@ int main() {
             audioDriver.stopAudioDriver();
             return 1;
         }
-
-
-        /*
-        err = audioDriver.openStream(sampleRate, drumMachineCallback, &drumData);
-        if (err != paNoError) {
-            throw std::runtime_error("Erreur lors de l'ouverture du flux audio.");
-        }
-
-
-        err = audioDriver.startStream();
-        if (err != paNoError) {
-            throw std::runtime_error("Erreur lors du démarrage du flux audio.");
-        }
-        */
 
         
         /*
@@ -358,19 +334,12 @@ int main() {
         
         }
         resetTermios(oldt);
-        
         audioDriver.stopAudioDriver();
-        
-        /*
-        audioDriver.stopStream();
-        audioDriver.closeStream();
-        */
 
     } catch (const std::runtime_error& e) {
         std::cerr << "Erreur: " << e.what() << std::endl;
     }
 
-    // audioDriver.terminate();
     return 0;
 }
 

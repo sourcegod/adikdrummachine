@@ -8,12 +8,6 @@ public:
     AudioDriver();
     ~AudioDriver();
 
-    PaError initialize();
-    PaError openStream(int sampleRate, PaStreamCallback* callback, void* userData);
-    PaError startStream();
-    PaError stopStream();
-    PaError closeStream();
-    PaError terminate();
     bool initAudioDriver(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer);
     bool startAudioDriver();
     bool stopAudioDriver();
@@ -21,7 +15,6 @@ public:
 
 private:
     PaStream* stream_;
-    bool is_initialized_;
     PaError lastError_;
 
 };
