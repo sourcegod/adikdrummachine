@@ -2,7 +2,7 @@
 #include <cmath>
 //
 //
-
+/*
 DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::vector<double>>& sounds)
     : playing(numSounds, false),
       isPlaying(false),
@@ -22,6 +22,29 @@ DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::vec
     }
     setBpm(initialBpm);
 }
+*/
+
+DrumPlayer::DrumPlayer(int numSounds, int initialBpm, 
+    const std::vector<std::vector<double>>& sounds, 
+    int numSteps)
+    : playing(numSounds + 2, false),
+      isPlaying(false),
+      isClicking(false),
+      currentStep(0),
+      bpm(initialBpm),
+      drumSounds_(sounds),
+      clickStep(0),
+      pattern_(numSounds, std::vector<bool>(numSteps, false)), // Initialise le pattern
+      numSteps_(numSteps),
+      beatCounter_(0)
+{
+    currentSound_ = new std::vector<double>::iterator[numSounds + 2];
+    for (int i = 0; i < numSounds + 2; ++i) {
+        currentSound_[i] = drumSounds_[i].begin();
+    }
+    setBpm(initialBpm);
+}
+
 
 DrumPlayer::~DrumPlayer() {
     delete[] currentSound_;
@@ -51,6 +74,7 @@ void DrumPlayer::playMetronome() {
     if (isPlaying && currentStep  == 0) {
        beatCounter_ =0;
     }
+
     if (beatCounter_ % 4 == 0) { // Jouer au début de chaque temps (tous les 4 pas)
         currentSound_[16] = drumSounds_[16].begin();
         playing[16] = true;
@@ -61,9 +85,13 @@ void DrumPlayer::playMetronome() {
     beatCounter_ = (beatCounter_ + 1) % 4; // Incrémente et boucle de 0 à 3
 
 }
-
-
-
+void DrumPlayer::playPattern() {
+    for (int i = 0; i < drumSounds_.size() - 2; ++i) { // Exclude metronome sounds
+        if (pattern_[i][currentStep]) {
+            playSound(i);
+        }
+    }
+}
 
 double DrumPlayer::softClip(double x) {
     return tanh(x);

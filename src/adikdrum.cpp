@@ -27,7 +27,7 @@
 
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
-const int NUM_STEPS = 16;
+int NUM_STEPS = 16;
 std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
 std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 volatile int callbackCounter =0;
@@ -45,10 +45,20 @@ struct DrumMachineData {
     int sampleRate;
 
     // Ajoute ce constructeur !
+    
     // DrumMachineData() : player(NUM_SOUNDS, 100), sounds(NUM_SOUNDS), sampleRate(44100) {}
-    DrumMachineData(const std::vector<std::vector<double>>& sounds) 
-      : player(NUM_SOUNDS +2, 100, sounds), 
+    DrumMachineData(const std::vector<std::vector<double>>& sounds, int numSteps) 
+      : player(NUM_SOUNDS +2, 100, sounds, NUM_STEPS), 
       sampleRate(44100) {}
+    
+
+    /*
+    DrumMachineData(const std::vector<std::vector<double>>& sounds, 
+        int sr, int numSteps)
+        : player(NUM_SOUNDS, 100, 
+            sounds, sr, numSteps), sampleRate(sr) {}
+            */
+
 
 };
 
@@ -66,9 +76,10 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     static unsigned long frameCounter = 0;
     unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player.secondsPerStep);
 
-    if (data->player.isPlaying) {
-        if (frameCounter >= samplesPerStep) {
-            frameCounter = 0;
+    if (frameCounter >= samplesPerStep) {
+        frameCounter = 0;
+        
+        if (data->player.isPlaying) {
             data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
             // beep();
             // sychronize with the metronome
@@ -79,27 +90,17 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
             }
 
             // play pattern
-            for (int i = 0; i < NUM_SOUNDS; ++i) {
-                if (pattern[i][data->player.currentStep]) {
-                    data->player.playSound(i); // Utilise l'index directement
+            data->player.playPattern(); // Call playPattern here
 
-                }
-
-            }
-
-        }
-
-    } else if (data->player.isClicking) {
-        if (frameCounter >= samplesPerStep) {
-            frameCounter = 0;
+        } else if (data->player.isClicking) {
             // Jouer le métronome seulement tous les 4 pas
             if (data->player.clickStep % 4 == 0) {
                 data->player.playMetronome();
             }
             data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
 
-    
         }
+    
     }
 
 
@@ -207,8 +208,10 @@ int main() {
         drumSounds[17] = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
 
-        DrumMachineData drumData(drumSounds); // Passe la liste des sons au constructeur
+        // DrumMachineData drumData(drumSounds); // Passe la liste des sons au constructeur
+        DrumMachineData drumData(drumSounds, NUM_STEPS);
         drumData.sampleRate = sampleRate;
+        drumData.player.pattern_ = pattern; // Assign the global pattern to the player
 
         err = audioDriver.openStream(sampleRate, drumMachineCallback, &drumData);
         if (err != paNoError) {
@@ -250,12 +253,12 @@ int main() {
             if (key == 'X') break;
 
             if (key == '\n') { // Touche Enter
-                pattern[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
+                drumData.player.pattern_[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
                 std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " activated and playing." << std::endl;
                 drumData.player.playSound(cursor_pos.second); // Utilise l'index directement
 
             } else if (key == 127) { // Touche Backspace (code ASCII 127)
-                pattern[cursor_pos.second][cursor_pos.first] = false;
+                drumData.player.pattern_[cursor_pos.second][cursor_pos.first] = false;
                 std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
             } else if (key == ' ') { // Touche Espace
                 drumData.player.isPlaying = !drumData.player.isPlaying;

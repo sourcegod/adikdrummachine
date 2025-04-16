@@ -15,14 +15,16 @@ public:
     std::vector<std::vector<double>> drumSounds_; // Stocke la liste des sons
     std::vector<double>::iterator* currentSound_; // Pointeur vers un tableau d'itérateurs
     int clickStep; // Nouvelle variable pour le pas du métronome
-
+    std::vector<std::vector<bool>> pattern_; // Le pattern stocké dans la classe
+    int numSteps_; // Nombre de pas dans le pattern
 
     DrumPlayer(int numSounds, int initialBpm, 
-        const std::vector<std::vector<double>>& sounds);
+        const std::vector<std::vector<double>>& sounds, int numSteps);
     ~DrumPlayer();
     void playSound(int soundIndex);
     void stopAllSounds();
     void playMetronome(); // Nouvelle fonction pour jouer le métronome
+    void playPattern(); // Nouvelle fonction pour démarrer la lecture du pattern
 
     double softClip(double x);
     void setBpm(int newBpm);
