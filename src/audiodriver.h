@@ -14,10 +14,16 @@ public:
     PaError stopStream();
     PaError closeStream();
     PaError terminate();
+    bool initAudioDriver(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer);
+    bool startAudioDriver();
+    bool stopAudioDriver();
+    bool closeAudioDriver(); // Nouvelle fonction
 
 private:
     PaStream* stream_;
     bool is_initialized_;
+    PaError lastError_;
+
 };
 
 #endif // AUDIODRIVER_H
