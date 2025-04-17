@@ -4,9 +4,11 @@
 #include <vector>
 #include <array> // Pour une taille fixe de canaux
 
+class DrumPlayer; // Forward declaration
+
 class AudioMixer {
 public:
-    AudioMixer(int numChannels);
+    AudioMixer(int numChannels, DrumPlayer& player);
     ~AudioMixer();
 
     void play(int channel, int soundIndex);
@@ -15,6 +17,7 @@ public:
     void setVolume(int channel, float volume);
     float getVolume(int channel) const;
     bool isChannelActive(int channel) const;
+    int getSoundIndex(int channel) const; // Nouvelle fonction
 
 private:
     struct ChannelInfo {
@@ -25,6 +28,7 @@ private:
     };
 
     std::array<ChannelInfo, 17> channels_; // 17 canaux audio
+    DrumPlayer& player_; // Référence au DrumPlayer
     static const int metronomeChannel_ = 0; // Canal réservé au métronome (par exemple)
 };
 

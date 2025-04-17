@@ -24,6 +24,7 @@
 #include "audiodriver.h" // Inclure le header de AudioDriver
 #include "soundfactory.h" // Inclure le header de SoundFactory
 #include "drumplayer.h"
+#include "audiomixer.h"
 
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
@@ -43,23 +44,12 @@ std::map<char, int> keyToSoundMap = {
 struct DrumMachineData {
     DrumPlayer player;
     int sampleRate;
-
-    // Ajoute ce constructeur !
-    
-    // DrumMachineData() : player(NUM_SOUNDS, 100), sounds(NUM_SOUNDS), sampleRate(44100) {}
+    AudioMixer mixer; // Ajoute l'AudioMixer ici
+                                                                 //
     DrumMachineData(const std::vector<std::vector<double>>& sounds, int numSteps) 
       : player(NUM_SOUNDS +2, 100, sounds, NUM_STEPS), 
-      sampleRate(44100) {}
+        sampleRate(44100), mixer(17, player) {}
     
-
-    /*
-    DrumMachineData(const std::vector<std::vector<double>>& sounds, 
-        int sr, int numSteps)
-        : player(NUM_SOUNDS, 100, 
-            sounds, sr, numSteps), sampleRate(sr) {}
-            */
-
-
 };
 
 void beep() {
@@ -86,24 +76,61 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
             data->player.clickStep = data->player.currentStep;
             // Jouer le métronome seulement tous les 4 pas
             if (data->player.isClicking && data->player.clickStep % 4 == 0) {
-                data->player.playMetronome();
+                // data->player.playMetronome();
+                data->mixer.play(0, NUM_SOUNDS); // Canal 0 pour le son aigu du métronome
             }
 
             // play pattern
-            data->player.playPattern(); // Call playPattern here
-
+            // data->player.playPattern(); // Call playPattern here
+            for (int i = 0; i < NUM_SOUNDS; ++i) {
+                if (data->player.pattern_[i][data->player.currentStep]) {
+                    data->mixer.play(i + 1, i); // Canaux 1 à NUM_SOUNDS pour les sons du pattern
+                }
+            }
         } else if (data->player.isClicking) {
             // Jouer le métronome seulement tous les 4 pas
             if (data->player.clickStep % 4 == 0) {
-                data->player.playMetronome();
+                // data->player.playMetronome();
+                data->mixer.play(0, NUM_SOUNDS + 1); // Canal 0 pour le son grave du métronome
+
             }
             data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
 
         }
     
     }
+    
+
+    // /*
+    // Mixer les sons
+    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+        double mixedSample = 0.0;
+        for (int channel = 0; channel < 17; ++channel) {
+            if (data->mixer.isChannelActive(channel)) {
+                int soundIndex = data->mixer.getSoundIndex(channel); // Utilise la nouvelle fonction
+                float volume = data->mixer.getVolume(channel);
+                std::cout << "Canal " << channel << " actif, volume = " << volume << std::endl; // Ajoute cette ligne temporairement
+
+                if (soundIndex >= 0 && soundIndex < NUM_SOUNDS + 2) {
+                    if (data->player.playing[soundIndex] && data->player.currentSound_[soundIndex] != data->player.drumSounds_[soundIndex].end()) {
+                        mixedSample += (*data->player.currentSound_[soundIndex] * volume);
+                        data->player.currentSound_[soundIndex]++;
+                        std::cout << "je passe ici avec i: " << i << "et soundIndex: " << soundIndex << std::endl;
+                    } else {
+                        data->player.playing[soundIndex] = false;
+                        data->mixer.stop(channel); // Arrêter le canal quand le son est fini
+                    }
+                }
+            }
+        }
+        *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
+    }
+    // */
 
 
+
+
+    /*
     // mixer les sons
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
@@ -119,6 +146,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
         *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
     }
+    */
+
 
     if (data->player.isPlaying || data->player.isClicking) {
         frameCounter += framesPerBuffer;
@@ -229,11 +258,28 @@ int main() {
         */
 
 
+        // Tester les sons
+    for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
+        int channelToUse = i; // Utilise l'index du son comme index de canal (0 à 17)
+        if (channelToUse < 17) { // Vérifie que l'index du canal est valide
+          // drumData.player.playing[i] = true;  
+          drumData.mixer.play(channelToUse, i);
+            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
+            drumData.mixer.stop(channelToUse);
+        } else {
+            std::cerr << "Erreur : Tentative d'utiliser un canal invalide pour le son " << i << std::endl;
+        }
+    }
+
+        /*
         for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
             drumData.player.playSound(i);
             long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
         }
+        */
+
 
 
         std::cout << "\nAdik Drum Machine interactive! Appuyez sur les touches q, s, d, f, g, h, j, k pour jouer les sons." << std::endl;
