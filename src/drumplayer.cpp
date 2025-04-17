@@ -1,94 +1,65 @@
 #include "drumplayer.h"
+#include "audiosound.h"
 #include <cmath>
-//
-//
-/*
-DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::vector<double>>& sounds)
-    : playing(numSounds, false),
-      isPlaying(false),
-      isClicking(false), // Initialise isClicking à false (désactivé par défaut)
-      currentStep(0),
-      bpm(initialBpm),
-      sampleRate_(44100),
-      drumSounds_(sounds),
-      isFirstBeat_(true),
-      beatCounter_(0), // Initialise beatCounter à 0
-      clickStep(0) // Initialise metronomeStep à 0
+#include <vector>
+#include <iostream>
+#include <memory>
 
-{
-    currentSound_ = new std::vector<double>::iterator[numSounds];
-    for (int i = 0; i < numSounds; ++i) {
-        currentSound_[i] = drumSounds_[i].begin();
-    }
-    setBpm(initialBpm);
-}
-*/
-
-DrumPlayer::DrumPlayer(int numSounds, int initialBpm, 
-    const std::vector<std::vector<double>>& sounds, 
-    int numSteps)
-    : playing(numSounds + 2, false),
-      isPlaying(false),
+DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
+    : isPlaying(false),
       isClicking(false),
       currentStep(0),
       bpm(initialBpm),
       drumSounds_(sounds),
       clickStep(0),
-      pattern_(numSounds, std::vector<bool>(numSteps, false)), // Initialise le pattern
+      pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
+      sampleRate_(44100),
       beatCounter_(0)
 {
-    currentSound_ = new std::vector<double>::iterator[numSounds + 2];
-    for (int i = 0; i < numSounds + 2; ++i) {
-        currentSound_[i] = drumSounds_[i].begin();
-    }
     setBpm(initialBpm);
 }
 
-
 DrumPlayer::~DrumPlayer() {
-    delete[] currentSound_;
+    // Les shared_ptr se chargeront de la gestion de la durée de vie des AudioSound
 }
 
 void DrumPlayer::playSound(int soundIndex) {
-    if (soundIndex >= 0 && soundIndex < drumSounds_.size()) {
-        currentSound_[soundIndex] = drumSounds_[soundIndex].begin();
-        playing[soundIndex] = true;
+    if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
+        drumSounds_[soundIndex]->setActive(true);
+        drumSounds_[soundIndex]->resetPlayhead();
     }
 }
 
 void DrumPlayer::stopAllSounds() {
-    isPlaying = false;
-    isClicking = false; // Réinitialise aussi l'état du métronome
-    currentStep = 0; 
-    isFirstBeat_ = true; // Réinitialiser pour le prochain démarrage
-    beatCounter_ = 0; // Réinitialise aussi le compteur de temps
-    clickStep = 0; // Réinitialise aussi le pas du métronome
-
-    for (int i = 0; i < playing.size(); ++i) {
-        playing[i] = false;
+    for (const auto& sound : drumSounds_) {
+        if (sound) {
+            sound->setActive(false);
+        }
     }
+    isPlaying = false;
+    isClicking = false;
+    currentStep = 0;
+    clickStep = 0;
+    beatCounter_ = 0;
 }
 
 void DrumPlayer::playMetronome() {
-    if (isPlaying && currentStep  == 0) {
-       beatCounter_ =0;
+    if (clickStep % 4 == 0 && drumSounds_.size() > 16 && drumSounds_[16]) {
+        drumSounds_[16]->setActive(true);
+        drumSounds_[16]->resetPlayhead();
+    } else if (drumSounds_.size() > 17 && drumSounds_[17]) {
+        drumSounds_[17]->setActive(true);
+        drumSounds_[17]->resetPlayhead();
     }
-
-    if (beatCounter_ % 4 == 0) { // Jouer au début de chaque temps (tous les 4 pas)
-        currentSound_[16] = drumSounds_[16].begin();
-        playing[16] = true;
-    } else {
-        currentSound_[17] = drumSounds_[17].begin();
-        playing[17] = true;
-    }
-    beatCounter_ = (beatCounter_ + 1) % 4; // Incrémente et boucle de 0 à 3
-
+    clickStep = (clickStep + 1) % numSteps_;
 }
+
 void DrumPlayer::playPattern() {
-    for (int i = 0; i < drumSounds_.size() - 2; ++i) { // Exclude metronome sounds
-        if (pattern_[i][currentStep]) {
-            playSound(i);
+    for (int i = 0; i < drumSounds_.size() - 2; ++i) {
+        if (pattern_[i][currentStep] && drumSounds_[i]) {
+            drumSounds_[i]->setActive(true);
+            drumSounds_[i]->resetPlayhead();
         }
     }
 }
@@ -102,3 +73,11 @@ void DrumPlayer::setBpm(int newBpm) {
     secondsPerStep = (60.0 / bpm) / 4.0;
 }
 
+bool DrumPlayer::isSoundPlaying() const {
+    for (const auto& sound : drumSounds_) {
+        if (sound && sound->isActive()) {
+            return true;
+        }
+    }
+    return false;
+}

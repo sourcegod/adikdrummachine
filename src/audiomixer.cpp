@@ -1,45 +1,41 @@
 #include "audiomixer.h"
-#include "drumplayer.h" // Inclure le header pour DrumPlayer
+#include "audiosound.h"
 #include <iostream>
-#include <cmath> // Pour std::clamp
-#include <algorithm> // Pour std::clamp
+#include <cmath>
+#include <algorithm>
+#include <memory> // Pour std::shared_ptr
 
-
-AudioMixer::AudioMixer(int numChannels, DrumPlayer& player) : 
-  channels_(), player_(player) {
-// AudioMixer::AudioMixer(int numChannels) : channels_() {
+AudioMixer::AudioMixer(int numChannels) : channels_() {
     if (numChannels > channels_.size()) {
         std::cerr << "Attention : Le nombre de canaux demandé dépasse la taille du mixer." << std::endl;
     }
     for (auto& channel : channels_) {
         channel.active = false;
-        channel.volume = 1.0f; // Volume initial à 100%
-        channel.soundIndex = -1; // Aucun son assigné initialement
+        channel.volume = 1.0f;
+        channel.sound = nullptr; // Initialiser le shared_ptr à nullptr
     }
 }
 
 AudioMixer::~AudioMixer() {
-    // Pas de ressources spécifiques à libérer pour l'instant
+    // Les shared_ptr se chargeront de la gestion de la durée de vie des AudioSound
 }
 
-void AudioMixer::play(int channel, int soundIndex) {
-    if (channel >= 0 && channel < channels_.size()) {
+void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
+    if (channel >= 0 && channel < channels_.size() && sound != nullptr) {
         channels_[channel].active = true;
-        channels_[channel].soundIndex = soundIndex;
-        if (soundIndex >= 0 && soundIndex < player_.playing.size()) {
-            player_.playing[soundIndex] = true; // Activer le son dans DrumPlayer
-            player_.currentSound_[soundIndex] = player_.drumSounds_[soundIndex].begin(); // Réinitialiser l'itérateur ici aussi, c'est important !
-        }
+        channels_[channel].sound = sound; // Simplement assigner le shared_ptr
+        channels_[channel].sound->setActive(true);
+        channels_[channel].sound->resetPlayhead();
     } else {
-        std::cerr << "Canal invalide : " << channel << std::endl;
+        std::cerr << "Erreur : Canal invalide ou pointeur de son nul (canal=" << channel << ")" << std::endl;
     }
 }
 
 void AudioMixer::pause(int channel) {
     if (channel >= 0 && channel < channels_.size()) {
         channels_[channel].active = false;
-        if (channels_[channel].soundIndex >= 0 && channels_[channel].soundIndex < player_.playing.size()) {
-            player_.playing[channels_[channel].soundIndex] = false; // Désactiver aussi dans DrumPlayer
+        if (channels_[channel].sound) {
+            channels_[channel].sound->setActive(false);
         }
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
@@ -49,19 +45,15 @@ void AudioMixer::pause(int channel) {
 void AudioMixer::stop(int channel) {
     if (channel >= 0 && channel < channels_.size()) {
         channels_[channel].active = false;
-        if (channels_[channel].soundIndex >= 0 && channels_[channel].soundIndex < player_.playing.size()) {
-            player_.playing[channels_[channel].soundIndex] = false; // Désactiver aussi dans DrumPlayer
-        }
-        channels_[channel].soundIndex = -1;
+        channels_[channel].sound.reset(); // Décrémente le compteur de références
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
     }
 }
 
-
 void AudioMixer::setVolume(int channel, float volume) {
     if (channel >= 0 && channel < channels_.size()) {
-        channels_[channel].volume = std::clamp(volume, 0.0f, 1.0f); // S'assurer que le volume est entre 0 et 1
+        channels_[channel].volume = std::clamp(volume, 0.0f, 1.0f);
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
     }
@@ -84,13 +76,13 @@ bool AudioMixer::isChannelActive(int channel) const {
         return false;
     }
 }
-int AudioMixer::getSoundIndex(int channel) const {
+
+std::shared_ptr<AudioSound> AudioMixer::getSound(int channel) const {
     if (channel >= 0 && channel < channels_.size()) {
-        return channels_[channel].soundIndex;
+        return channels_[channel].sound; // Retourne le shared_ptr
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
-        return -1; // Retourne une valeur par défaut en cas d'erreur
+        return nullptr;
     }
 }
-
 

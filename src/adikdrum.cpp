@@ -46,9 +46,9 @@ struct DrumMachineData {
     int sampleRate;
     AudioMixer mixer; // Ajoute l'AudioMixer ici
                                                                  //
-    DrumMachineData(const std::vector<std::vector<double>>& sounds, int numSteps) 
+    DrumMachineData(const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
       : player(NUM_SOUNDS +2, 100, sounds, NUM_STEPS), 
-        sampleRate(44100), mixer(17, player) {}
+        sampleRate(44100), mixer(17) {}
     
 };
 
@@ -77,21 +77,21 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
             // Jouer le métronome seulement tous les 4 pas
             if (data->player.isClicking && data->player.clickStep % 4 == 0) {
                 // data->player.playMetronome();
-                data->mixer.play(0, NUM_SOUNDS); // Canal 0 pour le son aigu du métronome
+                data->mixer.play(0, data->player.drumSounds_[NUM_SOUNDS]);
             }
 
             // play pattern
             // data->player.playPattern(); // Call playPattern here
             for (int i = 0; i < NUM_SOUNDS; ++i) {
                 if (data->player.pattern_[i][data->player.currentStep]) {
-                    data->mixer.play(i + 1, i); // Canaux 1 à NUM_SOUNDS pour les sons du pattern
+                    data->mixer.play(i + 1, data->player.drumSounds_[i]);
                 }
             }
         } else if (data->player.isClicking) {
             // Jouer le métronome seulement tous les 4 pas
             if (data->player.clickStep % 4 == 0) {
                 // data->player.playMetronome();
-                data->mixer.play(0, NUM_SOUNDS + 1); // Canal 0 pour le son grave du métronome
+                data->mixer.play(0, data->player.drumSounds_[NUM_SOUNDS + 1]);
 
             }
             data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
@@ -101,31 +101,20 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     }
     
 
-    // /*
     // Mixer les sons
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
         for (int channel = 0; channel < 17; ++channel) {
             if (data->mixer.isChannelActive(channel)) {
-                int soundIndex = data->mixer.getSoundIndex(channel); // Utilise la nouvelle fonction
-                float volume = data->mixer.getVolume(channel);
-                std::cout << "Canal " << channel << " actif, volume = " << volume << std::endl; // Ajoute cette ligne temporairement
-
-                if (soundIndex >= 0 && soundIndex < NUM_SOUNDS + 2) {
-                    if (data->player.playing[soundIndex] && data->player.currentSound_[soundIndex] != data->player.drumSounds_[soundIndex].end()) {
-                        mixedSample += (*data->player.currentSound_[soundIndex] * volume);
-                        data->player.currentSound_[soundIndex]++;
-                        std::cout << "je passe ici avec i: " << i << "et soundIndex: " << soundIndex << std::endl;
-                    } else {
-                        data->player.playing[soundIndex] = false;
-                        data->mixer.stop(channel); // Arrêter le canal quand le son est fini
-                    }
+                std::shared_ptr<AudioSound> sound = data->mixer.getSound(channel);
+                if (sound) {
+                    mixedSample += (sound->getNextSample() * data->mixer.getVolume(channel));
                 }
             }
         }
+
         *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
     }
-    // */
 
 
 
@@ -201,12 +190,31 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 int main() {
     AudioDriver audioDriver;
+    const int sampleRate = 44100;
+    const double defaultDuration = 0.1;
+    SoundFactory soundFactory(sampleRate, defaultDuration);
+    std::vector<std::shared_ptr<AudioSound>> drumSounds;
+    for (int i = 0; i < NUM_SOUNDS; ++i) {
+        std::vector<double> soundData;
+        if (i == 0) soundData = soundFactory.generateKick();
+        else if (i == 1) soundData = soundFactory.generateSnare();
+        else if (i == 2) soundData = soundFactory.generateHiHat(0.25);
+        else if (i == 3) soundData = soundFactory.generateKick2();
+        else if (i == 4) soundData = soundFactory.generateSnare2();
+        else if (i == 5) soundData = soundFactory.generateCymbal(3.0);
+        else soundData = soundFactory.generateTestTone(220.0 * (i + 1));
+        drumSounds.push_back(std::make_shared<AudioSound>(soundData));
+    }
+    drumSounds.push_back(std::make_shared<AudioSound>(soundFactory.generateBuzzer(880.0, 50))); // Son aigu
+    drumSounds.push_back(std::make_shared<AudioSound>(soundFactory.generateBuzzer(440.0, 50))); // Son grave
+
 
     try {
+        /*
         int sampleRate = 44100;
         double defaultDuration = 0.5;
         SoundFactory soundFactory(sampleRate, defaultDuration);
-        std::vector<std::vector<double>> drumSounds(NUM_SOUNDS + 2); // +2 pour les sons du métronome
+        std::vector<std::shared_ptr<AudioSound>> drumSounds;
 
         // ... (génération des sons) ...
         drumSounds[0] = soundFactory.generateKick();
@@ -229,6 +237,7 @@ int main() {
         // Générer les sons du métronome
         drumSounds[16] = soundFactory.generateBuzzer(880.0, 50); // Son aigu
         drumSounds[17] = soundFactory.generateBuzzer(440.0, 50); // Son grave
+        */
 
 
         DrumMachineData drumData(drumSounds, NUM_STEPS);
@@ -257,20 +266,21 @@ int main() {
         // callbackCounter = 0;
         */
 
-
+        /*
         // Tester les sons
-    for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
-        int channelToUse = i; // Utilise l'index du son comme index de canal (0 à 17)
-        if (channelToUse < 17) { // Vérifie que l'index du canal est valide
-          // drumData.player.playing[i] = true;  
-          drumData.mixer.play(channelToUse, i);
-            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
-            drumData.mixer.stop(channelToUse);
-        } else {
-            std::cerr << "Erreur : Tentative d'utiliser un canal invalide pour le son " << i << std::endl;
+        for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
+            int channelToUse = i; // Utilise l'index du son comme index de canal (0 à 17)
+            if (channelToUse < 17) { // Vérifie que l'index du canal est valide
+              // drumData.player.playing[i] = true;  
+              drumData.mixer.play(channelToUse, i);
+                long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
+                std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
+                drumData.mixer.stop(channelToUse);
+            } else {
+                std::cerr << "Erreur : Tentative d'utiliser un canal invalide pour le son " << i << std::endl;
+            }
         }
-    }
+        */
 
         /*
         for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
