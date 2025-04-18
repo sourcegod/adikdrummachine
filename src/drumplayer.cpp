@@ -1,5 +1,7 @@
 #include "drumplayer.h"
 #include "audiosound.h"
+#include "audiomixer.h"
+
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -15,7 +17,9 @@ DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::sha
       pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
       sampleRate_(44100),
-      beatCounter_(0)
+      beatCounter_(0),
+      mixer_(nullptr) // Initialiser à nullptr
+
 {
     setBpm(initialBpm);
 }
@@ -24,10 +28,22 @@ DrumPlayer::~DrumPlayer() {
     // Les shared_ptr se chargeront de la gestion de la durée de vie des AudioSound
 }
 
+void DrumPlayer::setMixer(AudioMixer& mixer) {
+    mixer_ = &mixer;
+}
+
+
 void DrumPlayer::playSound(int soundIndex) {
     if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
         drumSounds_[soundIndex]->setActive(true);
         drumSounds_[soundIndex]->resetPlayhead();
+        // Trouver un canal libre et jouer le son
+        for (int i = 0; i < 17; ++i) {
+            if (!mixer_->isChannelActive(i)) {
+                mixer_->play(i, drumSounds_[soundIndex]);
+                break; // Jouer le son sur le premier canal libre trouvé
+            }
+        }
     }
 }
 

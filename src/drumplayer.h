@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
+#include "audiomixer.h" // Assurez-vous que l'inclusion est là
 
 class DrumPlayer {
 public:
@@ -17,6 +18,7 @@ public:
     double softClip(double x);
     void setBpm(int newBpm);
     bool isSoundPlaying() const;
+    void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer
 
     bool isPlaying;
     bool isClicking;
@@ -31,6 +33,8 @@ public:
 
 private:
     int beatCounter_;
+    AudioMixer* mixer_; // Pointeur vers l'AudioMixer
+
 };
 
 #endif // DRUMPLAYER_H

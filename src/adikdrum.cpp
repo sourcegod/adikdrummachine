@@ -241,6 +241,8 @@ int main() {
 
 
         DrumMachineData drumData(drumSounds, NUM_STEPS);
+        drumData.player.setMixer(drumData.mixer); // Assigner le mixer à player
+
         drumData.sampleRate = sampleRate;
         drumData.player.pattern_ = pattern; // Assign the global pattern to the player
 
@@ -282,13 +284,14 @@ int main() {
         }
         */
 
-        /*
+        drumData.player.isPlaying = true;
+        // /*
         for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
             drumData.player.playSound(i);
-            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
+            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 0.8);
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
         }
-        */
+        // */
 
 
 
