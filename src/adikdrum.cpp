@@ -76,23 +76,16 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
             data->player.clickStep = data->player.currentStep;
             // Jouer le métronome seulement tous les 4 pas
             if (data->player.isClicking && data->player.clickStep % 4 == 0) {
-                // data->player.playMetronome();
-                data->mixer.play(0, data->player.drumSounds_[NUM_SOUNDS]);
+                data->player.playMetronome();
             }
 
             // play pattern
-            // data->player.playPattern(); // Call playPattern here
-            for (int i = 0; i < NUM_SOUNDS; ++i) {
-                if (data->player.pattern_[i][data->player.currentStep]) {
-                    data->mixer.play(i + 1, data->player.drumSounds_[i]);
-                }
-            }
+            data->player.playPattern(); // Call playPattern here
         } else if (data->player.isClicking) {
             // Jouer le métronome seulement tous les 4 pas
-            if (data->player.clickStep % 4 == 0) {
-                // data->player.playMetronome();
-                data->mixer.play(0, data->player.drumSounds_[NUM_SOUNDS + 1]);
-
+            
+          if (data->player.clickStep % 4 == 0) {
+                data->player.playMetronome();
             }
             data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
 
@@ -267,31 +260,14 @@ int main() {
         // Réinitialise le compteur pour une prochaine vérification si tu le souhaites
         // callbackCounter = 0;
         */
+        
 
-        /*
         // Tester les sons
-        for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
-            int channelToUse = i; // Utilise l'index du son comme index de canal (0 à 17)
-            if (channelToUse < 17) { // Vérifie que l'index du canal est valide
-              // drumData.player.playing[i] = true;  
-              drumData.mixer.play(channelToUse, i);
-                long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i].size() * 1000.0 / sampleRate * 0.8);
-                std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
-                drumData.mixer.stop(channelToUse);
-            } else {
-                std::cerr << "Erreur : Tentative d'utiliser un canal invalide pour le son " << i << std::endl;
-            }
-        }
-        */
-
-        drumData.player.isPlaying = true;
-        // /*
         for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
             drumData.player.playSound(i);
             long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 0.8);
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
         }
-        // */
 
 
 
@@ -321,7 +297,12 @@ int main() {
                 std::cout << "All sounds stopped." << std::endl;
             } else if (key == 'c') {
                 drumData.player.isClicking = !drumData.player.isClicking;
+                if (drumData.player.isClicking)
+                  drumData.player.startClick();
+                else
+                  drumData.player.stopClick();
                 std::cout << "Metronome: " << (drumData.player.isClicking ? "ON" : "OFF") << std::endl;
+            
             } else if (key == '(') {
                 if (drumData.player.bpm > 5) {
                     drumData.player.setBpm(drumData.player.bpm - 5);

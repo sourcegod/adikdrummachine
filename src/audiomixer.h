@@ -17,6 +17,7 @@ public:
     void setVolume(int channel, float volume);
     float getVolume(int channel) const;
     bool isChannelActive(int channel) const;
+    void setChannelActive(int channel, bool active);
     std::shared_ptr<AudioSound> getSound(int channel) const; // Retourne un shared_ptr
 
 private:

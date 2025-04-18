@@ -19,6 +19,8 @@ public:
     void setBpm(int newBpm);
     bool isSoundPlaying() const;
     void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer
+    void startClick();
+    void stopClick();
 
     bool isPlaying;
     bool isClicking;

@@ -60,26 +60,77 @@ void DrumPlayer::stopAllSounds() {
     beatCounter_ = 0;
 }
 
-void DrumPlayer::playMetronome() {
-    if (clickStep % 4 == 0 && drumSounds_.size() > 16 && drumSounds_[16]) {
-        drumSounds_[16]->setActive(true);
-        drumSounds_[16]->resetPlayhead();
-    } else if (drumSounds_.size() > 17 && drumSounds_[17]) {
-        drumSounds_[17]->setActive(true);
-        drumSounds_[17]->resetPlayhead();
+void DrumPlayer::startClick() {
+    isClicking = true;
+    if (isPlaying) {
+      clickStep = currentStep;
+      beatCounter_ = clickStep % numSteps_;
+    } else {
+      clickStep =0;
+      beatCounter_ =0;
     }
-    clickStep = (clickStep + 1) % numSteps_;
+
+    if (mixer_) {
+        mixer_->setChannelActive(0, true); 
+    }
+    // Activer les sons du métronome (s'assurer qu'ils sont chargés)
+    if (drumSounds_.size() > 16 && drumSounds_[16]) {
+        drumSounds_[16]->setActive(false); // S'assurer qu'ils ne jouent pas déjà
+    }
+    if (drumSounds_.size() > 17 && drumSounds_[17]) {
+        drumSounds_[17]->setActive(false);
+    }
+}
+
+void DrumPlayer::stopClick() {
+    isClicking = false;
+    if (mixer_) {
+        if (mixer_->isChannelActive(0)) {
+            mixer_->stop(0);
+        }
+    }
+    if (drumSounds_.size() > 16 && drumSounds_[16]) {
+        drumSounds_[16]->setActive(false);
+    }
+    if (drumSounds_.size() > 17 && drumSounds_[17]) {
+        drumSounds_[17]->setActive(false);
+    }
+}
+
+void DrumPlayer::playMetronome() {
+    if (isPlaying && currentStep == 0) {
+      beatCounter_ =0;
+    }
+    if (beatCounter_ == 0) {
+        auto sound = drumSounds_[16];
+        sound->setActive(true);
+        sound->resetPlayhead();
+        mixer_->play(0, sound);
+    } else {
+        auto sound = drumSounds_[17];
+        sound->setActive(true);
+        sound->resetPlayhead();
+        mixer_->play(0, sound);
+    }
+    
+    beatCounter_= (beatCounter_ + 1) % 4;
 }
 
 void DrumPlayer::playPattern() {
-    for (int i = 0; i < drumSounds_.size() - 2; ++i) {
-        if (pattern_[i][currentStep] && drumSounds_[i]) {
-            drumSounds_[i]->setActive(true);
-            drumSounds_[i]->resetPlayhead();
+    if (mixer_ && isPlaying) {
+        for (int i = 0; i < drumSounds_.size() - 2; ++i) { // Exclude metronome sounds
+            if (pattern_[i][currentStep]) {
+                if (drumSounds_[i]) {
+                    drumSounds_[i]->setActive(true);
+                    drumSounds_[i]->resetPlayhead();
+                    if (!mixer_->isChannelActive(i + 1)) { // Utiliser les canaux 1 à NUM_SOUNDS
+                        mixer_->play(i + 1, drumSounds_[i]);
+                    }
+                }
+            }
         }
     }
 }
-
 double DrumPlayer::softClip(double x) {
     return tanh(x);
 }

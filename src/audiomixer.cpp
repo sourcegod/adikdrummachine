@@ -77,6 +77,15 @@ bool AudioMixer::isChannelActive(int channel) const {
     }
 }
 
+void AudioMixer::setChannelActive(int channel, bool active) {
+    if (channel >= 0 && channel < channels_.size()) {
+        channels_[channel].active = active;
+    } else {
+        std::cerr << "Canal invalide : " << channel << std::endl;
+    }
+}
+
+
 std::shared_ptr<AudioSound> AudioMixer::getSound(int channel) const {
     if (channel >= 0 && channel < channels_.size()) {
         return channels_[channel].sound; // Retourne le shared_ptr
