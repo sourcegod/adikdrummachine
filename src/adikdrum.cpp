@@ -168,51 +168,29 @@ int main() {
     SoundFactory soundFactory(sampleRate, defaultDuration);
     std::vector<std::shared_ptr<AudioSound>> drumSounds;
 
-    // /*
     drumSounds.push_back(soundFactory.generateKick());
     drumSounds.push_back(soundFactory.generateSnare());
     drumSounds.push_back(soundFactory.generateHiHat(0.25));
     drumSounds.push_back(soundFactory.generateKick2());
     drumSounds.push_back(soundFactory.generateSnare2());
     drumSounds.push_back(soundFactory.generateCymbal(3.0));
-    for (int i = 0; i < NUM_SOUNDS - 6; ++i) {
-        drumSounds.push_back(soundFactory.generateTestTone(220.0 * (i + 1)));
-    }
+    drumSounds.push_back(soundFactory.generateTestTone(440.0));
+    drumSounds.push_back(soundFactory.generateTestTone(550.0));
+    drumSounds.push_back(soundFactory.generateTestTone(220.0)); // Exemple pour RimShot
+    drumSounds.push_back(soundFactory.generateTestTone(330.0)); // Exemple pour HandClap
+    drumSounds.push_back(soundFactory.generateHiHat(0.5)); // Exemple pour HiHatOpen
+    drumSounds.push_back(soundFactory.generateTestTone(110.0)); // Exemple pour LowTom
+    drumSounds.push_back(soundFactory.generateTestTone(165.0)); // Exemple pour MidTom
+    drumSounds.push_back(soundFactory.generateTestTone(275.0)); // Exemple pour HiTom
+    drumSounds.push_back(soundFactory.generateTestTone(660.0)); // Exemple pour CowBell
+    drumSounds.push_back(soundFactory.generateTestTone(880.0)); // Exemple pour Tambourine
+        
+    // Générer les sons du métronome
     drumSounds.push_back(soundFactory.generateBuzzer(880.0, 50)); // Son aigu
     drumSounds.push_back(soundFactory.generateBuzzer(440.0, 50)); // Son grave
-    // */
+                                                                  //
                                                                                                //
     try {
-        /*
-        int sampleRate = 44100;
-        double defaultDuration = 0.5;
-        SoundFactory soundFactory(sampleRate, defaultDuration);
-        std::vector<std::shared_ptr<AudioSound>> drumSounds;
-
-        // ... (génération des sons) ...
-        drumSounds[0] = soundFactory.generateKick();
-        drumSounds[1] = soundFactory.generateSnare();
-        drumSounds[2] = soundFactory.generateHiHat(0.25);
-        drumSounds[3] = soundFactory.generateKick2();
-        drumSounds[4] = soundFactory.generateSnare2();
-        drumSounds[5] = soundFactory.generateCymbal(3.0);
-        drumSounds[6] = soundFactory.generateTestTone(440.0);
-        drumSounds[7] = soundFactory.generateTestTone(550.0);
-        drumSounds[8] = soundFactory.generateTestTone(220.0); // Exemple pour RimShot
-        drumSounds[9] = soundFactory.generateTestTone(330.0); // Exemple pour HandClap
-        drumSounds[10] = soundFactory.generateHiHat(0.5); // Exemple pour HiHatOpen
-        drumSounds[11] = soundFactory.generateTestTone(110.0); // Exemple pour LowTom
-        drumSounds[12] = soundFactory.generateTestTone(165.0); // Exemple pour MidTom
-        drumSounds[13] = soundFactory.generateTestTone(275.0); // Exemple pour HiTom
-        drumSounds[14] = soundFactory.generateTestTone(660.0); // Exemple pour CowBell
-        drumSounds[15] = soundFactory.generateTestTone(880.0); // Exemple pour Tambourine
-        
-        // Générer les sons du métronome
-        drumSounds[16] = soundFactory.generateBuzzer(880.0, 50); // Son aigu
-        drumSounds[17] = soundFactory.generateBuzzer(440.0, 50); // Son grave
-        */
-
-
         DrumMachineData drumData(drumSounds, NUM_STEPS);
         drumData.player.setMixer(drumData.mixer); // Assigner le mixer à player
 
@@ -243,9 +221,9 @@ int main() {
         
 
         // Tester les sons
-        for (int i = 0; i < NUM_SOUNDS + 2; ++i) {
+        for (int i = 0; i < NUM_SOUNDS +2; ++i) {
             drumData.player.playSound(i);
-            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 0.8);
+            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 2);
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
         }
 
