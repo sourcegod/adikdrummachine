@@ -111,28 +111,6 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
     }
 
-
-
-
-    /*
-    // mixer les sons
-    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-        double mixedSample = 0.0;
-        for (int j = 0; j < NUM_SOUNDS +2; ++j) { // Utilise NUM_SOUNDS ici
-          if (data->player.playing[j] && data->player.currentSound_[j] != data->player.drumSounds_[j].end()) {
-              mixedSample += *data->player.currentSound_[j];
-              data->player.currentSound_[j]++;
-   
-            } else {
-                data->player.playing[j] = false;
-            }
-        }
-
-        *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
-    }
-    */
-
-
     if (data->player.isPlaying || data->player.isClicking) {
         frameCounter += framesPerBuffer;
     }
