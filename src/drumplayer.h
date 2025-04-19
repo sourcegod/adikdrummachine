@@ -15,7 +15,10 @@ public:
     void stopAllSounds();
     void playMetronome();
     void playPattern();
+
     double softClip(double x);
+    double hardClip(double x); // Nouvelle fonction de hard clipping
+
     void setBpm(int newBpm);
     bool isSoundPlaying() const;
     void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer

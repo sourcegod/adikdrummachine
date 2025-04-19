@@ -28,7 +28,9 @@
 
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
+const float GLOBAL_GAIN = 0.8f;
 int NUM_STEPS = 16;
+
 std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
 std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 volatile int callbackCounter =0;
@@ -105,8 +107,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                 }
             }
         }
-        *out++ = static_cast<float>(data->player.softClip(mixedSample * data->mixer.getGlobalVolume() * 0.2)); // Multiplier par le volume global
-        // *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
+        *out++ = static_cast<float>(data->player.hardClip(mixedSample * data->mixer.getGlobalVolume() * GLOBAL_GAIN));
+
     }
 
 

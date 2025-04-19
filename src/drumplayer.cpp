@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
-
+#include <algorithm> // pour std::clamp
 DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
     : isPlaying(false),
       isClicking(false),
@@ -133,6 +133,10 @@ void DrumPlayer::playPattern() {
 }
 double DrumPlayer::softClip(double x) {
     return tanh(x);
+}
+
+double DrumPlayer::hardClip(double x) {
+    return std::clamp(x, -1.0, 1.0);
 }
 
 void DrumPlayer::setBpm(int newBpm) {
