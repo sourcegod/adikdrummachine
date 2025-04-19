@@ -10,7 +10,7 @@ public:
 
     bool isActive() const;
     void setActive(bool active);
-    const std::vector<double>& getRawData() const;
+    std::vector<double>& getRawData();
     int getLength() const;
     double getNextSample(); // Pour obtenir l'échantillon suivant
     void resetPlayhead();   // Pour recommencer la lecture du son

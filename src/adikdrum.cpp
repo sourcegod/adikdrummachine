@@ -167,21 +167,21 @@ int main() {
     const double defaultDuration = 0.1;
     SoundFactory soundFactory(sampleRate, defaultDuration);
     std::vector<std::shared_ptr<AudioSound>> drumSounds;
-    for (int i = 0; i < NUM_SOUNDS; ++i) {
-        std::vector<double> soundData;
-        if (i == 0) soundData = soundFactory.generateKick();
-        else if (i == 1) soundData = soundFactory.generateSnare();
-        else if (i == 2) soundData = soundFactory.generateHiHat(0.25);
-        else if (i == 3) soundData = soundFactory.generateKick2();
-        else if (i == 4) soundData = soundFactory.generateSnare2();
-        else if (i == 5) soundData = soundFactory.generateCymbal(3.0);
-        else soundData = soundFactory.generateTestTone(220.0 * (i + 1));
-        drumSounds.push_back(std::make_shared<AudioSound>(soundData));
+
+    // /*
+    drumSounds.push_back(soundFactory.generateKick());
+    drumSounds.push_back(soundFactory.generateSnare());
+    drumSounds.push_back(soundFactory.generateHiHat(0.25));
+    drumSounds.push_back(soundFactory.generateKick2());
+    drumSounds.push_back(soundFactory.generateSnare2());
+    drumSounds.push_back(soundFactory.generateCymbal(3.0));
+    for (int i = 0; i < NUM_SOUNDS - 6; ++i) {
+        drumSounds.push_back(soundFactory.generateTestTone(220.0 * (i + 1)));
     }
-    drumSounds.push_back(std::make_shared<AudioSound>(soundFactory.generateBuzzer(880.0, 50))); // Son aigu
-    drumSounds.push_back(std::make_shared<AudioSound>(soundFactory.generateBuzzer(440.0, 50))); // Son grave
-
-
+    drumSounds.push_back(soundFactory.generateBuzzer(880.0, 50)); // Son aigu
+    drumSounds.push_back(soundFactory.generateBuzzer(440.0, 50)); // Son grave
+    // */
+                                                                                               //
     try {
         /*
         int sampleRate = 44100;
@@ -371,4 +371,3 @@ int main() {
 
     return 0;
 }
-

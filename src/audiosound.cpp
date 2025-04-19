@@ -19,7 +19,7 @@ void AudioSound::setActive(bool active) {
     }
 }
 
-const std::vector<double>& AudioSound::getRawData() const {
+std::vector<double>& AudioSound::getRawData() {
     return rawData_;
 }
 
