@@ -105,8 +105,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                 }
             }
         }
-
-        *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
+        *out++ = static_cast<float>(data->player.softClip(mixedSample * data->mixer.getGlobalVolume() * 0.2)); // Multiplier par le volume global
+        // *out++ = static_cast<float>(data->player.softClip(mixedSample * 0.2));
     }
 
 
@@ -303,6 +303,15 @@ int main() {
                   drumData.player.stopClick();
                 std::cout << "Metronome: " << (drumData.player.isClicking ? "ON" : "OFF") << std::endl;
             
+            } else if (key == '+') {
+                float currentVolume = drumData.mixer.getGlobalVolume();
+                drumData.mixer.setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
+                std::cout << "Volume global: " << static_cast<int>(drumData.mixer.getGlobalVolume() * 10) << "/10" << std::endl;
+            } else if (key == '-') {
+                float currentVolume = drumData.mixer.getGlobalVolume();
+                drumData.mixer.setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
+                std::cout << "Volume global: " << static_cast<int>(drumData.mixer.getGlobalVolume() * 10) << "/10" << std::endl;
+
             } else if (key == '(') {
                 if (drumData.player.bpm > 5) {
                     drumData.player.setBpm(drumData.player.bpm - 5);

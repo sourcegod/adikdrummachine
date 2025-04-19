@@ -19,6 +19,8 @@ public:
     bool isChannelActive(int channel) const;
     void setChannelActive(int channel, bool active);
     std::shared_ptr<AudioSound> getSound(int channel) const; // Retourne un shared_ptr
+    void setGlobalVolume(float volume); // Nouvelle fonction
+    float getGlobalVolume() const;     // Nouvelle fonction
 
 private:
     struct ChannelInfo {
@@ -28,6 +30,7 @@ private:
     };
 
     std::array<ChannelInfo, 17> channels_;
+    float globalVolume_; // Variable pour le volume global
     static const int metronomeChannel_ = 0;
 };
 

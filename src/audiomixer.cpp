@@ -4,8 +4,9 @@
 #include <cmath>
 #include <algorithm>
 #include <memory> // Pour std::shared_ptr
-
-AudioMixer::AudioMixer(int numChannels) : channels_() {
+AudioMixer::AudioMixer(int numChannels) 
+  : channels_(), 
+    globalVolume_(1.0f) { // Initialiser le volume global à 1.0
     if (numChannels > channels_.size()) {
         std::cerr << "Attention : Le nombre de canaux demandé dépasse la taille du mixer." << std::endl;
     }
@@ -93,5 +94,12 @@ std::shared_ptr<AudioSound> AudioMixer::getSound(int channel) const {
         std::cerr << "Canal invalide : " << channel << std::endl;
         return nullptr;
     }
+}
+void AudioMixer::setGlobalVolume(float volume) {
+    globalVolume_ = std::clamp(volume, 0.0f, 1.0f);
+}
+
+float AudioMixer::getGlobalVolume() const {
+    return globalVolume_;
 }
 
