@@ -39,18 +39,24 @@ void AudioMixer::close() {
     // Ajoute ici toute fermeture spécifique à AudioMixer si nécessaire
     std::cout << "AudioMixer closed." << std::endl;
 }
-
 void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
-    if (channel >= 0 && channel < channels_.size() && !channels_[channel].reserved && sound) {
-        channels_[channel].sound = sound;
-        channels_[channel].active = true;
-        channels_[channel].startPos = 0;
-        channels_[channel].curPos = 0;
-        channels_[channel].endPos = sound->getRawData().size();
-        sound->resetPlayhead();
-        sound->setActive(true);
+    if (channel >= 0 && channel < channels_.size()) {
+        // Autoriser la lecture sur le canal du métronome même s'il est réservé
+        if (channel == metronomeChannel_ || !channels_[channel].reserved) {
+            channels_[channel].sound = sound;
+            channels_[channel].active = true;
+            channels_[channel].startPos = 0;
+            channels_[channel].curPos = 0;
+            channels_[channel].endPos = sound ? sound->getLength() : 0; // Gérer le cas où sound est nul
+            if (sound) {
+                sound->resetPlayhead();
+                sound->setActive(true);
+            }
+        } else {
+            std::cerr << "Erreur: Canal " << channel << " est réservé et ne peut pas être utilisé pour la lecture." << std::endl;
+        }
     } else {
-        std::cerr << "Erreur: Canal " << channel << " invalide, réservé ou son nul pour la lecture." << std::endl;
+        std::cerr << "Erreur: Canal " << channel << " invalide pour la lecture." << std::endl;
     }
 }
 
