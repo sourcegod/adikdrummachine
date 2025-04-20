@@ -5,7 +5,6 @@
 #include <array>
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
-
 class AudioMixer {
 public:
     AudioMixer(int numChannels);
@@ -16,19 +15,37 @@ public:
     void play(int channel, std::shared_ptr<AudioSound> sound); // Prend un shared_ptr
     void pause(int channel);
     void stop(int channel);
-    void setVolume(int channel, float volume);
     float getVolume(int channel) const;
+    void setVolume(int channel, float volume);
+    float getGlobalVolume() const;     // Nouvelle fonction
+    void setGlobalVolume(float volume); // Nouvelle fonction
+
     bool isChannelActive(int channel) const;
     void setChannelActive(int channel, bool active);
     std::shared_ptr<AudioSound> getSound(int channel) const; // Retourne un shared_ptr
-    void setGlobalVolume(float volume); // Nouvelle fonction
-    float getGlobalVolume() const;     // Nouvelle fonction
+    void reserveChannel(int channel, bool reserved); // Nouvelle fonction pour réserver un canal
+    bool isChannelReserved(int channel) const; // Nouvelle fonction pour vérifier si un canal est réservé
+    bool isChannelPlaying(int channel) const;
+
+    // Nouvelle interface pour accéder aux membres de ChannelInfo de manière sécurisée
+    std::shared_ptr<AudioSound> getChannelSound(int channel) const;
+    size_t getChannelCurPos(int channel) const;
+    size_t getChannelEndPos(int channel) const;
+    void setChannelCurPos(int channel, size_t pos);
+    void setChannelInactive(int channel);
 
 private:
     struct ChannelInfo {
         bool active;
         float volume;
         std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
+        bool reserved;
+        size_t startPos; // Position de début de la lecture (sera 0)
+        size_t curPos;   // Position de lecture actuelle
+        size_t endPos;   // Position de fin de la lecture (taille du buffer)
+
+        bool isPlaying() const { return active && sound && curPos < endPos; }
+
     };
 
     std::array<ChannelInfo, 17> channels_;

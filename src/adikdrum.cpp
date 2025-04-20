@@ -59,6 +59,63 @@ void beep() {
 }
 
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
+                                 unsigned long framesPerBuffer,
+                                 const PaStreamCallbackTimeInfo* timeInfo,
+                                 PaStreamCallbackFlags statusFlags,
+                                 void* userData) {
+    DrumMachineData* data = static_cast<DrumMachineData*>(userData);
+    float* out = static_cast<float*>(outputBuffer);
+    static unsigned long frameCounter = 0;
+    unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player.secondsPerStep);
+
+    if (frameCounter >= samplesPerStep) {
+        frameCounter = 0;
+
+        if (data->player.isPlaying) {
+            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
+            if (data->player.isClicking && data->player.clickStep % 4 == 0) {
+                data->player.playMetronome();
+            }
+            data->player.playPattern();
+        } else if (data->player.isClicking) {
+            if (data->player.clickStep % 4 == 0) {
+                data->player.playMetronome();
+            }
+            data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
+        }
+    }
+
+    // Mixer les sons
+    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+        double mixedSample = 0.0;
+        for (int channel = 0; channel < 17; ++channel) {
+            if (data->mixer.isChannelActive(channel)) {
+                auto sound = data->mixer.getSound(channel);
+                if (sound) {
+                    size_t currentPos = data->mixer.getChannelCurPos(channel);
+                    size_t endPos = data->mixer.getChannelEndPos(channel);
+                    if (currentPos < endPos) {
+                        mixedSample += (sound->getRawData()[currentPos] * data->mixer.getVolume(channel));
+                        data->mixer.setChannelCurPos(channel, currentPos + 1);
+                    } else {
+                        data->mixer.setChannelActive(channel, false); // Utilisation de la fonction existante
+                    }
+
+                }
+            }
+        }
+        *out++ = static_cast<float>(data->player.hardClip(mixedSample * data->mixer.getGlobalVolume() * GLOBAL_GAIN));
+    }
+
+    if (data->player.isPlaying || data->player.isClicking) {
+        frameCounter += framesPerBuffer;
+    }
+
+    return paContinue;
+}
+
+/*
+static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,
                              PaStreamCallbackFlags statusFlags,
@@ -119,6 +176,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     // callbackCounter++;
     return paContinue;
 }
+*/
 
 // Fonction pour initialiser le terminal
 termios initTermios(int echo) {

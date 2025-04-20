@@ -15,7 +15,15 @@ AudioMixer::AudioMixer(int numChannels)
         channel.active = false;
         channel.volume = 1.0f;
         channel.sound = nullptr; // Initialiser le shared_ptr à nullptr
+        channel.reserved = false; // Initialiser reserved à false
+
     }
+    //
+    // Réserver le canal du métronome
+    if (metronomeChannel_ >= 0 && metronomeChannel_ < channels_.size()) {
+        channels_[metronomeChannel_].reserved = true;
+    }
+
 }
 
 AudioMixer::~AudioMixer() {
@@ -33,14 +41,24 @@ void AudioMixer::close() {
 }
 
 void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
-    if (channel >= 0 && channel < channels_.size() && sound != nullptr) {
+    if (channel >= 0 && channel < channels_.size() && !channels_[channel].reserved && sound) {
+        channels_[channel].sound = sound;
         channels_[channel].active = true;
-        channels_[channel].sound = sound; // Simplement assigner le shared_ptr
-        channels_[channel].sound->setActive(true);
-        channels_[channel].sound->resetPlayhead();
+        channels_[channel].startPos = 0;
+        channels_[channel].curPos = 0;
+        channels_[channel].endPos = sound->getRawData().size();
+        sound->resetPlayhead();
+        sound->setActive(true);
     } else {
-        std::cerr << "Erreur : Canal invalide ou pointeur de son nul (canal=" << channel << ")" << std::endl;
+        std::cerr << "Erreur: Canal " << channel << " invalide, réservé ou son nul pour la lecture." << std::endl;
     }
+}
+
+bool AudioMixer::isChannelPlaying(int channel) const {
+    if (channel >= 0 && channel < channels_.size()) {
+        return channels_[channel].isPlaying();
+    }
+    return false;
 }
 
 void AudioMixer::pause(int channel) {
@@ -63,14 +81,6 @@ void AudioMixer::stop(int channel) {
     }
 }
 
-void AudioMixer::setVolume(int channel, float volume) {
-    if (channel >= 0 && channel < channels_.size()) {
-        channels_[channel].volume = std::clamp(volume, 0.0f, 1.0f);
-    } else {
-        std::cerr << "Canal invalide : " << channel << std::endl;
-    }
-}
-
 float AudioMixer::getVolume(int channel) const {
     if (channel >= 0 && channel < channels_.size()) {
         return channels_[channel].volume;
@@ -79,6 +89,24 @@ float AudioMixer::getVolume(int channel) const {
         return 0.0f;
     }
 }
+
+void AudioMixer::setVolume(int channel, float volume) {
+    if (channel >= 0 && channel < channels_.size()) {
+        channels_[channel].volume = std::clamp(volume, 0.0f, 1.0f);
+    } else {
+        std::cerr << "Canal invalide : " << channel << std::endl;
+    }
+}
+
+float AudioMixer::getGlobalVolume() const {
+    return globalVolume_;
+}
+
+
+void AudioMixer::setGlobalVolume(float volume) {
+    globalVolume_ = std::clamp(volume, 0.0f, 1.0f);
+}
+
 
 bool AudioMixer::isChannelActive(int channel) const {
     if (channel >= 0 && channel < channels_.size()) {
@@ -106,11 +134,53 @@ std::shared_ptr<AudioSound> AudioMixer::getSound(int channel) const {
         return nullptr;
     }
 }
-void AudioMixer::setGlobalVolume(float volume) {
-    globalVolume_ = std::clamp(volume, 0.0f, 1.0f);
+
+void AudioMixer::reserveChannel(int channel, bool reserved) {
+    if (channel >= 0 && channel < channels_.size()) {
+        channels_[channel].reserved = reserved;
+    } else {
+        std::cerr << "Erreur: Canal " << channel << " invalide pour la réservation." << std::endl;
+    }
 }
 
-float AudioMixer::getGlobalVolume() const {
-    return globalVolume_;
+bool AudioMixer::isChannelReserved(int channel) const {
+    if (channel >= 0 && channel < channels_.size()) {
+        return channels_[channel].reserved;
+    }
+    return false;
 }
 
+std::shared_ptr<AudioSound> AudioMixer::getChannelSound(int channel) const {
+    if (channel >= 0 && channel < channels_.size()) {
+        return channels_[channel].sound;
+    }
+    return nullptr;
+}
+
+size_t AudioMixer::getChannelCurPos(int channel) const {
+    if (channel >= 0 && channel < channels_.size()) {
+        return channels_[channel].curPos;
+    }
+    return 0;
+}
+
+size_t AudioMixer::getChannelEndPos(int channel) const {
+    if (channel >= 0 && channel < channels_.size()) {
+        return channels_[channel].endPos;
+    }
+    return 0;
+}
+
+void AudioMixer::setChannelCurPos(int channel, size_t pos) {
+    if (channel >= 0 && channel < channels_.size()) {
+        channels_[channel].curPos = pos;
+    }
+}
+
+void AudioMixer::setChannelInactive(int channel) {
+    if (channel >= 0 && channel < channels_.size()) {
+        channels_[channel].active = false;
+    }
+}
+
+ 

@@ -32,21 +32,46 @@ DrumPlayer::~DrumPlayer() {
 void DrumPlayer::setMixer(AudioMixer& mixer) {
     mixer_ = &mixer;
 }
-
-
 void DrumPlayer::playSound(int soundIndex) {
     if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
         drumSounds_[soundIndex]->setActive(true);
         drumSounds_[soundIndex]->resetPlayhead();
-        // Trouver un canal libre et jouer le son
-        for (int i = 0; i < 17; ++i) {
-            if (!mixer_->isChannelActive(i)) {
+        std::cout << "playSound called for sound index: " << soundIndex << std::endl;
+        // Trouver un canal libre et non réservé et jouer le son
+        for (int i = 1; i < 17; ++i) { // Commencer à partir du canal 1
+            std::cout << "Checking channel: " << i << ", Active: " << mixer_->isChannelActive(i)
+                      << ", Reserved: " << mixer_->isChannelReserved(i) << std::endl;
+            if (!mixer_->isChannelActive(i)
+                && !mixer_->isChannelReserved(i)) {
+                std::cout << "Playing sound " << soundIndex << " on channel " << i << std::endl;
                 mixer_->play(i, drumSounds_[soundIndex]);
-                break; // Jouer le son sur le premier canal libre trouvé
+                return; // Jouer le son sur le premier canal non réservé trouvé
             }
         }
+        // Le message d'erreur s'affiche uniquement si aucun canal n'a été trouvé
+        std::cerr << "Erreur: Aucun canal non réservé et inactif disponible pour jouer le son (index: "
+                  << soundIndex << ")" << std::endl;
     }
 }
+
+/*
+void DrumPlayer::playSound(int soundIndex) {
+    if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
+        drumSounds_[soundIndex]->setActive(true);
+        drumSounds_[soundIndex]->resetPlayhead();
+        // Trouver un canal libre et non réservé et jouer le son
+        for (int i = 1; i < 17; ++i) { // Commencer à partir du canal 1 (en supposant que 0 est réservé)
+            if (!mixer_->isChannelActive(i)
+                && !mixer_->isChannelReserved(i)) {
+                mixer_->play(i, drumSounds_[soundIndex]);
+                return; // Jouer le son sur le premier canal non réservé trouvé
+            }
+        }
+        // Le message d'erreur s'affiche uniquement si aucun canal n'a été trouvé
+        std::cerr << "Erreur: Aucun canal non réservé et inactif disponible pour jouer le son." << std::endl;
+    }
+}
+*/
 
 void DrumPlayer::stopAllSounds() {
     for (const auto& sound : drumSounds_) {
