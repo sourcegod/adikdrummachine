@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <algorithm> // pour std::clamp
+
 DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
     : isPlaying(false),
       isClicking(false),
@@ -74,12 +75,13 @@ void DrumPlayer::startClick() {
         mixer_->setChannelActive(0, true); 
     }
     // Activer les sons du métronome (s'assurer qu'ils sont chargés)
-    if (drumSounds_.size() > 16 && drumSounds_[16]) {
-        drumSounds_[16]->setActive(false); // S'assurer qu'ils ne jouent pas déjà
+    if (soundClick1_) {
+        soundClick1_->setActive(false);
     }
-    if (drumSounds_.size() > 17 && drumSounds_[17]) {
-        drumSounds_[17]->setActive(false);
+    if (soundClick2_) {
+        soundClick2_->setActive(false);
     }
+
 }
 
 void DrumPlayer::stopClick() {
@@ -89,32 +91,33 @@ void DrumPlayer::stopClick() {
             mixer_->stop(0);
         }
     }
-    if (drumSounds_.size() > 16 && drumSounds_[16]) {
-        drumSounds_[16]->setActive(false);
+    if (soundClick1_) {
+        soundClick1_->setActive(false);
     }
-    if (drumSounds_.size() > 17 && drumSounds_[17]) {
-        drumSounds_[17]->setActive(false);
+    if (soundClick2_) {
+        soundClick2_->setActive(false);
     }
+
 }
 
 void DrumPlayer::playMetronome() {
     if (isPlaying && currentStep == 0) {
       beatCounter_ =0;
     }
-    if (beatCounter_ == 0) {
-        auto sound = drumSounds_[16];
-        sound->setActive(true);
-        sound->resetPlayhead();
-        mixer_->play(0, sound);
-    } else {
-        auto sound = drumSounds_[17];
-        sound->setActive(true);
-        sound->resetPlayhead();
-        mixer_->play(0, sound);
+    if (mixer_) {
+        if (beatCounter_ % 4 == 0 && soundClick1_) {
+            soundClick1_->setActive(true);
+            soundClick1_->resetPlayhead();
+            mixer_->play(0, soundClick1_);
+        } else if (soundClick2_) {
+            soundClick2_->setActive(true);
+            soundClick2_->resetPlayhead();
+            mixer_->play(0, soundClick2_);
+        }
+        beatCounter_= (beatCounter_ + 1) % 4;
     }
-    
-    beatCounter_= (beatCounter_ + 1) % 4;
 }
+
 
 void DrumPlayer::playPattern() {
     if (mixer_ && isPlaying) {

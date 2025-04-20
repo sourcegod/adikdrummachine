@@ -31,6 +31,9 @@ public:
     int bpm;
     double secondsPerStep;
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Utilisation de shared_ptr
+    std::shared_ptr<AudioSound> soundClick1_; // Nouveau membre pour le son aigu du métronome
+    std::shared_ptr<AudioSound> soundClick2_; // Nouveau membre pour le son grave du métronome
+
     int clickStep;
     std::vector<std::vector<bool>> pattern_;
     int numSteps_;

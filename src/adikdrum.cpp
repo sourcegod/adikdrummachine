@@ -49,7 +49,7 @@ struct DrumMachineData {
     AudioMixer mixer; // Ajoute l'AudioMixer ici
                                                                  //
     DrumMachineData(const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
-      : player(NUM_SOUNDS +2, 100, sounds, NUM_STEPS), 
+      : player(NUM_SOUNDS, 100, sounds, NUM_STEPS), 
         sampleRate(44100), mixer(17) {}
     
 };
@@ -185,16 +185,26 @@ int main() {
     drumSounds.push_back(soundFactory.generateTestTone(660.0)); // Exemple pour CowBell
     drumSounds.push_back(soundFactory.generateTestTone(880.0)); // Exemple pour Tambourine
         
+    /*
     // Générer les sons du métronome
-    drumSounds.push_back(soundFactory.generateBuzzer(880.0, 50)); // Son aigu
-    drumSounds.push_back(soundFactory.generateBuzzer(440.0, 50)); // Son grave
-                                                                  //
-                                                                                               //
+    // drumSounds.push_back(soundFactory.generateBuzzer(880.0, 50)); // Son aigu
+    // drumSounds.push_back(soundFactory.generateBuzzer(440.0, 50)); // Son grave
+    */
+
+    // Générer les sons du métronome
+    std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
+    std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
+
+
     try {
         DrumMachineData drumData(drumSounds, NUM_STEPS);
         drumData.player.setMixer(drumData.mixer); // Assigner le mixer à player
-
         drumData.sampleRate = sampleRate;
+    
+        // Assigner les sons du métronome à DrumPlayer
+        drumData.player.soundClick1_ = soundClick1;
+        drumData.player.soundClick2_ = soundClick2;
+
         drumData.player.pattern_ = pattern; // Assign the global pattern to the player
 
         if (!audioDriver.initAudioDriver(drumMachineCallback, &drumData, sampleRate, 256)) {
@@ -221,7 +231,7 @@ int main() {
         
 
         // Tester les sons
-        for (int i = 0; i < NUM_SOUNDS +2; ++i) {
+        for (int i = 0; i < NUM_SOUNDS; ++i) {
             drumData.player.playSound(i);
             long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 2);
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
