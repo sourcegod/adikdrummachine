@@ -150,23 +150,9 @@ bool AudioMixer::isChannelReserved(int channel) const {
     return false;
 }
 
-std::shared_ptr<AudioSound> AudioMixer::getChannelSound(int channel) const {
-    if (channel >= 0 && channel < channels_.size()) {
-        return channels_[channel].sound;
-    }
-    return nullptr;
-}
-
 size_t AudioMixer::getChannelCurPos(int channel) const {
     if (channel >= 0 && channel < channels_.size()) {
         return channels_[channel].curPos;
-    }
-    return 0;
-}
-
-size_t AudioMixer::getChannelEndPos(int channel) const {
-    if (channel >= 0 && channel < channels_.size()) {
-        return channels_[channel].endPos;
     }
     return 0;
 }
@@ -177,10 +163,11 @@ void AudioMixer::setChannelCurPos(int channel, size_t pos) {
     }
 }
 
-void AudioMixer::setChannelInactive(int channel) {
+size_t AudioMixer::getChannelEndPos(int channel) const {
     if (channel >= 0 && channel < channels_.size()) {
-        channels_[channel].active = false;
+        return channels_[channel].endPos;
     }
+    return 0;
 }
 
- 
+

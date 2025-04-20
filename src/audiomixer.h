@@ -28,11 +28,9 @@ public:
     bool isChannelPlaying(int channel) const;
 
     // Nouvelle interface pour accéder aux membres de ChannelInfo de manière sécurisée
-    std::shared_ptr<AudioSound> getChannelSound(int channel) const;
     size_t getChannelCurPos(int channel) const;
-    size_t getChannelEndPos(int channel) const;
     void setChannelCurPos(int channel, size_t pos);
-    void setChannelInactive(int channel);
+    size_t getChannelEndPos(int channel) const;
 
 private:
     struct ChannelInfo {
