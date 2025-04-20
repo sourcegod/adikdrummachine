@@ -205,6 +205,7 @@ int main() {
         drumData.player.pattern_ = pattern; // Assign the global pattern to the player
 
         /*
+         // Ne marche pas pour l'instant.
         if (!audioManager.init(drumMachineCallback, &drumData, sampleRate, 256)) {
             std::cerr << "Erreur lors de l'initialisation de l'AudioManager." << std::endl;
             return 1;

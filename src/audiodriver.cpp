@@ -12,6 +12,7 @@ AudioDriver::AudioDriver() : stream_(nullptr), lastError_(paNoError) {
         std::cerr << "Erreur lors de l'initialisation de PortAudio : " << Pa_GetErrorText(err) << std::endl;
         lastError_ = err;
     }
+    std::cout << "PortAudio is initialized successfully" << std::endl;
 }
 
 AudioDriver::~AudioDriver() {
@@ -48,6 +49,13 @@ bool AudioDriver::init(PaStreamCallback *callback, void *userData, int sampleRat
         return false;
     }
 
+    if (stream_ == nullptr) {
+        std::cerr << "Erreur : Le flux audio n'a pas été ouvert correctement (stream_ est nullptr)." << std::endl;
+        return false;
+    }
+
+
+
     return true;
 }
 
@@ -64,6 +72,7 @@ bool AudioDriver::start() {
         return false;
     }
 
+ 
     return true;
 }
 
