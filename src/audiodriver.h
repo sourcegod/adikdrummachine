@@ -8,10 +8,11 @@ public:
     AudioDriver();
     ~AudioDriver();
 
-    bool initAudioDriver(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer);
-    bool startAudioDriver();
-    bool stopAudioDriver();
-    bool closeAudioDriver(); // Nouvelle fonction
+    bool init(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer);
+    bool start();
+    bool stop();
+    bool close(); // Nouvelle fonction
+    PaError getLastError() {  return lastError_; }
 
 private:
     PaStream* stream_;

@@ -11,6 +11,8 @@ public:
     AudioMixer(int numChannels);
     ~AudioMixer();
 
+    bool init(int sampleRate = 44100, int channels = 2, int bits = 16);
+    void close();
     void play(int channel, std::shared_ptr<AudioSound> sound); // Prend un shared_ptr
     void pause(int channel);
     void stop(int channel);

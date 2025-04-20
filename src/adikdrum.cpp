@@ -16,7 +16,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <utility> // Pour utiliser std::pair
-
+#include "audiomanager.h"
 // for performance checking
 #include <chrono>
 #include <thread>
@@ -162,6 +162,9 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 }
 
 int main() {
+    // AudioManager audioManager;
+    const int numChannels = 17;
+    AudioMixer mixer(numChannels);
     AudioDriver audioDriver;
     const int sampleRate = 44100;
     const double defaultDuration = 0.1;
@@ -185,12 +188,6 @@ int main() {
     drumSounds.push_back(soundFactory.generateTestTone(660.0)); // Exemple pour CowBell
     drumSounds.push_back(soundFactory.generateTestTone(880.0)); // Exemple pour Tambourine
         
-    /*
-    // Générer les sons du métronome
-    // drumSounds.push_back(soundFactory.generateBuzzer(880.0, 50)); // Son aigu
-    // drumSounds.push_back(soundFactory.generateBuzzer(440.0, 50)); // Son grave
-    */
-
     // Générer les sons du métronome
     std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
     std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
@@ -207,16 +204,30 @@ int main() {
 
         drumData.player.pattern_ = pattern; // Assign the global pattern to the player
 
-        if (!audioDriver.initAudioDriver(drumMachineCallback, &drumData, sampleRate, 256)) {
+        /*
+        if (!audioManager.init(drumMachineCallback, &drumData, sampleRate, 256)) {
+            std::cerr << "Erreur lors de l'initialisation de l'AudioManager." << std::endl;
+            return 1;
+        }
+        */
+
+
+        // /*
+        if (!audioDriver.init(drumMachineCallback, &drumData, sampleRate, 256)) {
             std::cerr << "Erreur lors de l'initialisation de l'AudioDriver." << std::endl;
             return 1;
         }
+        // */
 
-        if (!audioDriver.startAudioDriver()) {
+
+        // /*
+        if (!audioDriver.start()) {
             std::cerr << "Erreur lors du démarrage de l'AudioDriver." << std::endl;
-            audioDriver.stopAudioDriver();
+            audioDriver.stop();
             return 1;
         }
+        // */
+
 
         
         /*
@@ -351,7 +362,8 @@ int main() {
         
         }
         resetTermios(oldt);
-        audioDriver.stopAudioDriver();
+        // audioManager.close();
+        audioDriver.stop();
 
     } catch (const std::runtime_error& e) {
         std::cerr << "Erreur: " << e.what() << std::endl;

@@ -15,10 +15,10 @@ AudioDriver::AudioDriver() : stream_(nullptr), lastError_(paNoError) {
 }
 
 AudioDriver::~AudioDriver() {
-    closeAudioDriver();
+    close();
 }
 
-bool AudioDriver::initAudioDriver(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer) {
+bool AudioDriver::init(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer) {
     PaStreamParameters outputParameters;
 
     outputParameters.device = Pa_GetDefaultOutputDevice();
@@ -51,7 +51,7 @@ bool AudioDriver::initAudioDriver(PaStreamCallback *callback, void *userData, in
     return true;
 }
 
-bool AudioDriver::startAudioDriver() {
+bool AudioDriver::start() {
     if (stream_ == nullptr) {
         std::cerr << "Erreur : Le flux audio n'a pas été initialisé." << std::endl;
         return false;
@@ -67,7 +67,7 @@ bool AudioDriver::startAudioDriver() {
     return true;
 }
 
-bool AudioDriver::stopAudioDriver() {
+bool AudioDriver::stop() {
     if (stream_ != nullptr) {
         PaError err = Pa_StopStream(stream_);
         if (err != paNoError) {
@@ -87,7 +87,7 @@ bool AudioDriver::stopAudioDriver() {
     return true;
 }
 
-bool AudioDriver::closeAudioDriver() {
+bool AudioDriver::close() {
     if (stream_ != nullptr) {
         PaError err = Pa_CloseStream(stream_);
         if (err != paNoError) {

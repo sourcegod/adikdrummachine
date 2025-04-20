@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <memory> // Pour std::shared_ptr
+
 AudioMixer::AudioMixer(int numChannels) 
   : channels_(), 
     globalVolume_(1.0f) { // Initialiser le volume global à 1.0
@@ -18,7 +19,17 @@ AudioMixer::AudioMixer(int numChannels)
 }
 
 AudioMixer::~AudioMixer() {
-    // Les shared_ptr se chargeront de la gestion de la durée de vie des AudioSound
+    close();
+}
+
+bool AudioMixer::init(int sampleRate, int channels, int bits) {
+    // Ajoute ici toute initialisation spécifique à AudioMixer si nécessaire
+    std::cout << "AudioMixer initialized." << std::endl;
+}
+
+void AudioMixer::close() {
+    // Ajoute ici toute fermeture spécifique à AudioMixer si nécessaire
+    std::cout << "AudioMixer closed." << std::endl;
 }
 
 void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
