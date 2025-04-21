@@ -32,14 +32,17 @@ DrumPlayer::~DrumPlayer() {
 void DrumPlayer::setMixer(AudioMixer& mixer) {
     mixer_ = &mixer;
 }
-void DrumPlayer::playSound(int soundIndex) {
+
+/*
+void DrumPlayer::playSound0(int soundIndex) {
+  // Note: this function is reserved for latter
     if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
         // Trouver un canal libre et non réservé et jouer le son
-        for (int i = 1; i < 17; ++i) { // Commencer à partir du canal 1 (en supposant que 0 est réservé)
+        for (auto i = 1; i < drumSounds_.size(); ++i) { // Commencer à partir du canal 1 (en supposant que 0 est réservé)
             if (!mixer_->isChannelActive(i)
                 && !mixer_->isChannelReserved(i)) {
-                mixer_->play(i, drumSounds_[soundIndex]);
-                return; // Jouer le son sur le premier canal non réservé trouvé
+               mixer_->play(i, drumSounds_[soundIndex]);
+               return; // Jouer le son sur le premier canal non réservé trouvé
             }
         }
         // Le message d'erreur s'affiche uniquement si aucun canal n'a été trouvé
@@ -47,6 +50,17 @@ void DrumPlayer::playSound(int soundIndex) {
                   << soundIndex << ")" << std::endl;
     }
 }
+*/
+
+void DrumPlayer::playSound(int soundIndex) {
+    if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
+        mixer_->play(soundIndex+1, drumSounds_[soundIndex]);
+    } else {
+        std::cerr << "Erreur: Aucun son trouvé avec cet (index: "
+                  << soundIndex << ")" << std::endl;
+    }
+}
+
 
 void DrumPlayer::stopAllSounds() {
     for (const auto& sound : drumSounds_) {

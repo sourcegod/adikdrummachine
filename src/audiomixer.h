@@ -33,6 +33,7 @@ public:
     size_t getChannelEndPos(int channel) const;
 
 private:
+    unsigned int numChannels_;
     struct ChannelInfo {
         bool active;
         float volume;
@@ -46,7 +47,7 @@ private:
 
     };
 
-    std::array<ChannelInfo, 17> channels_;
+    std::array<ChannelInfo, 18> channels_;
     float globalVolume_; // Variable pour le volume global
     static const int metronomeChannel_ = 0;
 };

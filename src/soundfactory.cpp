@@ -106,8 +106,8 @@ std::shared_ptr<AudioSound> SoundFactory::generateCymbal(double durationScale) {
     return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave), 0.7);
 }
 
-std::shared_ptr<AudioSound> SoundFactory::generateTestTone(double frequency) {
-    std::vector<double> wave = generator_.generateSineWave(frequency, sampleRate_, defaultDuration_, 0.4);
+std::shared_ptr<AudioSound> SoundFactory::generateTestTone(double frequency=440.0, double duration=0.5) {
+    std::vector<double> wave = generator_.generateSineWave(frequency, sampleRate_, duration, 0.4);
     return std::make_shared<AudioSound>(wave);
 }
 

@@ -7,7 +7,8 @@
 
 AudioMixer::AudioMixer(int numChannels) 
   : channels_(), 
-    globalVolume_(1.0f) { // Initialiser le volume global à 1.0
+    globalVolume_(0.8f), // Initialiser le volume global à 0.8
+    numChannels_(numChannels) {
     if (numChannels > channels_.size()) {
         std::cerr << "Attention : Le nombre de canaux demandé dépasse la taille du mixer." << std::endl;
     }

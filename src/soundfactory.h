@@ -25,7 +25,7 @@ public:
     std::shared_ptr<AudioSound> generateKick2();
     std::shared_ptr<AudioSound> generateSnare2();
     std::shared_ptr<AudioSound> generateCymbal(double durationFactor);
-    std::shared_ptr<AudioSound> generateTestTone(double frequency);
+    std::shared_ptr<AudioSound> generateTestTone(double frequency, double duration);
     std::shared_ptr<AudioSound> generateBuzzer(double frequency, double duration);
 
 private:

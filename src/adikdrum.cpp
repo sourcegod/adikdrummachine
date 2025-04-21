@@ -110,73 +110,12 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     if (data->player.isPlaying || data->player.isClicking) {
         frameCounter += framesPerBuffer;
     }
-
-    return paContinue;
-}
-
-/*
-static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
-                             unsigned long framesPerBuffer,
-                             const PaStreamCallbackTimeInfo* timeInfo,
-                             PaStreamCallbackFlags statusFlags,
-                             void* userData) {
-    DrumMachineData* data = static_cast<DrumMachineData*>(userData);
-    float* out = static_cast<float*>(outputBuffer);
-    static unsigned long frameCounter = 0;
-    unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player.secondsPerStep);
-
-    if (frameCounter >= samplesPerStep) {
-        frameCounter = 0;
-        
-        if (data->player.isPlaying) {
-            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
-            // beep();
-            // sychronize with the metronome
-            data->player.clickStep = data->player.currentStep;
-            // Jouer le métronome seulement tous les 4 pas
-            if (data->player.isClicking && data->player.clickStep % 4 == 0) {
-                data->player.playMetronome();
-            }
-
-            // play pattern
-            data->player.playPattern(); // Call playPattern here
-        } else if (data->player.isClicking) {
-            // Jouer le métronome seulement tous les 4 pas
-            
-          if (data->player.clickStep % 4 == 0) {
-                data->player.playMetronome();
-            }
-            data->player.clickStep = (data->player.clickStep + 1) % NUM_STEPS;
-
-        }
     
-    }
     
-
-    // Mixer les sons
-    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-        double mixedSample = 0.0;
-        for (int channel = 0; channel < 17; ++channel) {
-            if (data->mixer.isChannelActive(channel)) {
-                std::shared_ptr<AudioSound> sound = data->mixer.getSound(channel);
-                if (sound) {
-                    mixedSample += (sound->getNextSample() * data->mixer.getVolume(channel));
-                }
-            }
-        }
-        *out++ = static_cast<float>(data->player.hardClip(mixedSample * data->mixer.getGlobalVolume() * GLOBAL_GAIN));
-
-    }
-
-    if (data->player.isPlaying || data->player.isClicking) {
-        frameCounter += framesPerBuffer;
-    }
-
     // beep();
     // callbackCounter++;
     return paContinue;
 }
-*/
 
 // Fonction pour initialiser le terminal
 termios initTermios(int echo) {
@@ -221,7 +160,7 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 int main() {
     // AudioManager audioManager;
-    const int numChannels = 17;
+    const int numChannels = 18;
     AudioMixer mixer(numChannels);
     AudioDriver audioDriver;
     const int sampleRate = 44100;
@@ -235,16 +174,16 @@ int main() {
     drumSounds.push_back(soundFactory.generateKick2());
     drumSounds.push_back(soundFactory.generateSnare2());
     drumSounds.push_back(soundFactory.generateCymbal(3.0));
-    drumSounds.push_back(soundFactory.generateTestTone(440.0));
-    drumSounds.push_back(soundFactory.generateTestTone(550.0));
-    drumSounds.push_back(soundFactory.generateTestTone(220.0)); // Exemple pour RimShot
-    drumSounds.push_back(soundFactory.generateTestTone(330.0)); // Exemple pour HandClap
+    drumSounds.push_back(soundFactory.generateTestTone(440.0, defaultDuration));
+    drumSounds.push_back(soundFactory.generateTestTone(550.0, defaultDuration));
+    drumSounds.push_back(soundFactory.generateTestTone(220.0, defaultDuration)); // Exemple pour RimShot
+    drumSounds.push_back(soundFactory.generateTestTone(330.0, defaultDuration)); // Exemple pour HandClap
     drumSounds.push_back(soundFactory.generateHiHat(0.5)); // Exemple pour HiHatOpen
-    drumSounds.push_back(soundFactory.generateTestTone(110.0)); // Exemple pour LowTom
-    drumSounds.push_back(soundFactory.generateTestTone(165.0)); // Exemple pour MidTom
-    drumSounds.push_back(soundFactory.generateTestTone(275.0)); // Exemple pour HiTom
-    drumSounds.push_back(soundFactory.generateTestTone(660.0)); // Exemple pour CowBell
-    drumSounds.push_back(soundFactory.generateTestTone(880.0)); // Exemple pour Tambourine
+    drumSounds.push_back(soundFactory.generateTestTone(110.0, defaultDuration)); // Exemple pour LowTom
+    drumSounds.push_back(soundFactory.generateTestTone(165.0, defaultDuration)); // Exemple pour MidTom
+    drumSounds.push_back(soundFactory.generateTestTone(275.0, defaultDuration)); // Exemple pour HiTom
+    drumSounds.push_back(soundFactory.generateTestTone(660.0, 1)); // Exemple pour CowBell
+    drumSounds.push_back(soundFactory.generateTestTone(440.0, 3)); // Exemple pour Tambourine
         
     // Générer les sons du métronome
     std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
