@@ -63,11 +63,18 @@ void DrumPlayer::playSound(int soundIndex) {
 
 
 void DrumPlayer::stopAllSounds() {
+    auto& chanList = mixer_->getChannelList();  
+    for (auto& chan : chanList) {
+        chan.setActive(0);
+        chan.curPos =0;
+    }
+
     for (const auto& sound : drumSounds_) {
         if (sound) {
             sound->setActive(false);
         }
     }
+
     isPlaying = false;
     isClicking = false;
     currentStep = 0;

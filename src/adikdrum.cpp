@@ -242,7 +242,7 @@ int main() {
         // Tester les sons
         for (int i = 0; i < NUM_SOUNDS; ++i) {
             drumData.player.playSound(i);
-            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 2);
+            long long sleepDurationMs = static_cast<long long>(drumData.player.drumSounds_[i]->getLength() * 1000.0 / sampleRate * 1.0);
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
         }
 

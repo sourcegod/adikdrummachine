@@ -5,6 +5,21 @@
 #include <array>
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
+
+    struct ChannelInfo {
+        bool active_;
+        float volume;
+        std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
+        bool reserved;
+        size_t startPos; // Position de début de la lecture (sera 0)
+        size_t curPos;   // Position de lecture actuelle
+        size_t endPos;   // Position de fin de la lecture (taille du buffer)
+
+        bool isPlaying() const { return active_ && sound && curPos < endPos; }
+        void setActive(bool active) { active_ = active; }
+
+    };
+
 class AudioMixer {
 public:
     AudioMixer(int numChannels);
@@ -27,27 +42,15 @@ public:
     bool isChannelReserved(int channel) const; // Nouvelle fonction pour vérifier si un canal est réservé
     bool isChannelPlaying(int channel) const;
 
-    // Nouvelle interface pour accéder aux membres de ChannelInfo de manière sécurisée
     size_t getChannelCurPos(int channel) const;
     void setChannelCurPos(int channel, size_t pos);
     size_t getChannelEndPos(int channel) const;
+    std::vector<ChannelInfo>& getChannelList();
 
 private:
     unsigned int numChannels_;
-    struct ChannelInfo {
-        bool active;
-        float volume;
-        std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
-        bool reserved;
-        size_t startPos; // Position de début de la lecture (sera 0)
-        size_t curPos;   // Position de lecture actuelle
-        size_t endPos;   // Position de fin de la lecture (taille du buffer)
+    std::vector<ChannelInfo> channelList_;
 
-        bool isPlaying() const { return active && sound && curPos < endPos; }
-
-    };
-
-    std::array<ChannelInfo, 18> channels_;
     float globalVolume_; // Variable pour le volume global
     static const int metronomeChannel_ = 0;
 };
