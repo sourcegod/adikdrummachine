@@ -91,17 +91,17 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     // Mixer les sons
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
-        for (int channel = 0; channel < 17; ++channel) {
-            if (data->mixer.isChannelActive(channel)) {
-                auto sound = data->mixer.getSound(channel);
+        for (auto& chan: data->mixer.getChannelList()) {
+            if (chan.isActive()) {
+                auto sound = chan.sound;
                 if (sound) {
-                    size_t currentPos = data->mixer.getChannelCurPos(channel);
-                    size_t endPos = data->mixer.getChannelEndPos(channel);
-                    if (currentPos < endPos) {
-                        mixedSample += (sound->getRawData()[currentPos] * data->mixer.getVolume(channel));
-                        data->mixer.setChannelCurPos(channel, currentPos + 1);
+                    size_t curPos = chan.curPos;
+                    size_t endPos = chan.endPos;
+                    if (curPos < endPos) {
+                        mixedSample += (sound->getRawData()[curPos] * chan.volume);
+                      chan.curPos++;
                     } else {
-                        data->mixer.setChannelActive(channel, false); // Utilisation de la fonction existante
+                        chan.setActive(false);
                     }
 
                 }

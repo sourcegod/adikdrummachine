@@ -16,6 +16,7 @@
         size_t endPos;   // Position de fin de la lecture (taille du buffer)
 
         bool isPlaying() const { return active_ && sound && curPos < endPos; }
+        bool isActive() const { return active_; }
         void setActive(bool active) { active_ = active; }
 
     };
