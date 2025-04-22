@@ -72,11 +72,14 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         frameCounter = 0;
 
         if (data->player.isPlaying) {
-            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
+            data->player.clickStep = data->player.currentStep;
             if (data->player.isClicking && data->player.clickStep % 4 == 0) {
-                data->player.playMetronome();
+              // beep();  
+              data->player.playMetronome();
             }
             data->player.playPattern();
+            data->player.currentStep = (data->player.currentStep + 1) % NUM_STEPS;
+
         } else if (data->player.isClicking) {
             if (data->player.clickStep % 4 == 0) {
                 data->player.playMetronome();

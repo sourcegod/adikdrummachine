@@ -82,6 +82,7 @@ void DrumPlayer::stopAllSounds() {
     beatCounter_ = 0;
 }
 
+
 void DrumPlayer::startClick() {
     isClicking = true;
     if (isPlaying) {
@@ -97,10 +98,9 @@ void DrumPlayer::startClick() {
     }
     // Activer les sons du métronome (s'assurer qu'ils sont chargés)
     if (soundClick1_) {
-        soundClick1_->setActive(false);
-    }
-    if (soundClick2_) {
-        soundClick2_->setActive(false);
+        soundClick1_->setActive(true);
+    } if (soundClick2_) {
+        soundClick2_->setActive(true);
     }
 
 }
@@ -114,40 +114,46 @@ void DrumPlayer::stopClick() {
     }
     if (soundClick1_) {
         soundClick1_->setActive(false);
-    }
-    if (soundClick2_) {
+    } if (soundClick2_) {
         soundClick2_->setActive(false);
     }
 
 }
 
 void DrumPlayer::playMetronome() {
-    if (isPlaying && currentStep == 0) {
-      beatCounter_ =0;
+    if (isPlaying) {
+        if (currentStep == 0) {
+            beatCounter_ =0;
+        } else {
+            beatCounter_ = currentStep / 4; // Note: Le résultat est une division entière puisque les deux nombres sont des entiers.
+        }
     }
+    
     if (mixer_) {
         if (beatCounter_ % 4 == 0 && soundClick1_) {
-            soundClick1_->setActive(true);
-            soundClick1_->resetPlayhead();
             mixer_->play(0, soundClick1_);
         } else if (soundClick2_) {
-            soundClick2_->setActive(true);
-            soundClick2_->resetPlayhead();
             mixer_->play(0, soundClick2_);
         }
-        beatCounter_= (beatCounter_ + 1) % 4;
+        beatCounter_ = (beatCounter_ + 1) % 4;
     }
 }
 
 // /*
 void DrumPlayer::playPattern() {
     if (mixer_ && isPlaying) {
-        for (int i = 0; i < drumSounds_.size(); ++i) { // Exclude metronome sounds
+        for (int i = 0; i < drumSounds_.size(); ++i) { //
             if (pattern_[i][currentStep]) {
                 if (drumSounds_[i]) {
+                    
+                    /* 
+                    // On ne cherche plus un canal libre  pour jouer, chaque canal à son index de son
                     if (!mixer_->isChannelActive(i + 1)) { // Utiliser les canaux 1 à NUM_SOUNDS
                         mixer_->play(i + 1, drumSounds_[i]);
                     }
+                    */
+                    
+                    mixer_->play(i + 1, drumSounds_[i]);
                 }
             }
         }
