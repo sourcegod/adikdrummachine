@@ -122,11 +122,8 @@ void DrumPlayer::stopClick() {
 
 void DrumPlayer::playMetronome() {
     if (isPlaying) {
-        if (currentStep == 0) {
-            beatCounter_ =0;
-        } else {
-            beatCounter_ = currentStep / 4; // Note: Le résultat est une division entière puisque les deux nombres sont des entiers.
-        }
+        // valable aussi pour si currentStep =0 et beatCounter =0
+        beatCounter_ = currentStep / 4; // Note: Le résultat est une division entière puisque les deux nombres sont des entiers.
     }
     
     if (mixer_) {
