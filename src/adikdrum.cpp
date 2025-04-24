@@ -230,7 +230,7 @@ bool AdikDrum::initApp() {
 void AdikDrum::closeApp() {
     resetTermios(oldTerm);
     audioDriver_.stop();
-    audioDriver_.close();
+    // audioDriver_.close(); // not nessary cause it managing by the AudioDriver's destructor
     std::cout << "AdikDrum fermé." << std::endl;
 
 }
@@ -246,29 +246,29 @@ void AdikDrum::run() {
           if (key == 'X') break;
 
           if (key == '\n') { // Touche Enter
-              drumData.player->pattern_[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
+              drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
               std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " activated and playing." << std::endl;
-              drumData.player->playSound(cursor_pos.second); // Utilise l'index directement
+              drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
 
           } else if (key == 127) { // Touche Backspace (code ASCII 127)
-              drumData.player->pattern_[cursor_pos.second][cursor_pos.first] = false;
+              drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = false;
               std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
           } else if (key == ' ') { // Touche Espace
-              drumData.player->isPlaying = !drumData.player->isPlaying;
-              std::cout << "Play: " << (drumData.player->isPlaying ? "ON" : "OFF") << std::endl;
+              drumPlayer_.isPlaying = !drumPlayer_.isPlaying;
+              std::cout << "Play: " << (drumPlayer_.isPlaying ? "ON" : "OFF") << std::endl;
           } else if (key == 'p') {
             demo();
             std::cout << "Playing demo" << std::endl;
           } else if (key == 'v') {
-              drumData.player->stopAllSounds();
+              drumPlayer_.stopAllSounds();
               std::cout << "All sounds stopped." << std::endl;
           } else if (key == 'c') {
-              drumData.player->isClicking = !drumData.player->isClicking;
-              if (drumData.player->isClicking)
-                drumData.player->startClick();
+              drumPlayer_.isClicking = !drumPlayer_.isClicking;
+              if (drumPlayer_.isClicking)
+                drumPlayer_.startClick();
               else
-                drumData.player->stopClick();
-              std::cout << "Metronome: " << (drumData.player->isClicking ? "ON" : "OFF") << std::endl;
+                drumPlayer_.stopClick();
+              std::cout << "Metronome: " << (drumPlayer_.isClicking ? "ON" : "OFF") << std::endl;
           
           } else if (key == '+') {
               float currentVolume = drumData.mixer->getGlobalVolume();
@@ -280,20 +280,20 @@ void AdikDrum::run() {
               std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
 
           } else if (key == '(') {
-              auto bpm = drumData.player->getBpm();  
+              auto bpm = drumPlayer_.getBpm();  
               if (bpm > 5) {
                 bpm -=5;  
-                  drumData.player->setBpm(bpm);
+                  drumPlayer_.setBpm(bpm);
                   std::cout << "BPM decreased to " << bpm << std::endl;
               } else {
                   beep();
                   std::cout << "Minimum BPM reached." << std::endl;
               }
           } else if (key == ')') {
-              auto bpm = drumData.player->getBpm();  
+              auto bpm = drumPlayer_.getBpm();  
               if (bpm < 800) {
                 bpm +=5;  
-                drumData.player->setBpm(bpm);
+                drumPlayer_.setBpm(bpm);
                   std::cout << "BPM increased to " << bpm << std::endl;
               } else {
                   beep();
@@ -302,7 +302,7 @@ void AdikDrum::run() {
 
           } else if (keyToSoundMap.count(key)) {
               int soundIndex = keyToSoundMap[key];
-              drumData.player->playSound(soundIndex); // Utilise l'index directement
+              drumPlayer_.playSound(soundIndex); // Utilise l'index directement
 
           } else if (key == '\033') { // Code d'échappement pour les séquences de touches spéciales (comme les flèches)
               read(STDIN_FILENO, &key, 1); // Lit le caractère '['
@@ -315,7 +315,7 @@ void AdikDrum::run() {
                   } else {
                       beep();
                   }
-                  drumData.player->playSound(cursor_pos.second); // Utilise l'index directement
+                  drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
                   std::cout << "Cursor up, playing sound " << cursor_pos.second << std::endl;
               } else if (key == 'B') { // Flèche bas
                   if (cursor_pos.second < NUM_SOUNDS - 1) {
@@ -324,7 +324,7 @@ void AdikDrum::run() {
                   } else {
                       beep();
                   }
-                  drumData.player->playSound(cursor_pos.second); // Utilise l'index directement
+                  drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
                   std::cout << "Cursor down, playing sound " << cursor_pos.second << std::endl;
 
               } else if (key == 'C') { // Flèche droite
