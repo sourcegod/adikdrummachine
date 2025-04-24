@@ -179,10 +179,12 @@ bool AdikDrum::initApp() {
     //  AudioMixer mixer(numChannels);
     const int sampleRate = 44100;
     const double defaultDuration = 0.1;
-    SoundFactory soundFactory(sampleRate, defaultDuration);
-    std::vector<std::shared_ptr<AudioSound>> drumSounds;
-    
+   
     // /*
+    SoundFactory soundFactory(sampleRate, defaultDuration);
+    // std::vector<std::shared_ptr<AudioSound>> drumSounds;
+
+    /* 
     drumSounds.push_back(soundFactory.generateKick());
     drumSounds.push_back(soundFactory.generateSnare());
     drumSounds.push_back(soundFactory.generateHiHat(0.25));
@@ -199,17 +201,18 @@ bool AdikDrum::initApp() {
     drumSounds.push_back(soundFactory.generateTestTone(275.0, defaultDuration)); // Exemple pour HiTom
     drumSounds.push_back(soundFactory.generateTestTone(660.0, 1)); // Exemple pour CowBell
     drumSounds.push_back(soundFactory.generateTestTone(440.0, 3)); // Exemple pour Tambourine
-        
+    */    
+    
     // Générer les sons du métronome
     std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
     std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
-    // DrumMachineData drumData(drumSounds, NUM_STEPS);
     // global structure for now
     drumData.player = &drumPlayer_;
     drumData.mixer = &mixer_;
     drumData.player->setMixer(mixer_); // Assigner le mixer à player
-    drumData.player->drumSounds_ = drumSounds;
+    loadSounds(); // charger les sons
+    drumData.player->drumSounds_ = this->getDrumSounds();
     drumData.sampleRate = sampleRate;
 
     // Assigner les sons du métronome à DrumPlayer
@@ -386,6 +389,36 @@ void AdikDrum::run() {
         std::cerr << "Erreur: " << e.what() << std::endl;
     }
 
+}
+
+void AdikDrum::loadSounds() {
+    const int sampleRate = 44100;
+    const double defaultDuration = 0.1;
+    SoundFactory soundFactory(sampleRate, defaultDuration);
+    drumSounds_.clear(); // S'assurer que le vecteur est vide avant de charger
+
+     drumSounds_.push_back(soundFactory.generateKick());
+     drumSounds_.push_back(soundFactory.generateSnare());
+    drumSounds_.push_back(soundFactory.generateHiHat(0.25));
+    drumSounds_.push_back(soundFactory.generateKick2());
+    drumSounds_.push_back(soundFactory.generateSnare2());
+    drumSounds_.push_back(soundFactory.generateCymbal(3.0));
+    drumSounds_.push_back(soundFactory.generateTestTone(440.0, defaultDuration));
+    drumSounds_.push_back(soundFactory.generateTestTone(550.0, defaultDuration));
+    drumSounds_.push_back(soundFactory.generateTestTone(220.0, defaultDuration)); // Exemple pour RimShot
+    drumSounds_.push_back(soundFactory.generateTestTone(330.0, defaultDuration)); // Exemple pour HandClap
+    drumSounds_.push_back(soundFactory.generateHiHat(0.5)); // Exemple pour HiHatOpen
+    drumSounds_.push_back(soundFactory.generateTestTone(110.0, defaultDuration)); // Exemple pour LowTom
+    drumSounds_.push_back(soundFactory.generateTestTone(165.0, defaultDuration)); // Exemple pour MidTom
+    drumSounds_.push_back(soundFactory.generateTestTone(275.0, defaultDuration)); // Exemple pour HiTom
+    drumSounds_.push_back(soundFactory.generateTestTone(660.0, 1)); // Exemple pour CowBell
+    drumSounds_.push_back(soundFactory.generateTestTone(440.0, 3)); // Exemple pour Tambourine
+        
+
+}
+
+const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const {
+    return drumSounds_;
 }
 
 int main() {
