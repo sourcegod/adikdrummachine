@@ -165,9 +165,8 @@ AdikDrum::AdikDrum()
     : sampleRate_(44100),
       numSounds_(16),
       numSteps_(16),
-      initialBpm_(120),
       mixer_(18),
-      drumPlayer_(numSounds_, numSteps_, initialBpm_) {
+      drumPlayer_(numSounds_, numSteps_) {
 }
 
 AdikDrum::~AdikDrum() {
@@ -268,11 +267,6 @@ void AdikDrum::run() {
       // displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
       char key;
       while (read(STDIN_FILENO, &key, 1) == 1) {
-      // while (true) {
-           // beep();              
-           // key = std::cin.get();
-           // std::cout << "voici key: " << key << std::endl;
-           // continue;
 
           if (key == 'X') break;
 
@@ -311,17 +305,21 @@ void AdikDrum::run() {
               std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
 
           } else if (key == '(') {
-              if (drumData.player->bpm > 5) {
-                  drumData.player->setBpm(drumData.player->bpm - 5);
-                  std::cout << "BPM decreased to " << drumData.player->bpm << std::endl;
+              auto bpm = drumData.player->getBpm();  
+              if (bpm > 5) {
+                bpm -=5;  
+                  drumData.player->setBpm(bpm);
+                  std::cout << "BPM decreased to " << bpm << std::endl;
               } else {
                   beep();
                   std::cout << "Minimum BPM reached." << std::endl;
               }
           } else if (key == ')') {
-              if (drumData.player->bpm < 800) {
-                  drumData.player->setBpm(drumData.player->bpm + 5);
-                  std::cout << "BPM increased to " << drumData.player->bpm << std::endl;
+              auto bpm = drumData.player->getBpm();  
+              if (bpm < 800) {
+                bpm +=5;  
+                drumData.player->setBpm(bpm);
+                  std::cout << "BPM increased to " << bpm << std::endl;
               } else {
                   beep();
                   std::cout << "Maximum BPM reached." << std::endl;

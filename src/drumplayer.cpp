@@ -8,13 +8,11 @@
 #include <memory>
 #include <algorithm> // pour std::clamp
 
-DrumPlayer::DrumPlayer(int numSounds, int numSteps, int initialBpm)
-// DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
+DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     : isPlaying(false),
       isClicking(false),
       currentStep(0),
-      bpm(initialBpm),
-      // drumSounds_(sounds),
+      bpm_(100),
       clickStep(0),
       pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
@@ -23,7 +21,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps, int initialBpm)
       mixer_(nullptr) // Initialiser à nullptr
 
 {
-    setBpm(initialBpm);
+    setBpm(bpm_);
 }
 
 DrumPlayer::~DrumPlayer() {
@@ -167,9 +165,13 @@ double DrumPlayer::hardClip(double x) {
     return std::clamp(x, -1.0, 1.0);
 }
 
-void DrumPlayer::setBpm(int newBpm) {
-    bpm = newBpm;
-    secondsPerStep = (60.0 / bpm) / 4.0;
+const double DrumPlayer::getBpm() const { return bpm_; }
+void DrumPlayer::setBpm(double newBpm) {
+    if (newBpm >=5 &&  newBpm <= 800) {
+        bpm_ = newBpm;
+        secondsPerStep = (60.0 / bpm_) / 4.0;
+    }
+
 }
 
 bool DrumPlayer::isSoundPlaying() const {

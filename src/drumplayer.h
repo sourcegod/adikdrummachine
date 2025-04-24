@@ -8,7 +8,7 @@
 
 class DrumPlayer {
 public:
-    DrumPlayer(int numSounds, int numSteps, int initialBpm);
+    DrumPlayer(int numSounds, int numSteps);
     // DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps);
     ~DrumPlayer();
 
@@ -20,7 +20,8 @@ public:
     double softClip(double x);
     double hardClip(double x); // Nouvelle fonction de hard clipping
 
-    void setBpm(int newBpm);
+    const double getBpm() const;
+    void setBpm(double newBpm);
     bool isSoundPlaying() const;
     void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer
     void startClick();
@@ -29,7 +30,6 @@ public:
     bool isPlaying;
     bool isClicking;
     int currentStep;
-    int bpm;
     double secondsPerStep;
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Utilisation de shared_ptr
     std::shared_ptr<AudioSound> soundClick1_; // Nouveau membre pour le son aigu du métronome
@@ -41,6 +41,7 @@ public:
     int sampleRate_;
 
 private:
+    double bpm_;
     int beatCounter_;
     AudioMixer* mixer_; // Pointeur vers l'AudioMixer
 
