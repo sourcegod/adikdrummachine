@@ -22,6 +22,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
 
 {
     setBpm(bpm_);
+    std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
+
 }
 
 DrumPlayer::~DrumPlayer() {

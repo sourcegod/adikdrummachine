@@ -167,6 +167,7 @@ AdikDrum::AdikDrum()
       numSteps_(16),
       mixer_(18),
       drumPlayer_(numSounds_, numSteps_) {
+      std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
 }
 
 AdikDrum::~AdikDrum() {
@@ -259,6 +260,9 @@ void AdikDrum::run() {
           } else if (key == 'p') {
             demo();
             std::cout << "Playing demo" << std::endl;
+            } else if (key == 16) { // Ctrl+p (code ASCII 16) - Peut varier selon le terminal
+                loadPattern();
+                displayGrid(drumPlayer_.pattern_, cursor_pos);
           } else if (key == 'v') {
               drumPlayer_.stopAllSounds();
               std::cout << "All sounds stopped." << std::endl;
@@ -379,8 +383,8 @@ void AdikDrum::loadSounds() {
     drumSounds_.push_back(soundFactory.generateTestTone(110.0, defaultDuration)); // Exemple pour LowTom
     drumSounds_.push_back(soundFactory.generateTestTone(165.0, defaultDuration)); // Exemple pour MidTom
     drumSounds_.push_back(soundFactory.generateTestTone(275.0, defaultDuration)); // Exemple pour HiTom
-    drumSounds_.push_back(soundFactory.generateTestTone(660.0, 1)); // Exemple pour CowBell
-    drumSounds_.push_back(soundFactory.generateTestTone(440.0, 3)); // Exemple pour Tambourine
+    drumSounds_.push_back(soundFactory.generateTestTone(660.0, 0.1)); // Exemple pour CowBell
+    drumSounds_.push_back(soundFactory.generateTestTone(440.0, 0.3)); // Exemple pour Tambourine
         
 
 }
@@ -397,6 +401,25 @@ void AdikDrum::demo() {
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
     }
 
+}
+
+void AdikDrum::loadPattern() {
+    std::cout << "Chargement d'un pattern de démonstration..." << std::endl;
+    // Exemple de pattern aléatoire
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 1); // 0 ou 1
+
+    // std::cout << "pattern.size: " << drumPlayer_.pattern_.size() << std::endl;
+    // std::cout << "numSteps: " << drumPlayer_.numSteps_ << std::endl;
+    for (size_t i = 0; i < drumPlayer_.pattern_.size(); ++i) {
+        for (int j = 0; j < drumPlayer_.numSteps_; ++j) {
+            drumPlayer_.pattern_[i][j] = (distrib(gen) == 1); // Assigne aléatoirement true ou false
+        }
+    }
+    std::cout << "Pattern de démonstration chargé." << std::endl;
+
+    // Afficher le pattern chargé en utilisant displayGrid
 }
 
 int main() {
