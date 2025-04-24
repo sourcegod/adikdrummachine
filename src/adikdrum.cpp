@@ -238,17 +238,9 @@ bool AdikDrum::initApp() {
         return 1;
     }
     // */
-
-    // /*
+    
     // Tester les sons
-    for (int i = 0; i < NUM_SOUNDS; ++i) {
-        drumData.player->playSound(i);
-        long long sleepDurationMs = static_cast<long long>(drumData.player->drumSounds_[i]->getLength() * 1000.0 / sampleRate * 1.0);
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
-    }
-    // */
-
-
+    demo();
     // initialiser le clavier
     oldTerm = initTermios(0);
     std::cout << "Le clavier est initialisé." << std::endl;
@@ -295,6 +287,9 @@ void AdikDrum::run() {
           } else if (key == ' ') { // Touche Espace
               drumData.player->isPlaying = !drumData.player->isPlaying;
               std::cout << "Play: " << (drumData.player->isPlaying ? "ON" : "OFF") << std::endl;
+          } else if (key == 'p') {
+            demo();
+            std::cout << "Playing demo" << std::endl;
           } else if (key == 'v') {
               drumData.player->stopAllSounds();
               std::cout << "All sounds stopped." << std::endl;
@@ -419,6 +414,16 @@ void AdikDrum::loadSounds() {
 
 const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const {
     return drumSounds_;
+}
+
+void AdikDrum::demo() {
+    // Tester les sons
+    for (int i = 0; i < drumSounds_.size(); ++i) {
+        drumData.player->playSound(i);
+        long long sleepDurationMs = static_cast<long long>(drumData.player->drumSounds_[i]->getLength() * 1000.0 / sampleRate_ * 1.0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
+    }
+
 }
 
 int main() {
