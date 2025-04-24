@@ -8,12 +8,13 @@
 #include <memory>
 #include <algorithm> // pour std::clamp
 
-DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
+DrumPlayer::DrumPlayer(int numSounds, int numSteps, int initialBpm)
+// DrumPlayer::DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps)
     : isPlaying(false),
       isClicking(false),
       currentStep(0),
       bpm(initialBpm),
-      drumSounds_(sounds),
+      // drumSounds_(sounds),
       clickStep(0),
       pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),

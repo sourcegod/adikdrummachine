@@ -8,7 +8,8 @@
 
 class DrumPlayer {
 public:
-    DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps);
+    DrumPlayer(int numSounds, int numSteps, int initialBpm);
+    // DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps);
     ~DrumPlayer();
 
     void playSound(int soundIndex);
