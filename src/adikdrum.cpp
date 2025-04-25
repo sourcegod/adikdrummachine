@@ -36,6 +36,7 @@ std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
 std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 volatile int callbackCounter =0;
 termios oldTerm; // pour gérer le terminal
+                 //
 // Mapping des touches et des sons
 std::map<char, int> keyToSoundMap = {
     {'q', 0}, {'s', 1}, {'d', 2}, {'f', 3},
@@ -76,13 +77,13 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
               data->player->playMetronome();
             }
             data->player->playPattern();
-            data->player->currentStep = (data->player->currentStep + 1) % NUM_STEPS;
+            data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
 
         } else if (data->player->isClicking) {
             if (data->player->clickStep % 4 == 0) {
                 data->player->playMetronome();
             }
-            data->player->clickStep = (data->player->clickStep + 1) % NUM_STEPS;
+            data->player->clickStep = (data->player->clickStep + 1) % data->player->getNumSteps();
         }
     }
 

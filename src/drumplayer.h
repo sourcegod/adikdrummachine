@@ -26,6 +26,8 @@ public:
     void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer
     void startClick();
     void stopClick();
+    int getNumSteps() const { return numSteps_; }
+    int getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
 
     bool isPlaying;
     bool isClicking;
