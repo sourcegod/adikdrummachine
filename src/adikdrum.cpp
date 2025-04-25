@@ -168,9 +168,32 @@ AdikDrum::AdikDrum()
       numSounds_(16),
       numSteps_(16),
       mixer_(18),
-      drumPlayer_(numSounds_, numSteps_) {
+      drumPlayer_(numSounds_, numSteps_) 
+{
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
+      helpText = "Appuyez sur les touches suivantes pour contrôler l'application:\n"
+               "  Q: Quitter l'application\n"
+               "  Entrée: Activer le pas à la position du curseur\n"
+               "  Backspace: Désactiver le pas à la position du curseur\n"
+               "  Espace: Activer/désactiver la lecture\n"
+               "  c: Démarrer/arrêter le métronome\n"
+               "  p: Lancer la démo des sons\n"
+               "  Ctrl+p: Charger un nouveau pattern aléatoire\n"
+               "  v: Arrêter tous les sons en cours\n"
+               "  x: Muter/démuter le son courant (ligne du curseur)\n"
+               "  X: Réinitialiser le mute de tous les canaux\n"
+               "  +: Augmenter le volume global\n"
+               "  -: Diminuer le volume global\n"
+               "  (: Diminuer le BPM\n"
+               "  ): Augmenter le BPM\n"
+               "  Flèche Haut: Déplacer le curseur vers le haut et jouer le son\n"
+               "  Flèche Bas: Déplacer le curseur vers le bas et jouer le son\n"
+               "  Flèche Droite: Déplacer le curseur vers la droite\n"
+               "  Flèche Gauche: Déplacer le curseur vers la gauche\n"
+               "  Touches [q-k, a-i]: Jouer le son correspondant\n";
+
 }
+
 
 AdikDrum::~AdikDrum() {
     // closeApp();
@@ -214,10 +237,6 @@ bool AdikDrum::initApp() {
         return 1;
     }
     
-    // initialiser le clavier
-    oldTerm = initTermios(0);
-    std::cout << "Le clavier est initialisé." << std::endl;
-
     // Tester les sons
     demo();
 
@@ -231,7 +250,6 @@ bool AdikDrum::initApp() {
 }
 
 void AdikDrum::closeApp() {
-    resetTermios(oldTerm);
     audioDriver_.stop();
     // audioDriver_.close(); // not nessary cause it managing by the AudioDriver's destructor
     std::cout << "AdikDrum fermé." << std::endl;
@@ -239,139 +257,140 @@ void AdikDrum::closeApp() {
 }
 
 void AdikDrum::run() {
-    std::cout << "Appuyez sur 'p' pour démarrer/arrêter la lecture, 'c' pour démarrer/arrêter le métronome, 'd' pour la démo, Ctrl+p pour charger un pattern, 'x' pour muter/démuter le son courant, 'X' pour réinitialiser le mute (q pour quitter)." << std::endl;
+    std::cout << helpText << std::endl; // Afficher le texte d'aide au début
+    // initialiser le clavier
+    oldTerm = initTermios(0);
+    std::cout << "Le clavier est initialisé." << std::endl;
 
-    try {
 
-      // displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
-      char key;
-      while (read(STDIN_FILENO, &key, 1) == 1) {
+    // displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+    char key;
+    while (read(STDIN_FILENO, &key, 1) == 1) {
 
-          if (key == 'Q') break;
+        if (key == 'Q') break;
 
-          if (key == '\n') { // Touche Enter
-              drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
-              std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " activated and playing." << std::endl;
-              drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
+        if (key == '\n') { // Touche Enter
+            drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
+            std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " activated and playing." << std::endl;
+            drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
 
-          } else if (key == 127) { // Touche Backspace (code ASCII 127)
-              drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = false;
-              std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
-          } else if (key == ' ') { // Touche Espace
-              drumPlayer_.isPlaying = !drumPlayer_.isPlaying;
-              std::cout << "Play: " << (drumPlayer_.isPlaying ? "ON" : "OFF") << std::endl;
-          } else if (key == 'c') {
-              drumPlayer_.isClicking = !drumPlayer_.isClicking;
-              if (drumPlayer_.isClicking)
-                drumPlayer_.startClick();
-              else
-                drumPlayer_.stopClick();
-              std::cout << "Metronome: " << (drumPlayer_.isClicking ? "ON" : "OFF") << std::endl;
- 
-          } else if (key == 'p') {
-              demo();
-              std::cout << "Playing demo" << std::endl;
-          } else if (key == 16) { // Ctrl+p (code ASCII 16) - Peut varier selon le terminal
-              loadPattern();
-              displayGrid(drumPlayer_.pattern_, cursor_pos);
+        } else if (key == 127) { // Touche Backspace (code ASCII 127)
+            drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = false;
+            std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
+        } else if (key == ' ') { // Touche Espace
+            drumPlayer_.isPlaying = !drumPlayer_.isPlaying;
+            std::cout << "Play: " << (drumPlayer_.isPlaying ? "ON" : "OFF") << std::endl;
+        } else if (key == 'c') {
+            drumPlayer_.isClicking = !drumPlayer_.isClicking;
+            if (drumPlayer_.isClicking)
+              drumPlayer_.startClick();
+            else
+              drumPlayer_.stopClick();
+            std::cout << "Metronome: " << (drumPlayer_.isClicking ? "ON" : "OFF") << std::endl;
 
-          } else if (key == 'v') {
-              drumPlayer_.stopAllSounds();
-              std::cout << "All sounds stopped." << std::endl;
-         
-          } else if (key == 'x') {
-              int currentSoundIndex = cursor_pos.second;
-              bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
-              drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
-          } else if (key == 'X') {
-              drumPlayer_.resetMute(); // Réinitialiser le mute via DrumPlayer (qui appelle aussi AudioMixer)
+        } else if (key == 'p') {
+            demo();
+            std::cout << "Playing demo" << std::endl;
+        } else if (key == 16) { // Ctrl+p (code ASCII 16) - Peut varier selon le terminal
+            loadPattern();
+            displayGrid(drumPlayer_.pattern_, cursor_pos);
 
-          } else if (key == '+') {
-              float currentVolume = drumData.mixer->getGlobalVolume();
-              drumData.mixer->setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
-              std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
-          } else if (key == '-') {
-              float currentVolume = drumData.mixer->getGlobalVolume();
-              drumData.mixer->setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
-              std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
+        } else if (key == 'v') {
+            drumPlayer_.stopAllSounds();
+            std::cout << "All sounds stopped." << std::endl;
+       
+        } else if (key == 'x') {
+            int currentSoundIndex = cursor_pos.second;
+            bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
+            drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
+        } else if (key == 'X') {
+            drumPlayer_.resetMute(); // Réinitialiser le mute via DrumPlayer (qui appelle aussi AudioMixer)
 
-          } else if (key == '(') {
-              auto bpm = drumPlayer_.getBpm();  
-              if (bpm > 5) {
-                bpm -=5;  
-                  drumPlayer_.setBpm(bpm);
-                  std::cout << "BPM decreased to " << bpm << std::endl;
-              } else {
-                  beep();
-                  std::cout << "Minimum BPM reached." << std::endl;
-              }
-          } else if (key == ')') {
-              auto bpm = drumPlayer_.getBpm();  
-              if (bpm < 800) {
-                bpm +=5;  
+        } else if (key == '+') {
+            float currentVolume = drumData.mixer->getGlobalVolume();
+            drumData.mixer->setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
+            std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
+        } else if (key == '-') {
+            float currentVolume = drumData.mixer->getGlobalVolume();
+            drumData.mixer->setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
+            std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
+
+        } else if (key == '(') {
+            auto bpm = drumPlayer_.getBpm();  
+            if (bpm > 5) {
+              bpm -=5;  
                 drumPlayer_.setBpm(bpm);
-                  std::cout << "BPM increased to " << bpm << std::endl;
-              } else {
-                  beep();
-                  std::cout << "Maximum BPM reached." << std::endl;
-              }
+                std::cout << "BPM decreased to " << bpm << std::endl;
+            } else {
+                beep();
+                std::cout << "Minimum BPM reached." << std::endl;
+            }
+        } else if (key == ')') {
+            auto bpm = drumPlayer_.getBpm();  
+            if (bpm < 800) {
+              bpm +=5;  
+              drumPlayer_.setBpm(bpm);
+                std::cout << "BPM increased to " << bpm << std::endl;
+            } else {
+                beep();
+                std::cout << "Maximum BPM reached." << std::endl;
+            }
 
-          } else if (keyToSoundMap.count(key)) {
-              int soundIndex = keyToSoundMap[key];
-              drumPlayer_.playSound(soundIndex); // Utilise l'index directement
+        } else if (keyToSoundMap.count(key)) {
+            int soundIndex = keyToSoundMap[key];
+            drumPlayer_.playSound(soundIndex); // Utilise l'index directement
 
-          } else if (key == '\033') { // Code d'échappement pour les séquences de touches spéciales (comme les flèches)
-              read(STDIN_FILENO, &key, 1); // Lit le caractère '['
-              read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
-              if (key == 'A') { // Flèche haut
-                  if (cursor_pos.second > 0) {
-                      cursor_pos.second--;
-                      displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+        } else if (key == '\033') { // Code d'échappement pour les séquences de touches spéciales (comme les flèches)
+            read(STDIN_FILENO, &key, 1); // Lit le caractère '['
+            read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
+            if (key == 'A') { // Flèche haut
+                if (cursor_pos.second > 0) {
+                    cursor_pos.second--;
+                    displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
 
-                  } else {
-                      beep();
-                  }
-                  drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
-                  std::cout << "Cursor up, playing sound " << cursor_pos.second << std::endl;
-              } else if (key == 'B') { // Flèche bas
-                  if (cursor_pos.second < NUM_SOUNDS - 1) {
-                      cursor_pos.second++;
-                      displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
-                  } else {
-                      beep();
-                  }
-                  drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
-                  std::cout << "Cursor down, playing sound " << cursor_pos.second << std::endl;
+                } else {
+                    beep();
+                }
+                drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
+                std::cout << "Cursor up, playing sound " << cursor_pos.second << std::endl;
+            } else if (key == 'B') { // Flèche bas
+                if (cursor_pos.second < NUM_SOUNDS - 1) {
+                    cursor_pos.second++;
+                    displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+                } else {
+                    beep();
+                }
+                drumPlayer_.playSound(cursor_pos.second); // Utilise l'index directement
+                std::cout << "Cursor down, playing sound " << cursor_pos.second << std::endl;
 
-              } else if (key == 'C') { // Flèche droite
-                  if (cursor_pos.first < NUM_STEPS - 1) {
-                      cursor_pos.first++;
-                      displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
-                      std::cout << "Cursor right, step " << cursor_pos.first << std::endl;
-                  } else {
-                      beep();
-                      std::cout << "Reached the end (right)." << std::endl;
-                  }
+            } else if (key == 'C') { // Flèche droite
+                if (cursor_pos.first < NUM_STEPS - 1) {
+                    cursor_pos.first++;
+                    displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+                    std::cout << "Cursor right, step " << cursor_pos.first << std::endl;
+                } else {
+                    beep();
+                    std::cout << "Reached the end (right)." << std::endl;
+                }
 
-              } else if (key == 'D') { // Flèche gauche
-                  if (cursor_pos.first > 0) {
-                      cursor_pos.first--;
-                      displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
-                      std::cout << "Cursor left, step " << cursor_pos.first << std::endl;
-                  } else {
-                      beep();
-                      std::cout << "Reached the beginning (left)." << std::endl;
-                  }
+            } else if (key == 'D') { // Flèche gauche
+                if (cursor_pos.first > 0) {
+                    cursor_pos.first--;
+                    displayGrid(pattern, cursor_pos); // Affiche la grille après chaque action
+                    std::cout << "Cursor left, step " << cursor_pos.first << std::endl;
+                } else {
+                    beep();
+                    std::cout << "Reached the beginning (left)." << std::endl;
+                }
 
-              }
-          }
-      
-          // beep();
-      }
+            }
+        }
+    
+        // beep();
+    } // End the while Loop
 
-    } catch (const std::runtime_error& e) {
-        std::cerr << "Erreur: " << e.what() << std::endl;
-    }
+    // Resets the terminal
+    resetTermios(oldTerm);
 
 }
 

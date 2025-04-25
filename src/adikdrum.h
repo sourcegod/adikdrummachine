@@ -16,6 +16,8 @@ public:
         double sampleRate;
     };
 
+    std::string helpText;
+
 
 
     AdikDrum();
