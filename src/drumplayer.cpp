@@ -18,8 +18,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       numSteps_(numSteps),
       sampleRate_(44100),
       beatCounter_(0),
-      mixer_(nullptr) // Initialiser à nullptr
-
+      mixer_(nullptr), // Initialiser à nullptr
+      isMuted_(numSounds, false) // Initialiser tous les sons comme non mutés
 {
     setBpm(bpm_);
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
@@ -184,3 +184,20 @@ bool DrumPlayer::isSoundPlaying() const {
     }
     return false;
 }
+
+bool DrumPlayer::isSoundMuted(int soundIndex) const {
+    if (soundIndex >= 0 && soundIndex < isMuted_.size()) {
+        return isMuted_[soundIndex];
+    }
+    return false; // Par défaut, non muté si l'index est invalide
+}
+
+void DrumPlayer::setSoundMuted(int soundIndex, bool muted) {
+    if (mixer_ && soundIndex >= 0 && soundIndex < drumSounds_.size()) {
+        int channelToMute = soundIndex + 1; // Ajouter 1 pour tenir compte du canal du métronome
+        mixer_->setChannelMuted(channelToMute, muted); // Utiliser la fonction de AudioMixer
+        isMuted_[soundIndex] = muted; // Garder une trace locale si nécessaire
+        std::cout << "Son " << soundIndex + 1 << " (canal " << channelToMute + 1 << ") est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
+    }
+}
+

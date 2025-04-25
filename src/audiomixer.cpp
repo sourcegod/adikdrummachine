@@ -180,3 +180,20 @@ size_t AudioMixer::getChannelEndPos(int channel) const {
 std::vector<ChannelInfo>& AudioMixer::getChannelList() {
     return channelList_;
 }
+
+void AudioMixer::setChannelMuted(int channelIndex, bool muted) {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        channelList_[channelIndex].muted = muted;
+        std::cout << "Canal " << channelIndex + 1 << " est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
+    } else {
+        std::cerr << "Index de canal invalide: " << channelIndex + 1 << std::endl;
+    }
+}
+
+bool AudioMixer::isChannelMuted(int channelIndex) const {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        return channelList_[channelIndex].muted;
+    }
+    return false; // Par défaut, non muté si l'index est invalide
+}
+

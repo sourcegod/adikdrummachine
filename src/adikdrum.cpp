@@ -91,7 +91,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         double mixedSample = 0.0;
         for (auto& chan: data->mixer->getChannelList()) {
-            if (chan.isActive()) {
+            // if (chan.isActive()) {
+            if (chan.isActive() && !chan.muted) { // Vérifier si le canal n'est pas muté
                 auto sound = chan.sound;
                 if (sound) {
                     size_t curPos = chan.curPos;
@@ -245,7 +246,7 @@ void AdikDrum::run() {
       char key;
       while (read(STDIN_FILENO, &key, 1) == 1) {
 
-          if (key == 'X') break;
+          if (key == 'Q') break;
 
           if (key == '\n') { // Touche Enter
               drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = true; // Active toujours le pas
@@ -275,6 +276,11 @@ void AdikDrum::run() {
                 drumPlayer_.stopClick();
               std::cout << "Metronome: " << (drumPlayer_.isClicking ? "ON" : "OFF") << std::endl;
           
+          } else if (key == 'x') {
+              int currentSoundIndex = cursor_pos.second;
+              bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
+              drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
+
           } else if (key == '+') {
               float currentVolume = drumData.mixer->getGlobalVolume();
               drumData.mixer->setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));

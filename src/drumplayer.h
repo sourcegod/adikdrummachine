@@ -28,6 +28,8 @@ public:
     void stopClick();
     int getNumSteps() const { return numSteps_; }
     int getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
+    bool isSoundMuted(int soundIndex) const;
+    void setSoundMuted(int soundIndex, bool muted);
 
     bool isPlaying;
     bool isClicking;
@@ -46,6 +48,7 @@ private:
     double bpm_;
     int beatCounter_;
     AudioMixer* mixer_; // Pointeur vers l'AudioMixer
+    std::vector<bool> isMuted_; // true si le son est muté
 
 };
 

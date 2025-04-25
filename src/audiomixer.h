@@ -18,6 +18,9 @@
         bool isPlaying() const { return active_ && sound && curPos < endPos; }
         bool isActive() const { return active_; }
         void setActive(bool active) { active_ = active; }
+        bool muted;
+        ChannelInfo() : sound(nullptr), curPos(0), endPos(0), volume(1.0f), 
+            active_(false), reserved(false), muted(false) {}
 
     };
 
@@ -47,6 +50,8 @@ public:
     void setChannelCurPos(int channel, size_t pos);
     size_t getChannelEndPos(int channel) const;
     std::vector<ChannelInfo>& getChannelList();
+    void setChannelMuted(int channelIndex, bool muted);
+    bool isChannelMuted(int channelIndex) const;
 
 private:
     unsigned int numChannels_;
