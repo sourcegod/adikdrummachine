@@ -30,6 +30,7 @@ public:
     int getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
     bool isSoundMuted(int soundIndex) const;
     void setSoundMuted(int soundIndex, bool muted);
+    void resetMute();
 
     bool isPlaying;
     bool isClicking;

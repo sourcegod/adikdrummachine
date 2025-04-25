@@ -197,3 +197,10 @@ bool AudioMixer::isChannelMuted(int channelIndex) const {
     return false; // Par défaut, non muté si l'index est invalide
 }
 
+void AudioMixer::resetMute() {
+    for (auto& channel : channelList_) {
+        channel.muted = false;
+    }
+    std::cout << "Tous les canaux ont été démutés." << std::endl;
+}
+

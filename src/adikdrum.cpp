@@ -239,6 +239,7 @@ void AdikDrum::closeApp() {
 }
 
 void AdikDrum::run() {
+    std::cout << "Appuyez sur 'p' pour démarrer/arrêter la lecture, 'c' pour démarrer/arrêter le métronome, 'd' pour la démo, Ctrl+p pour charger un pattern, 'x' pour muter/démuter le son courant, 'X' pour réinitialiser le mute (q pour quitter)." << std::endl;
 
     try {
 
@@ -259,15 +260,6 @@ void AdikDrum::run() {
           } else if (key == ' ') { // Touche Espace
               drumPlayer_.isPlaying = !drumPlayer_.isPlaying;
               std::cout << "Play: " << (drumPlayer_.isPlaying ? "ON" : "OFF") << std::endl;
-          } else if (key == 'p') {
-            demo();
-            std::cout << "Playing demo" << std::endl;
-            } else if (key == 16) { // Ctrl+p (code ASCII 16) - Peut varier selon le terminal
-                loadPattern();
-                displayGrid(drumPlayer_.pattern_, cursor_pos);
-          } else if (key == 'v') {
-              drumPlayer_.stopAllSounds();
-              std::cout << "All sounds stopped." << std::endl;
           } else if (key == 'c') {
               drumPlayer_.isClicking = !drumPlayer_.isClicking;
               if (drumPlayer_.isClicking)
@@ -275,11 +267,24 @@ void AdikDrum::run() {
               else
                 drumPlayer_.stopClick();
               std::cout << "Metronome: " << (drumPlayer_.isClicking ? "ON" : "OFF") << std::endl;
-          
+ 
+          } else if (key == 'p') {
+              demo();
+              std::cout << "Playing demo" << std::endl;
+          } else if (key == 16) { // Ctrl+p (code ASCII 16) - Peut varier selon le terminal
+              loadPattern();
+              displayGrid(drumPlayer_.pattern_, cursor_pos);
+
+          } else if (key == 'v') {
+              drumPlayer_.stopAllSounds();
+              std::cout << "All sounds stopped." << std::endl;
+         
           } else if (key == 'x') {
               int currentSoundIndex = cursor_pos.second;
               bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
               drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
+          } else if (key == 'X') {
+              drumPlayer_.resetMute(); // Réinitialiser le mute via DrumPlayer (qui appelle aussi AudioMixer)
 
           } else if (key == '+') {
               float currentVolume = drumData.mixer->getGlobalVolume();
@@ -425,6 +430,7 @@ void AdikDrum::loadPattern() {
         }
     }
     std::cout << "Pattern de démonstration chargé." << std::endl;
+    drumPlayer_.resetMute(); // Réinitialiser le mute lors du chargement d'un nouveau pattern
 
     // Afficher le pattern chargé en utilisant displayGrid
 }

@@ -201,3 +201,24 @@ void DrumPlayer::setSoundMuted(int soundIndex, bool muted) {
     }
 }
 
+/*
+void DrumPlayer::resetMute() {
+    for (bool mutedState : isMuted_) {
+        mutedState = false;
+    }
+    if (mixer_) {
+        mixer_->resetMute(); // S'assurer que le mixer est aussi réinitialisé
+    }
+    std::cout << "Tous les sons ont été démutés." << std::endl;
+}
+*/
+
+void DrumPlayer::resetMute() {
+    if (mixer_) {
+        mixer_->resetMute(); // S'assurer que le mixer est aussi réinitialisé
+    }
+    std::fill(isMuted_.begin(), isMuted_.end(), false);
+    std::cout << "Tous les sons ont été démutés." << std::endl;
+}
+
+

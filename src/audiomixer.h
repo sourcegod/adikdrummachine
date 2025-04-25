@@ -52,6 +52,7 @@ public:
     std::vector<ChannelInfo>& getChannelList();
     void setChannelMuted(int channelIndex, bool muted);
     bool isChannelMuted(int channelIndex) const;
+    void resetMute();
 
 private:
     unsigned int numChannels_;
