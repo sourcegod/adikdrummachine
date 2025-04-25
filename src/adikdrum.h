@@ -46,4 +46,5 @@ private:
 
 };
 
+
 #endif // ADIKDRUM_H
