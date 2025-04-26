@@ -62,58 +62,91 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                                  PaStreamCallbackFlags statusFlags,
                                  void* userData) {
     DrumMachineData* data = static_cast<DrumMachineData*>(userData);
-    float* out = static_cast<float*>(outputBuffer);
-    static unsigned long frameCounter = 0;
-    unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
+    // AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
+    if (data && data->mixer) {
+        float* out = static_cast<float*>(outputBuffer);
+        static unsigned long frameCounter = 0;
+        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
 
-    // std::cout << "je suis dans le callback" << callbackCounter << " fois " << std::endl;
-    if (frameCounter >= samplesPerStep) {
-        frameCounter = 0;
+        // std::cout << "je suis dans le callback" << callbackCounter << " fois " << std::endl;
+        if (frameCounter >= samplesPerStep) {
+            frameCounter = 0;
 
-        if (data->player->isPlaying) {
-            data->player->clickStep = data->player->currentStep;
-            if (data->player->isClicking && data->player->clickStep % 4 == 0) {
-              // beep();  
-              data->player->playMetronome();
+            if (data->player->isPlaying) {
+                data->player->clickStep = data->player->currentStep;
+                if (data->player->isClicking && data->player->clickStep % 4 == 0) {
+                  // beep();  
+                  data->player->playMetronome();
+                }
+                data->player->playPattern();
+                data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
+
+            } else if (data->player->isClicking) {
+                if (data->player->clickStep % 4 == 0) {
+                    data->player->playMetronome();
+                }
+                data->player->clickStep = (data->player->clickStep + 1) % data->player->getNumSteps();
             }
-            data->player->playPattern();
-            data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
-
-        } else if (data->player->isClicking) {
-            if (data->player->clickStep % 4 == 0) {
-                data->player->playMetronome();
-            }
-            data->player->clickStep = (data->player->clickStep + 1) % data->player->getNumSteps();
         }
-    }
 
-    // Mixer les sons
-    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-        double mixedSample = 0.0;
-        for (auto& chan: data->mixer->getChannelList()) {
-            // if (chan.isActive()) {
-            if (chan.isActive() && !chan.muted) { // Vérifier si le canal n'est pas muté
-                auto sound = chan.sound;
-                if (sound) {
+        // Mixer les sons
+        
+        for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+            double leftMix = 0.0;
+            double rightMix = 0.0;
+            for (auto& chan : data->mixer->getChannelList()) {
+                if (chan.isActive() && !chan.muted && chan.sound) {
                     size_t curPos = chan.curPos;
                     size_t endPos = chan.endPos;
                     if (curPos < endPos) {
-                        mixedSample += (sound->getRawData()[curPos] * chan.volume);
-                      chan.curPos++;
+                        float panValue = chan.pan;
+                        float rightGain = std::max(0.0f, 1.0f - panValue); // Pan -1 -> 0 (Left), 0 -> 1 (Right)
+                        float leftGain = std::max(0.0f, 1.0f + panValue);  // Pan -1 -> 1 (Left), 0 -> 0 (Right)
+
+                        float sample = chan.sound->getRawData()[curPos] * chan.volume;
+                        leftMix += sample * leftGain;
+                        rightMix += sample * rightGain;
+                        chan.curPos++;
                     } else {
                         chan.setActive(false);
                     }
-
                 }
             }
+            *out++ = static_cast<float>(data->player->hardClip(leftMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));   // Left channel
+            *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));  // Right channel
         }
-        *out++ = static_cast<float>(data->player->hardClip(mixedSample * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
-    }
 
-    if (data->player->isPlaying || data->player->isClicking) {
-        frameCounter += framesPerBuffer;
+
+        /*
+        for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+            double mixedSample = 0.0;
+            for (auto& chan: data->mixer->getChannelList()) {
+                // if (chan.isActive()) {
+                if (chan.isActive() && !chan.muted) { // Vérifier si le canal n'est pas muté
+                    auto sound = chan.sound;
+                    if (sound) {
+                        size_t curPos = chan.curPos;
+                        size_t endPos = chan.endPos;
+                        if (curPos < endPos) {
+                            mixedSample += (sound->getRawData()[curPos] * chan.volume);
+                          chan.curPos++;
+                        } else {
+                            chan.setActive(false);
+                        }
+
+                    }
+                }
+            }
+            *out++ = static_cast<float>(data->player->hardClip(mixedSample * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
+        }
+        */
+
+        if (data->player->isPlaying || data->player->isClicking) {
+            frameCounter += framesPerBuffer;
+        }
+        return paContinue;
     }
-    
+        
     
     // beep();
     // callbackCounter++;
@@ -225,7 +258,7 @@ bool AdikDrum::initApp() {
                                          
 
 
-    if (!audioDriver_.init(drumMachineCallback, &drumData, sampleRate, 256)) {
+  if (!audioDriver_.init(drumMachineCallback, &drumData, sampleRate, 256)) {
         std::cerr << "Erreur lors de l'initialisation de l'AudioDriver." << std::endl;
         return 1;
     }
@@ -335,6 +368,15 @@ void AdikDrum::run() {
                 beep();
                 std::cout << "Maximum BPM reached." << std::endl;
             }
+
+        } else if (key == '[') {
+            int currentChannelIndex = cursor_pos.second;
+            float currentPan = drumData.mixer->getChannelPan(currentChannelIndex);
+            drumData.mixer->setChannelPan(currentChannelIndex, std::max(-1.0f, currentPan - 0.1f));
+        } else if (key == ']') {
+            int currentChannelIndex = cursor_pos.second;
+            float currentPan = drumData.mixer->getChannelPan(currentChannelIndex);
+            drumData.mixer->setChannelPan(currentChannelIndex, std::min(1.0f, currentPan + 0.1f));
 
         } else if (keyToSoundMap.count(key)) {
             int soundIndex = keyToSoundMap[key];

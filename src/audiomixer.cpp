@@ -203,4 +203,20 @@ void AudioMixer::resetMute() {
     }
     std::cout << "Tous les canaux ont été démutés." << std::endl;
 }
+void AudioMixer::setChannelPan(int channelIndex, float panValue) {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        channelList_[channelIndex].pan = std::clamp(panValue, -1.0f, 1.0f);
+        std::cout << "Pan du canal " << channelIndex + 1 << " réglé à " << channelList_[channelIndex].pan << std::endl;
+    } else {
+        std::cerr << "Index de canal invalide: " << channelIndex + 1 << std::endl;
+    }
+}
 
+float AudioMixer::getChannelPan(int channelIndex) const {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        return channelList_[channelIndex].pan;
+    }
+    return 0.0f; // Par défaut au centre si l'index est invalide
+}
+
+ 

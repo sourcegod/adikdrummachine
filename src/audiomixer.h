@@ -6,23 +6,25 @@
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
 
-    struct ChannelInfo {
-        bool active_;
-        float volume;
-        std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
-        bool reserved;
-        size_t startPos; // Position de début de la lecture (sera 0)
-        size_t curPos;   // Position de lecture actuelle
-        size_t endPos;   // Position de fin de la lecture (taille du buffer)
+struct ChannelInfo {
+    bool active_;
+    float volume;
+    float pan; // Ajouter cette ligne
 
-        bool isPlaying() const { return active_ && sound && curPos < endPos; }
-        bool isActive() const { return active_; }
-        void setActive(bool active) { active_ = active; }
-        bool muted;
-        ChannelInfo() : sound(nullptr), curPos(0), endPos(0), volume(1.0f), 
-            active_(false), reserved(false), muted(false) {}
+    std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
+    bool reserved;
+    size_t startPos; // Position de début de la lecture (sera 0)
+    size_t curPos;   // Position de lecture actuelle
+    size_t endPos;   // Position de fin de la lecture (taille du buffer)
 
-    };
+    bool isPlaying() const { return active_ && sound && curPos < endPos; }
+    bool isActive() const { return active_; }
+    void setActive(bool active) { active_ = active; }
+    bool muted;
+    ChannelInfo() : sound(nullptr), curPos(0), endPos(0), volume(1.0f), 
+        active_(false), reserved(false), muted(false) {}
+
+};
 
 class AudioMixer {
 public:
@@ -53,6 +55,8 @@ public:
     void setChannelMuted(int channelIndex, bool muted);
     bool isChannelMuted(int channelIndex) const;
     void resetMute();
+    void setChannelPan(int channelIndex, float panValue);
+    float getChannelPan(int channelIndex) const;
 
 private:
     unsigned int numChannels_;
