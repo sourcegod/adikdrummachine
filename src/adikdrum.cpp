@@ -219,6 +219,8 @@ AdikDrum::AdikDrum()
                "  -: Diminuer le volume global\n"
                "  (: Diminuer le BPM\n"
                "  ): Augmenter le BPM\n"
+               "  [: Déplacer le panoramique du son courant vers la gauche\n"
+               "  ]: Déplacer le panoramique du son courant vers la droite\n"
                "  Flèche Haut: Déplacer le curseur vers le haut et jouer le son\n"
                "  Flèche Bas: Déplacer le curseur vers le bas et jouer le son\n"
                "  Flèche Droite: Déplacer le curseur vers la droite\n"
