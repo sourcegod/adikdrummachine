@@ -1,15 +1,12 @@
 #include "audiosound.h"
 
-AudioSound::AudioSound(std::vector<double> data) 
-  : active_(false), rawData_(data), 
-  length_(data.size()), playhead_(0) {}
+AudioSound::AudioSound(std::vector<double> data, int numChannels) 
+    : rawData_(std::move(data)), numChannels_(numChannels),
+    active_(false),
+    length_(data.size()), playhead_(0) {}
 
 AudioSound::~AudioSound() {
     // Pas de ressources spécifiques à libérer pour l'instant
-}
-
-bool AudioSound::isActive() const {
-    return active_;
 }
 
 void AudioSound::setActive(bool active) {
@@ -17,14 +14,6 @@ void AudioSound::setActive(bool active) {
     if (!active_) {
         playhead_ = 0; // Réinitialiser la lecture quand le son s'arrête
     }
-}
-
-std::vector<double>& AudioSound::getRawData() {
-    return rawData_;
-}
-
-int AudioSound::getLength() const {
-    return length_;
 }
 
 double AudioSound::getNextSample() {

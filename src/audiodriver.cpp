@@ -29,7 +29,7 @@ bool AudioDriver::init(PaStreamCallback *callback, void *userData, int sampleRat
     }
 
     outputParameters.sampleFormat = paFloat32;
-    outputParameters.channelCount = 1;
+    outputParameters.channelCount = 2;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = nullptr;
 

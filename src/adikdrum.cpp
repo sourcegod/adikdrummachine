@@ -90,7 +90,6 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         }
 
         // Mixer les sons
-        
         for (unsigned long i = 0; i < framesPerBuffer; ++i) {
             double leftMix = 0.0;
             double rightMix = 0.0;
@@ -100,12 +99,17 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                     size_t endPos = chan.endPos;
                     if (curPos < endPos) {
                         float panValue = chan.pan;
-                        float rightGain = std::max(0.0f, 1.0f - panValue); // Pan -1 -> 0 (Left), 0 -> 1 (Right)
-                        float leftGain = std::max(0.0f, 1.0f + panValue);  // Pan -1 -> 1 (Left), 0 -> 0 (Right)
+                        float rightGain = std::max(0.0f, 1.0f - panValue);
+                        float leftGain = std::max(0.0f, 1.0f + panValue);
+                        const auto& soundData = chan.sound->getRawData();
+                        // int numSoundChannels = chan.sound->getNumChannels();
+                        int numSoundChannels =1;
+                        float sampleLeft = soundData[curPos * numSoundChannels]; // Si mono ou stéréo, canal gauche
+                        float sampleRight = (numSoundChannels == 2) ? soundData[curPos * numSoundChannels + 1] : sampleLeft; // Canal droit si stéréo, sinon identique au gauche
+                        float volume = chan.volume;
 
-                        float sample = chan.sound->getRawData()[curPos] * chan.volume;
-                        leftMix += sample * leftGain;
-                        rightMix += sample * rightGain;
+                        leftMix += sampleLeft * volume * leftGain;
+                        rightMix += sampleRight * volume * rightGain;
                         chan.curPos++;
                     } else {
                         chan.setActive(false);
@@ -115,8 +119,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
             *out++ = static_cast<float>(data->player->hardClip(leftMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));   // Left channel
             *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));  // Right channel
         }
-
-
+        
         /*
         for (unsigned long i = 0; i < framesPerBuffer; ++i) {
             double mixedSample = 0.0;

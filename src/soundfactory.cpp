@@ -41,7 +41,7 @@ std::shared_ptr<AudioSound> SoundFactory::createEnvelopeForAudioSound(double dur
         double time = static_cast<double>(i) / sampleRate_;
         envelope[i] = exp(-time * decayRate);
     }
-    return std::make_shared<AudioSound>(envelope); // Retourne un AudioSound contenant l'enveloppe (ce n'est probablement pas ce que tu veux faire ici)
+    return std::make_shared<AudioSound>(envelope, 1); // Retourne un AudioSound contenant l'enveloppe (ce n'est probablement pas ce que tu veux faire ici)
 }
 
 std::vector<double> SoundFactory::createEnvelope(int sr, double dur, double decayRate) {
@@ -68,18 +68,18 @@ std::vector<double> SoundFactory::applyEnvelope(const std::vector<double>& wave,
 std::shared_ptr<AudioSound> SoundFactory::generateKick() {
     double frequency = 60.0;
     std::vector<double> wave = generator_.generateSineWave(frequency, sampleRate_, defaultDuration_);
-    return applyEnvelopeToAudioSound(std::make_shared<AudioSound>(wave), 10.0);
+    return applyEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1), 10.0);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateKick2() {
     double frequency = 45.0;
     std::vector<double> wave = generator_.generateSineWave(frequency, sampleRate_, defaultDuration_, 0.8);
-    return applyEnvelopeToAudioSound(std::make_shared<AudioSound>(wave), 12.0);
+    return applyEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1), 12.0);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateSnare() {
     std::vector<double> wave = generator_.generateWhiteNoise(sampleRate_, defaultDuration_, 0.5);
-    return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave), 20.0);
+    return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1), 20.0);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateSnare2() {
@@ -91,29 +91,29 @@ std::shared_ptr<AudioSound> SoundFactory::generateSnare2() {
     for (size_t i = 0; i < result.size(); ++i) {
         result[i] = envelope[i] * (noise[i] + tone[i]);
     }
-    return std::make_shared<AudioSound>(result);
+    return std::make_shared<AudioSound>(result, 1);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateHiHat(double durationScale) {
     double duration = defaultDuration_ * durationScale;
     std::vector<double> wave = generator_.generateSquareWave(440.0 * 4, sampleRate_, duration, 0.2);
-    return applySquareEnvelopeToAudioSound(std::make_shared<AudioSound>(wave), duration, 100.0);
+    return applySquareEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1), duration, 100.0);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateCymbal(double durationScale) {
     double duration = defaultDuration_ * durationScale;
     std::vector<double> wave = generator_.generateWhiteNoise(sampleRate_, duration, 0.8);
-    return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave), 0.7);
+    return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1), 0.7);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateTestTone(double frequency=440.0, double duration=0.5) {
     std::vector<double> wave = generator_.generateSineWave(frequency, sampleRate_, duration, 0.4);
-    return std::make_shared<AudioSound>(wave);
+    return std::make_shared<AudioSound>(wave, 1);
 }
 
 std::shared_ptr<AudioSound> SoundFactory::generateBuzzer(double frequency, double duration) {
     double durationSec = duration / 1000.0;
     std::vector<double> wave = generator_.generateSineWave(frequency, sampleRate_, durationSec, 0.2, 0.005, 0.005);
-    return std::make_shared<AudioSound>(wave);
+    return std::make_shared<AudioSound>(wave, 1);
 }
 
