@@ -58,7 +58,8 @@ struct DrumMachineData {
 */
 
 
-static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
+static int drumMachineCallback(const void* inputBuffer, 
+                                 void* outputBuffer,
                                  unsigned long framesPerBuffer,
                                  const PaStreamCallbackTimeInfo* timeInfo,
                                  PaStreamCallbackFlags statusFlags,
@@ -71,6 +72,14 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
 
         // std::cout << "je suis dans le callback" << callbackCounter << " fois " << std::endl;
+        // Récupération du nombre de canaux de sortie (en supposant que outputBuffer est un tableau de float)
+        const int outputNumChannels = 2; // On part du principe de la stéréo pour l'instant.
+                                         // Une méthode plus robuste pourrait être nécessaire
+                                         // si le nombre de canaux de sortie est variable.
+        // Création et initialisation du buffer de mixage en float
+        std::vector<float> bufData(framesPerBuffer * outputNumChannels, 0.0f);
+
+
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
 

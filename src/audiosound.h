@@ -19,7 +19,7 @@ public:
     double getNextSample(); // Pour obtenir l'échantillon suivant
     void resetPlayhead();   // Pour recommencer la lecture du son
     int getNumChannels() const { return numChannels_; }
-
+    std::vector<float> readData(size_t numFrames);
 
 private:
     bool active_;
