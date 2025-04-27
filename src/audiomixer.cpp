@@ -184,7 +184,7 @@ std::vector<ChannelInfo>& AudioMixer::getChannelList() {
 void AudioMixer::setChannelMuted(int channelIndex, bool muted) {
     if (channelIndex >= 0 && channelIndex < channelList_.size()) {
         channelList_[channelIndex].muted = muted;
-        std::cout << "Canal " << channelIndex + 1 << " est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
+        std::cout << "Canal " << channelIndex << " est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
     } else {
         std::cerr << "Index de canal invalide: " << channelIndex + 1 << std::endl;
     }
