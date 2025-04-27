@@ -48,7 +48,7 @@ void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
             channelList_[channel].active_ = true;
             channelList_[channel].startPos = 0;
             channelList_[channel].curPos = 0;
-            channelList_[channel].endPos = sound ? sound->getLength() : 0; // Gérer le cas où sound est nul
+            channelList_[channel].endPos = sound ? sound->getSize() : 0; // Gérer le cas où sound est nul
             if (sound) {
                 sound->resetPlayhead();
                 sound->setActive(true);

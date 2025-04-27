@@ -5,6 +5,8 @@
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
 #include "audiomixer.h" // Assurez-vous que l'inclusion est là
+#include <cmath>
+#include <algorithm> // pour std::clamp
 
 class DrumPlayer {
 public:
@@ -17,8 +19,10 @@ public:
     void playMetronome();
     void playPattern();
 
-    double softClip(double x);
-    double hardClip(double x); // Nouvelle fonction de hard clipping
+    double softClip(double x) { return tanh(x); }
+    float hardClip(double x) { return std::clamp(x, -1.0, 1.0); }
+
+// Nouvelle fonction de hard clipping
 
     const double getBpm() const;
     void setBpm(double newBpm);

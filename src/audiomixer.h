@@ -22,7 +22,8 @@ struct ChannelInfo {
     void setActive(bool active) { active_ = active; }
     bool muted;
     ChannelInfo() : sound(nullptr), curPos(0), endPos(0), volume(1.0f), 
-        active_(false), reserved(false), muted(false) {}
+        active_(false), reserved(false), 
+        muted(false), pan(0.0) {}
 
 };
 

@@ -91,35 +91,38 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
         // Mixer les sons
         for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-            double leftMix = 0.0;
-            double rightMix = 0.0;
+            float leftMix = 0.0f;
+            float rightMix = 0.0f;
             for (auto& chan : data->mixer->getChannelList()) {
                 if (chan.isActive() && !chan.muted && chan.sound) {
                     size_t curPos = chan.curPos;
                     size_t endPos = chan.endPos;
                     if (curPos < endPos) {
+                        // beep();
                         float panValue = chan.pan;
                         float rightGain = std::max(0.0f, 1.0f - panValue);
                         float leftGain = std::max(0.0f, 1.0f + panValue);
-                        const auto& soundData = chan.sound->getRawData();
-                        // int numSoundChannels = chan.sound->getNumChannels();
-                        int numSoundChannels =1;
-                        float sampleLeft = soundData[curPos * numSoundChannels]; // Si mono ou stéréo, canal gauche
-                        float sampleRight = (numSoundChannels == 2) ? soundData[curPos * numSoundChannels + 1] : sampleLeft; // Canal droit si stéréo, sinon identique au gauche
+                        const double* soundData = static_cast<const AudioSound*>(chan.sound.get())->getData();
+                        int numSoundChannels = chan.sound->getNumChannels();
+                        double sampleLeftDouble = soundData[curPos * numSoundChannels];
+                        double sampleRightDouble = (numSoundChannels == 2) ? soundData[curPos * numSoundChannels + 1] : sampleLeftDouble;
                         float volume = chan.volume;
 
-                        leftMix += sampleLeft * volume * leftGain;
-                        rightMix += sampleRight * volume * rightGain;
+                        // std::cout << "Canal: " << &chan << ", curPos: " << curPos << ", sampleLeft: " << sampleLeftDouble << ", sampleRight: " << sampleRightDouble << std::endl;
+
+                        leftMix += static_cast<float>(sampleLeftDouble * volume * leftGain);
+                        rightMix += static_cast<float>(sampleRightDouble * volume * rightGain);
                         chan.curPos++;
                     } else {
                         chan.setActive(false);
                     }
                 }
             }
-            *out++ = static_cast<float>(data->player->hardClip(leftMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));   // Left channel
-            *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));  // Right channel
+            // std::cout << "leftMix avant clip: " << leftMix << ", rightMix avant clip: " << rightMix << std::endl;
+            *out++ = static_cast<float>(data->player->hardClip(leftMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
+            *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
         }
-        
+
         /*
         for (unsigned long i = 0; i < framesPerBuffer; ++i) {
             double mixedSample = 0.0;
@@ -475,7 +478,7 @@ void AdikDrum::demo() {
     // Tester les sons
     for (int i = 0; i < drumSounds_.size(); ++i) {
         drumData.player->playSound(i);
-        long long sleepDurationMs = static_cast<long long>(drumData.player->drumSounds_[i]->getLength() * 1000.0 / sampleRate_ * 1.0);
+        long long sleepDurationMs = static_cast<long long>(drumData.player->drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
     }
 

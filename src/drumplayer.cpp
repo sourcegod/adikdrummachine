@@ -159,14 +159,6 @@ void DrumPlayer::playPattern() {
 }
 // */
 
-double DrumPlayer::softClip(double x) {
-    return tanh(x);
-}
-
-double DrumPlayer::hardClip(double x) {
-    return std::clamp(x, -1.0, 1.0);
-}
-
 const double DrumPlayer::getBpm() const { return bpm_; }
 void DrumPlayer::setBpm(double newBpm) {
     if (newBpm >=5 &&  newBpm <= 800) {
