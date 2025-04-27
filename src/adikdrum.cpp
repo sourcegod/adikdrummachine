@@ -49,11 +49,13 @@ void beep() {
     std::cout << '\a' << std::flush;
 }
 
+/*
 struct DrumMachineData {
     DrumPlayer* player;
     AudioMixer* mixer;
     double sampleRate;
 } drumData;
+*/
 
 
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
@@ -61,8 +63,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                                  const PaStreamCallbackTimeInfo* timeInfo,
                                  PaStreamCallbackFlags statusFlags,
                                  void* userData) {
-    DrumMachineData* data = static_cast<DrumMachineData*>(userData);
-    // AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
+    // DrumMachineData* data = static_cast<DrumMachineData*>(userData);
+    AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
     if (data && data->mixer) {
         float* out = static_cast<float*>(outputBuffer);
         static unsigned long frameCounter = 0;
@@ -253,9 +255,9 @@ bool AdikDrum::initApp() {
 
     // global structure for now
     mixer_ = AudioMixer(numChannelsMixer);
-    drumData.player = &drumPlayer_;
-    drumData.mixer = &mixer_;
-    drumData.sampleRate = sampleRate;
+    drumData_.player = &drumPlayer_;
+    drumData_.mixer = &mixer_;
+    drumData_.sampleRate = sampleRate;
     drumPlayer_.setMixer(mixer_); // Assigner le mixer à player
     loadSounds(); // charger les sons
     drumPlayer_.drumSounds_ = this->getDrumSounds();
@@ -266,7 +268,7 @@ bool AdikDrum::initApp() {
     drumPlayer_.pattern_ = pattern; // Assign the global pattern to the player
 
     const int numOutputChannels = 2; // Définir explicitement le nombre de canaux de sortie
-    if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, drumMachineCallback, &drumData)) {
+    if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, drumMachineCallback, &drumData_)) {
         std::cerr << "Erreur lors de l'initialisation de l'AudioDriver." << std::endl;
         return 1;
     }
@@ -344,13 +346,13 @@ void AdikDrum::run() {
             drumPlayer_.resetMute(); // Réinitialiser le mute via DrumPlayer (qui appelle aussi AudioMixer)
 
         } else if (key == '+') {
-            float currentVolume = drumData.mixer->getGlobalVolume();
-            drumData.mixer->setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
-            std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
+            float currentVolume = mixer_.getGlobalVolume();
+            mixer_.setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
+            std::cout << "Volume global: " << static_cast<int>(mixer_.getGlobalVolume() * 10) << "/10" << std::endl;
         } else if (key == '-') {
-            float currentVolume = drumData.mixer->getGlobalVolume();
-            drumData.mixer->setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
-            std::cout << "Volume global: " << static_cast<int>(drumData.mixer->getGlobalVolume() * 10) << "/10" << std::endl;
+            float currentVolume = mixer_.getGlobalVolume();
+            mixer_.setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
+            std::cout << "Volume global: " << static_cast<int>(mixer_.getGlobalVolume() * 10) << "/10" << std::endl;
 
         } else if (key == '(') {
             auto bpm = drumPlayer_.getBpm();  
@@ -375,12 +377,12 @@ void AdikDrum::run() {
 
         } else if (key == '[') {
           int currentChannelIndex = cursor_pos.second +1; // Simplification ici
-          drumData.mixer->setChannelPan(currentChannelIndex, 
-              std::max(-1.0f, drumData.mixer->getChannelPan(currentChannelIndex) - 0.1f));
+          mixer_.setChannelPan(currentChannelIndex, 
+              std::max(-1.0f, mixer_.getChannelPan(currentChannelIndex) - 0.1f));
         } else if (key == ']') {
             int currentChannelIndex = cursor_pos.second +1; // Simplification ici
-            drumData.mixer->setChannelPan(currentChannelIndex, 
-                std::min(1.0f, drumData.mixer->getChannelPan(currentChannelIndex) + 0.1f));
+            mixer_.setChannelPan(currentChannelIndex, 
+                std::min(1.0f, mixer_.getChannelPan(currentChannelIndex) + 0.1f));
 
         } else if (keyToSoundMap.count(key)) {
             int soundIndex = keyToSoundMap[key];
@@ -473,8 +475,8 @@ const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const 
 void AdikDrum::demo() {
     // Tester les sons
     for (int i = 0; i < drumSounds_.size(); ++i) {
-        drumData.player->playSound(i);
-        long long sleepDurationMs = static_cast<long long>(drumData.player->drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
+        drumPlayer_.playSound(i);
+        long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
     }
 
