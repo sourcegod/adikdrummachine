@@ -29,7 +29,7 @@
 
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
-const float GLOBAL_GAIN = 0.8f;
+const float GLOBAL_GAIN = 0.2f;
 int NUM_STEPS = 16;
 
 std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
@@ -374,13 +374,13 @@ void AdikDrum::run() {
             }
 
         } else if (key == '[') {
-            int currentChannelIndex = cursor_pos.second;
-            float currentPan = drumData.mixer->getChannelPan(currentChannelIndex);
-            drumData.mixer->setChannelPan(currentChannelIndex, std::max(-1.0f, currentPan - 0.1f));
+          int currentChannelIndex = cursor_pos.second +1; // Simplification ici
+          drumData.mixer->setChannelPan(currentChannelIndex, 
+              std::max(-1.0f, drumData.mixer->getChannelPan(currentChannelIndex) - 0.1f));
         } else if (key == ']') {
-            int currentChannelIndex = cursor_pos.second;
-            float currentPan = drumData.mixer->getChannelPan(currentChannelIndex);
-            drumData.mixer->setChannelPan(currentChannelIndex, std::min(1.0f, currentPan + 0.1f));
+            int currentChannelIndex = cursor_pos.second +1; // Simplification ici
+            drumData.mixer->setChannelPan(currentChannelIndex, 
+                std::min(1.0f, drumData.mixer->getChannelPan(currentChannelIndex) + 0.1f));
 
         } else if (keyToSoundMap.count(key)) {
             int soundIndex = keyToSoundMap[key];
