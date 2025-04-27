@@ -19,6 +19,45 @@ AudioDriver::~AudioDriver() {
     close();
 }
 
+bool AudioDriver::init(int numChannels, int sampleRate, int framesPerBuffer, PaStreamCallback *callback, void *userData) {
+    PaStreamParameters outputParameters;
+
+    outputParameters.device = Pa_GetDefaultOutputDevice();
+    if (outputParameters.device == paNoDevice) {
+        std::cerr << "Erreur : Pas de périphérique de sortie audio par défaut trouvé." << std::endl;
+        return false;
+    }
+
+    outputParameters.sampleFormat = paFloat32;
+    outputParameters.channelCount = numChannels;
+    outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+    outputParameters.hostApiSpecificStreamInfo = nullptr;
+
+    PaError err = Pa_OpenStream(
+        &stream_,
+        nullptr, // no input
+        &outputParameters,
+        sampleRate,
+        framesPerBuffer,
+        paClipOff,      // we won't clip signals that exceed range
+        callback,
+        userData);
+
+    if (err != paNoError) {
+        std::cerr << "Erreur lors de l'ouverture du flux audio : " << Pa_GetErrorText(err) << std::endl;
+        lastError_ = err;
+        return false;
+    }
+
+    if (stream_ == nullptr) {
+        std::cerr << "Erreur : Le flux audio n'a pas été ouvert correctement (stream_ est nullptr)." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+/*
 bool AudioDriver::init(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer) {
     PaStreamParameters outputParameters;
 
@@ -58,6 +97,7 @@ bool AudioDriver::init(PaStreamCallback *callback, void *userData, int sampleRat
 
     return true;
 }
+*/
 
 bool AudioDriver::start() {
     if (stream_ == nullptr) {

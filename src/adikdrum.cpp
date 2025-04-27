@@ -241,17 +241,18 @@ AdikDrum::~AdikDrum() {
 }
 
 bool AdikDrum::initApp() {
-    const int numChannels = 32;
+    const int numChannelsMixer = 32; // Clarifier le nom pour le mixer
     const int sampleRate = 44100;
+    const int framesPerBuffer = 256; // Nouvelle variable pour la taille du buffer
     const double defaultDuration = 0.1;
     SoundFactory soundFactory(sampleRate, defaultDuration);
-   
+
     // Générer les sons du métronome
     std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
     std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
     // global structure for now
-    mixer_ = AudioMixer(numChannels);
+    mixer_ = AudioMixer(numChannelsMixer);
     drumData.player = &drumPlayer_;
     drumData.mixer = &mixer_;
     drumData.sampleRate = sampleRate;
@@ -263,29 +264,24 @@ bool AdikDrum::initApp() {
     drumPlayer_.soundClick1_ = soundClick1;
     drumPlayer_.soundClick2_ = soundClick2;
     drumPlayer_.pattern_ = pattern; // Assign the global pattern to the player
-                                         
 
-
-  if (!audioDriver_.init(drumMachineCallback, &drumData, sampleRate, 256)) {
+    const int numOutputChannels = 2; // Définir explicitement le nombre de canaux de sortie
+    if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, drumMachineCallback, &drumData)) {
         std::cerr << "Erreur lors de l'initialisation de l'AudioDriver." << std::endl;
         return 1;
     }
-
 
     if (!audioDriver_.start()) {
         std::cerr << "Erreur lors du démarrage de l'AudioDriver." << std::endl;
         audioDriver_.stop();
         return 1;
     }
-    
+
     // Tester les sons
     demo();
 
-
-
     std::cout << "AdikDrum initialisé et démarré." << std::endl;
     // std::cin.get();
-
 
     return true;
 }

@@ -11,6 +11,7 @@ AudioManager::~AudioManager() {
 
 bool AudioManager::init(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer) {
 
+    /*
     if (audioDriver_.init(callback, userData, sampleRate, framesPerBuffer) == paNoError) {
         std::cout << "Audio driver initialized successfully." << std::endl;
         if (audioDriver_.start() == paNoError) {
@@ -21,10 +22,13 @@ bool AudioManager::init(PaStreamCallback *callback, void *userData, int sampleRa
             audioDriver_.close();
             return false;
         }
+
     } else {
         std::cerr << "Hey man, Failed to initialize audio driver: " << Pa_GetErrorText(audioDriver_.getLastError()) << std::endl;
         return false;
     }
+    */
+
 }
 
 void AudioManager::close() {

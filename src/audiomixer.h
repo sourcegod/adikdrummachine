@@ -2,7 +2,7 @@
 #define AUDIOMIXER_H
 
 #include <vector>
-#include <array>
+#include <cstddef>  // Pour size_t
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
 
