@@ -337,7 +337,7 @@ void AdikDrum::run() {
             std::cout << "All sounds stopped." << std::endl;
        
         } else if (key == 'x') {
-            int currentSoundIndex = cursor_pos.second;
+            int currentSoundIndex = cursor_pos.second +1;
             bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
             drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
         } else if (key == 'X') {

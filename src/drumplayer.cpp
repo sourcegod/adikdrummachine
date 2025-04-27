@@ -186,10 +186,10 @@ bool DrumPlayer::isSoundMuted(int soundIndex) const {
 
 void DrumPlayer::setSoundMuted(int soundIndex, bool muted) {
     if (mixer_ && soundIndex >= 0 && soundIndex < drumSounds_.size()) {
-        int channelToMute = soundIndex + 1; // Ajouter 1 pour tenir compte du canal du métronome
+        int channelToMute = soundIndex;
         mixer_->setChannelMuted(channelToMute, muted); // Utiliser la fonction de AudioMixer
         isMuted_[soundIndex] = muted; // Garder une trace locale si nécessaire
-        std::cout << "Son " << soundIndex + 1 << " (canal " << channelToMute + 1 << ") est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
+        std::cout << "Son " << soundIndex<< " (canal " << channelToMute << ") est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
     }
 }
 
