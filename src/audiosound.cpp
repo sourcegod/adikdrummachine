@@ -1,11 +1,14 @@
 #include "audiosound.h"
 #include <algorithm> // Pour std::min
 #include <vector>
-
+#include <iostream>
 AudioSound::AudioSound(std::vector<double> data, int numChannels) 
     : rawData_(std::move(data)), numChannels_(numChannels),
     active_(false),
-    length_(data.size()), playhead_(0) {}
+    length_(data.size()), playhead_(0) {
+      
+    length_ = getSize();
+}
 
 AudioSound::~AudioSound() {
     // Pas de ressources spécifiques à libérer pour l'instant
@@ -34,7 +37,8 @@ void AudioSound::resetPlayhead() {
 
 
 std::vector<float> AudioSound::readData(size_t numFrames) {
-    size_t samplesToRead = std::min(numFrames * numChannels_, static_cast<size_t>(length_ - playhead_) * numChannels_);
+  // std::cout << "voici length: " << length_ << std::endl;  
+  size_t samplesToRead = std::min(numFrames * numChannels_, static_cast<size_t>(length_ - playhead_) * numChannels_);
 
     if (samplesToRead > 0) {
         std::vector<float> buffer(samplesToRead, 0.0f); // Créer le buffer à la taille exacte des données à lire

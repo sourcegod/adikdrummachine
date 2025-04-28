@@ -58,6 +58,82 @@ struct DrumMachineData {
 */
 
 
+static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
+                             unsigned long framesPerBuffer,
+                             const PaStreamCallbackTimeInfo* timeInfo,
+                             PaStreamCallbackFlags statusFlags,
+                             void* userData) {
+    AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
+    if (data && data->mixer) {
+        float* out = static_cast<float*>(outputBuffer);
+        static unsigned long frameCounter = 0;
+        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
+        const int outputNumChannels = 2; // Assumons stéréo pour l'instant
+        std::vector<float> bufData(framesPerBuffer * outputNumChannels, 0.0f);
+
+        if (frameCounter >= samplesPerStep) {
+            frameCounter = 0;
+            if (data->player->isPlaying) {
+                data->player->clickStep = data->player->currentStep;
+                if (data->player->isClicking && data->player->clickStep % 4 == 0) {
+                  data->player->playMetronome();
+                }
+                data->player->playPattern();
+                data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
+            } else if (data->player->isClicking) {
+                if (data->player->clickStep % 4 == 0) {
+                    data->player->playMetronome();
+                }
+                data->player->clickStep = (data->player->clickStep + 1) % data->player->getNumSteps();
+            }
+        }
+
+        // mixer les sons
+        for (auto& chan : data->mixer->getChannelList()) {
+            if (chan.isActive() && !chan.muted && chan.sound) {
+                std::vector<float> soundBuffer = chan.sound->readData(framesPerBuffer);
+                if (!soundBuffer.empty()) {
+                  float volume = chan.volume;
+                    float pan = chan.pan;
+                    int numSoundChannels = chan.sound->getNumChannels();
+
+                    for (unsigned long frame = 0; frame < framesPerBuffer; ++frame) {
+                        float leftSample = 0.0f;
+                        float rightSample = 0.0f;
+
+                        if (numSoundChannels == 1) {
+                            leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                            rightSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f + pan);
+                        } else if (numSoundChannels == 2) {
+                            leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                            rightSample = soundBuffer[frame * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
+                        }
+
+                        bufData[frame * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
+                        bufData[frame * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
+                    }
+                }
+            }
+        }
+
+        // Copie du buffer de mixage vers le buffer de sortie PortAudio
+        for (unsigned long i = 0; i < framesPerBuffer * outputNumChannels; ++i) {
+            out[i] = static_cast<float>(data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
+
+            // out[i] = data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN);
+        }
+
+        if (data->player->isPlaying || data->player->isClicking) {
+            frameCounter += framesPerBuffer;
+        }
+        return paContinue;
+    }
+    return paContinue;
+}
+
+
+/*
+ * Ancienne version mixer sample par sample
 static int drumMachineCallback(const void* inputBuffer, 
                                  void* outputBuffer,
                                  unsigned long framesPerBuffer,
@@ -134,30 +210,6 @@ static int drumMachineCallback(const void* inputBuffer,
             *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
         }
 
-        /*
-        for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-            double mixedSample = 0.0;
-            for (auto& chan: data->mixer->getChannelList()) {
-                // if (chan.isActive()) {
-                if (chan.isActive() && !chan.muted) { // Vérifier si le canal n'est pas muté
-                    auto sound = chan.sound;
-                    if (sound) {
-                        size_t curPos = chan.curPos;
-                        size_t endPos = chan.endPos;
-                        if (curPos < endPos) {
-                            mixedSample += (sound->getRawData()[curPos] * chan.volume);
-                          chan.curPos++;
-                        } else {
-                            chan.setActive(false);
-                        }
-
-                    }
-                }
-            }
-            *out++ = static_cast<float>(data->player->hardClip(mixedSample * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
-        }
-        */
-
         if (data->player->isPlaying || data->player->isClicking) {
             frameCounter += framesPerBuffer;
         }
@@ -169,6 +221,7 @@ static int drumMachineCallback(const void* inputBuffer,
     // callbackCounter++;
     return paContinue;
 }
+*/
 
 // Fonction pour initialiser le terminal
 termios initTermios(int echo) {
