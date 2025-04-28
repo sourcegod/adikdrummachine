@@ -219,40 +219,33 @@ float AudioMixer::getChannelPan(int channelIndex) const {
     return 0.0f; // Par défaut au centre si l'index est invalide
 }
 
-void AudioMixer::fadeInLinear(int channelIndex, unsigned long durationFrames) {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+void AudioMixer::fadeInLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels) {
+    if (channelIndex >= 0 && channelIndex < channelList_.size() && durationFrames > 0) {
         ChannelInfo& channel = channelList_[channelIndex];
-        if (durationFrames > 0) {
-            // Implémentation d'un fondu en entrée linéaire (exemple)
-            float startVolume = channel.volume;
-            for (unsigned long i = 0; i < durationFrames; ++i) {
-                float fraction = static_cast<float>(i) / durationFrames;
-                channel.volume = startVolume + (1.0f - startVolume) * fraction;
-                // Peut-être ajouter un délai ici si l'appel n'est pas fait dans le callback
+        float startVolume = channel.volume;
+        for (unsigned long frame = 0; frame < durationFrames; ++frame) {
+            float fraction = static_cast<float>(frame) / durationFrames;
+            float currentVolume = startVolume + (1.0f - startVolume) * fraction;
+            for (int i = 0; i < outputNumChannels; ++i) {
+                buffer[frame * outputNumChannels + i] *= currentVolume; // Appliquer le gain au buffer
             }
-            channel.volume = 1.0f; // S'assurer d'atteindre le volume maximal
-        } else {
-            channel.volume = 1.0f;
         }
+        channel.volume = 1.0f; // S'assurer que le volume du canal est à 1 après le fondu
     }
 }
 
-void AudioMixer::fadeOutLinear(int channelIndex, unsigned long durationFrames) {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+void AudioMixer::fadeOutLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels) {
+    if (channelIndex >= 0 && channelIndex < channelList_.size() && durationFrames > 0) {
         ChannelInfo& channel = channelList_[channelIndex];
-        if (durationFrames > 0) {
-            // Implémentation d'un fondu en sortie linéaire (exemple)
-            float startVolume = channel.volume;
-            for (unsigned long i = 0; i < durationFrames; ++i) {
-                float fraction = static_cast<float>(i) / durationFrames;
-                channel.volume = startVolume * (1.0f - fraction);
-                // Peut-être ajouter un délai ici si l'appel n'est pas fait dans le callback
+        float startVolume = channel.volume;
+        for (unsigned long frame = 0; frame < durationFrames; ++frame) {
+            float fraction = static_cast<float>(frame) / durationFrames;
+            float currentVolume = startVolume * (1.0f - fraction);
+            for (int i = 0; i < outputNumChannels; ++i) {
+                buffer[frame * outputNumChannels + i] *= currentVolume; // Appliquer le gain au buffer
             }
-            channel.volume = 0.0f; // S'assurer d'atteindre le silence
-        } else {
-            channel.volume = 0.0f;
         }
-        channel.active_ = false; // Désactiver le canal après le fondu
+        channel.volume = 0.0f; // S'assurer que le volume du canal est à 0 après le fondu
     }
 }
 

@@ -59,8 +59,8 @@ public:
     void setChannelPan(int channelIndex, float panValue);
     float getChannelPan(int channelIndex) const;
 
-    void fadeInLinear(int channelIndex, unsigned long durationFrames);
-    void fadeOutLinear(int channelIndex, unsigned long durationFrames);
+    void fadeInLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels);
+    void fadeOutLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels);
 
 private:
     unsigned int numChannels_;
