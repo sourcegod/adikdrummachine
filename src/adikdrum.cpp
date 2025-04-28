@@ -116,20 +116,9 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                         bufData[frame * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
                         bufData[frame * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
                     }
-
-                    // 2. Vérification de la fin de la piste et application du fondu
-                    unsigned long fadeOutDuration = 1000; // Exemple de durée
-                    // if (data->mixer->isEndOfTrackApproaching(channelIndex, fadeOutDuration)) {
-                    if (chan.sound->isFramesRemaining(fadeOutDuration)) {
-                      // beep();
-                      auto count = framesPerBuffer;
-                        data->mixer->fadeOutLinear(channelIndex, bufData, count, outputNumChannels);
-                        // Potentiellement marquer le canal pour désactivation future
-                        // chan.setActive(false); // À décider où et quand désactiver
-                    }
                 } else {
-                    // Si readData retourne un buffer vide, on pourrait aussi envisager de désactiver le canal
-                    // chan.setActive(false);
+                // si readData renvoi <=0, on ne fait rien
+                // chan.setActive(false);
                 }
             }
             channelIndex++;
@@ -336,6 +325,10 @@ bool AdikDrum::initApp() {
     std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
     std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
+    float fadeOutStartPercentage = 0.1f; // Appliquer le fondu à partir d'un pourcentage de la longueur
+    soundClick1->applyStaticFadeOut(fadeOutStartPercentage);
+    soundClick2->applyStaticFadeOut(fadeOutStartPercentage);
+ 
     // global structure for now
     mixer_ = AudioMixer(numChannelsMixer);
     drumData_.player = &drumPlayer_;
@@ -379,7 +372,7 @@ void AdikDrum::closeApp() {
 }
 
 void AdikDrum::run() {
-    std::cout << helpText << std::endl; // Afficher le texte d'aide au début
+    // std::cout << helpText << std::endl; // Afficher le texte d'aide au début
     // initialiser le clavier
     oldTerm = initTermios(0);
     std::cout << "Le clavier est initialisé." << std::endl;
@@ -547,7 +540,13 @@ void AdikDrum::loadSounds() {
     drumSounds_.push_back(soundFactory.generateTestTone(275.0, defaultDuration)); // Exemple pour HiTom
     drumSounds_.push_back(soundFactory.generateTestTone(660.0, 0.1)); // Exemple pour CowBell
     drumSounds_.push_back(soundFactory.generateTestTone(440.0, 0.3)); // Exemple pour Tambourine
-        
+    
+    float fadeOutStartPercentage = 0.1f; // Appliquer le fondu à partir d'un pourcentage de la longueur
+    for (auto&  sound : drumSounds_) {
+      std::cout << "voici len: " << sound->getLength() << " et pourcentage de début de fadeout: " << fadeOutStartPercentage << std::endl;
+      sound->applyStaticFadeOut(fadeOutStartPercentage);
+    }
+      
 
 }
 

@@ -23,6 +23,8 @@ public:
     size_t readData(size_t numFrames);
     bool isFramesRemaining(unsigned long framesRemaining) const { return (endPos - curPos) <= framesRemaining; }
     std::vector<float>& getSoundBuffer() { return soundBuffer_; }
+    // void applyStaticFadeOut(unsigned long fadeOutDurationInFrames);
+    void applyStaticFadeOut(float fadeOutStartPercent);
 
 
 private:
