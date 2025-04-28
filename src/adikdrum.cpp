@@ -118,9 +118,10 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
         // Copie du buffer de mixage vers le buffer de sortie PortAudio
         for (unsigned long i = 0; i < framesPerBuffer * outputNumChannels; ++i) {
-            out[i] = static_cast<float>(data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
-
-            // out[i] = data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN);
+            // Pas obligé de casté en float pour l'instant  
+            out[i] = data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN);
+            // out[i] = static_cast<float>(data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
+        
         }
 
         if (data->player->isPlaying || data->player->isClicking) {

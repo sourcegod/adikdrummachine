@@ -219,4 +219,40 @@ float AudioMixer::getChannelPan(int channelIndex) const {
     return 0.0f; // Par défaut au centre si l'index est invalide
 }
 
- 
+void AudioMixer::fadeInLinear(int channelIndex, unsigned long durationFrames) {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        ChannelInfo& channel = channelList_[channelIndex];
+        if (durationFrames > 0) {
+            // Implémentation d'un fondu en entrée linéaire (exemple)
+            float startVolume = channel.volume;
+            for (unsigned long i = 0; i < durationFrames; ++i) {
+                float fraction = static_cast<float>(i) / durationFrames;
+                channel.volume = startVolume + (1.0f - startVolume) * fraction;
+                // Peut-être ajouter un délai ici si l'appel n'est pas fait dans le callback
+            }
+            channel.volume = 1.0f; // S'assurer d'atteindre le volume maximal
+        } else {
+            channel.volume = 1.0f;
+        }
+    }
+}
+
+void AudioMixer::fadeOutLinear(int channelIndex, unsigned long durationFrames) {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        ChannelInfo& channel = channelList_[channelIndex];
+        if (durationFrames > 0) {
+            // Implémentation d'un fondu en sortie linéaire (exemple)
+            float startVolume = channel.volume;
+            for (unsigned long i = 0; i < durationFrames; ++i) {
+                float fraction = static_cast<float>(i) / durationFrames;
+                channel.volume = startVolume * (1.0f - fraction);
+                // Peut-être ajouter un délai ici si l'appel n'est pas fait dans le callback
+            }
+            channel.volume = 0.0f; // S'assurer d'atteindre le silence
+        } else {
+            channel.volume = 0.0f;
+        }
+        channel.active_ = false; // Désactiver le canal après le fondu
+    }
+}
+
