@@ -6,7 +6,7 @@
 
 class AudioSound {
 public:
-    // AudioSound(std::vector<double> data);
+    size_t startPos, curPos, endPos =0;
     AudioSound(std::vector<double> data, int numChannels);
     ~AudioSound();
 
@@ -15,20 +15,24 @@ public:
     std::vector<double>& getRawData() { return rawData_; }
     const double* getData() const { return rawData_.data(); }
     size_t getSize() const { return rawData_.size(); }
-    // int getLength() const { return length_; }
+    size_t getLength() const { return length_; }
     double getNextSample(); // Pour obtenir l'échantillon suivant
-    void resetPlayhead();   // Pour recommencer la lecture du son
+    void resetCurPos() { curPos =0; }   // Pour recommencer la lecture du son
+    size_t getCurPos() const { return curPos; }   // Pour recommencer la lecture du son
     int getNumChannels() const { return numChannels_; }
-    std::vector<float> readData(size_t numFrames);
+    size_t readData(size_t numFrames);
+    bool isFramesRemaining(unsigned long framesRemaining) const { return (endPos - curPos) <= framesRemaining; }
+    std::vector<float>& getSoundBuffer() { return soundBuffer_; }
+
 
 private:
     bool active_;
     std::vector<double> rawData_;
+    std::vector<float> soundBuffer_;
     int numChannels_;
 
 
     int length_;
-    int playhead_; // Indice de lecture courant
 };
 
 #endif // AUDIOSOUND_H

@@ -59,8 +59,10 @@ public:
     void setChannelPan(int channelIndex, float panValue);
     float getChannelPan(int channelIndex) const;
 
-    void fadeInLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels);
-    void fadeOutLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels);
+    void fadeInLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
+    void fadeOutLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
+    bool isEndOfTrackApproaching(int channelIndex, unsigned long framesRemainingThreshold) const;
+    ChannelInfo getChannelInfo(int channelIndex) { return channelList_[channelIndex]; }
 
 private:
     unsigned int numChannels_;

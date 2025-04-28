@@ -89,11 +89,15 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         }
 
         // mixer les sons
+        int channelIndex = 0;
         for (auto& chan : data->mixer->getChannelList()) {
             if (chan.isActive() && !chan.muted && chan.sound) {
-                std::vector<float> soundBuffer = chan.sound->readData(framesPerBuffer);
-                if (!soundBuffer.empty()) {
-                  float volume = chan.volume;
+                if (chan.sound->readData(framesPerBuffer) >0) {
+                    std::vector<float> soundBuffer = chan.sound->getSoundBuffer();
+                  // std::cout << "curpos: " << chan.curPos << std::endl;
+                  // beep();
+                    // 1. Application du volume et du panoramique au bloc de données lu
+                    float volume = chan.volume;
                     float pan = chan.pan;
                     int numSoundChannels = chan.sound->getNumChannels();
 
@@ -112,9 +116,25 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                         bufData[frame * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
                         bufData[frame * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
                     }
+
+                    // 2. Vérification de la fin de la piste et application du fondu
+                    unsigned long fadeOutDuration = 1000; // Exemple de durée
+                    // if (data->mixer->isEndOfTrackApproaching(channelIndex, fadeOutDuration)) {
+                    if (chan.sound->isFramesRemaining(fadeOutDuration)) {
+                      // beep();
+                      auto count = framesPerBuffer;
+                        data->mixer->fadeOutLinear(channelIndex, bufData, count, outputNumChannels);
+                        // Potentiellement marquer le canal pour désactivation future
+                        // chan.setActive(false); // À décider où et quand désactiver
+                    }
+                } else {
+                    // Si readData retourne un buffer vide, on pourrait aussi envisager de désactiver le canal
+                    // chan.setActive(false);
                 }
             }
+            channelIndex++;
         }
+
 
         // Copie du buffer de mixage vers le buffer de sortie PortAudio
         for (unsigned long i = 0; i < framesPerBuffer * outputNumChannels; ++i) {
@@ -573,3 +593,5 @@ int main() {
     }
     return 0;
 }
+
+

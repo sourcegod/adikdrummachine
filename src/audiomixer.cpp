@@ -50,7 +50,7 @@ void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
             channelList_[channel].curPos = 0;
             channelList_[channel].endPos = sound ? sound->getSize() : 0; // Gérer le cas où sound est nul
             if (sound) {
-                sound->resetPlayhead();
+                sound->resetCurPos();
                 sound->setActive(true);
             }
         } else {
@@ -219,7 +219,7 @@ float AudioMixer::getChannelPan(int channelIndex) const {
     return 0.0f; // Par défaut au centre si l'index est invalide
 }
 
-void AudioMixer::fadeInLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels) {
+void AudioMixer::fadeInLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels) {
     if (channelIndex >= 0 && channelIndex < channelList_.size() && durationFrames > 0) {
         ChannelInfo& channel = channelList_[channelIndex];
         float startVolume = channel.volume;
@@ -227,14 +227,14 @@ void AudioMixer::fadeInLinear(int channelIndex, unsigned long durationFrames, st
             float fraction = static_cast<float>(frame) / durationFrames;
             float currentVolume = startVolume + (1.0f - startVolume) * fraction;
             for (int i = 0; i < outputNumChannels; ++i) {
-                buffer[frame * outputNumChannels + i] *= currentVolume; // Appliquer le gain au buffer
+                bufData[frame * outputNumChannels + i] *= currentVolume; // Appliquer le gain au buffer
             }
         }
         channel.volume = 1.0f; // S'assurer que le volume du canal est à 1 après le fondu
     }
 }
 
-void AudioMixer::fadeOutLinear(int channelIndex, unsigned long durationFrames, std::vector<float>& buffer, int outputNumChannels) {
+void AudioMixer::fadeOutLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels) {
     if (channelIndex >= 0 && channelIndex < channelList_.size() && durationFrames > 0) {
         ChannelInfo& channel = channelList_[channelIndex];
         float startVolume = channel.volume;
@@ -242,10 +242,22 @@ void AudioMixer::fadeOutLinear(int channelIndex, unsigned long durationFrames, s
             float fraction = static_cast<float>(frame) / durationFrames;
             float currentVolume = startVolume * (1.0f - fraction);
             for (int i = 0; i < outputNumChannels; ++i) {
-                buffer[frame * outputNumChannels + i] *= currentVolume; // Appliquer le gain au buffer
+                bufData[frame * outputNumChannels + i] *= currentVolume; // Appliquer le gain au buffer
             }
         }
-        channel.volume = 0.0f; // S'assurer que le volume du canal est à 0 après le fondu
+        // channel.volume = 0.0f; // S'assurer que le volume du canal est à 0 après le fondu
     }
 }
+
+bool AudioMixer::isEndOfTrackApproaching(int channelIndex, unsigned long framesRemainingThreshold) const {
+    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+        const ChannelInfo& channel = channelList_[channelIndex];
+        if (channel.sound && channel.isPlaying()) {
+            return (channel.endPos - channel.curPos) <= framesRemainingThreshold;
+        }
+    }
+    return false;
+}
+
+
 
