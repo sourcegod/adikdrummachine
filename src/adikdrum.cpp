@@ -49,15 +49,6 @@ void beep() {
     std::cout << '\a' << std::flush;
 }
 
-/*
-struct DrumMachineData {
-    DrumPlayer* player;
-    AudioMixer* mixer;
-    double sampleRate;
-} drumData;
-*/
-
-
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,
