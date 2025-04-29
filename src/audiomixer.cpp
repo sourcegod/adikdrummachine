@@ -249,4 +249,33 @@ void AudioMixer::fadeOutLinear(int channelIndex, std::vector<float>& bufData, un
     }
 }
 
+void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, unsigned long framesPerBuffer, int outputNumChannels) {
+    for (size_t i = 0; i < channelList_.size(); ++i) {
+        auto& chan = channelList_[i];
+        if (chan.isActive() && !chan.muted && chan.sound) {
+            if (chan.sound->readData(framesPerBuffer) > 0) {
+                std::vector<float> soundBuffer = chan.sound->getSoundBuffer();
+                float volume = chan.volume;
+                float pan = chan.pan;
+                int numSoundChannels = chan.sound->getNumChannels();
+
+                for (unsigned long frame = 0; frame < framesPerBuffer; ++frame) {
+                    float leftSample = 0.0f;
+                    float rightSample = 0.0f;
+
+                    if (numSoundChannels == 1) {
+                        leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f + pan);
+                    } else if (numSoundChannels == 2) {
+                        leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = soundBuffer[frame * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
+                    }
+
+                    outputBuffer[frame * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
+                    outputBuffer[frame * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
+                }
+            }
+        }
+    }
+}
 

@@ -88,42 +88,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
             }
         }
 
-        // mixer les sons
-        int channelIndex = 0;
-        for (auto& chan : data->mixer->getChannelList()) {
-            if (chan.isActive() && !chan.muted && chan.sound) {
-                if (chan.sound->readData(framesPerBuffer) >0) {
-                    std::vector<float> soundBuffer = chan.sound->getSoundBuffer();
-                  // std::cout << "curpos: " << chan.curPos << std::endl;
-                  // beep();
-                    // 1. Application du volume et du panoramique au bloc de données lu
-                    float volume = chan.volume;
-                    float pan = chan.pan;
-                    int numSoundChannels = chan.sound->getNumChannels();
-
-                    for (unsigned long frame = 0; frame < framesPerBuffer; ++frame) {
-                        float leftSample = 0.0f;
-                        float rightSample = 0.0f;
-
-                        if (numSoundChannels == 1) {
-                            leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
-                            rightSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f + pan);
-                        } else if (numSoundChannels == 2) {
-                            leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
-                            rightSample = soundBuffer[frame * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
-                        }
-
-                        bufData[frame * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
-                        bufData[frame * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
-                    }
-                } else {
-                // si readData renvoi <=0, on ne fait rien
-                // chan.setActive(false);
-                }
-            }
-            channelIndex++;
-        }
-
+        // Mixer les sons en utilisant la fonction dédiée
+        data->mixer->mixSoundData(bufData, framesPerBuffer, outputNumChannels);
 
         // Copie du buffer de mixage vers le buffer de sortie PortAudio
         for (unsigned long i = 0; i < framesPerBuffer * outputNumChannels; ++i) {

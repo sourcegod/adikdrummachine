@@ -62,6 +62,7 @@ public:
     void fadeInLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
     void fadeOutLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
     ChannelInfo getChannelInfo(int channelIndex) { return channelList_[channelIndex]; }
+    void mixSoundData(std::vector<float>& outputBuffer, unsigned long framesPerBuffer, int outputNumChannels);
 
 private:
     unsigned int numChannels_;
