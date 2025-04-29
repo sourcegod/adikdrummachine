@@ -54,6 +54,10 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,
                              PaStreamCallbackFlags statusFlags,
                              void* userData) {
+    // Note: Casting parameters in void here, to avoid compiler warnings: inused parameter.
+     (void)inputBuffer;
+     (void)timeInfo;
+     (void)statusFlags;
     AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
     if (data && data->mixer) {
         float* out = static_cast<float*>(outputBuffer);
@@ -106,7 +110,6 @@ static int drumMachineCallback(const void* inputBuffer,
                                  const PaStreamCallbackTimeInfo* timeInfo,
                                  PaStreamCallbackFlags statusFlags,
                                  void* userData) {
-    // DrumMachineData* data = static_cast<DrumMachineData*>(userData);
     AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
     if (data && data->mixer) {
         float* out = static_cast<float*>(outputBuffer);
@@ -234,9 +237,9 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 AdikDrum::AdikDrum()
     : sampleRate_(44100),
+      mixer_(18),
       numSounds_(16),
       numSteps_(16),
-      mixer_(18),
       drumPlayer_(numSounds_, numSteps_) 
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
@@ -498,8 +501,8 @@ void AdikDrum::loadSounds() {
     drumSounds_.push_back(soundFactory.generateTestTone(440.0, 0.3)); // Exemple pour Tambourine
     
     float fadeOutStartPercentage = 0.3f; // Appliquer le fondu à partir d'un pourcentage de la longueur
-    float expFadeOutStartPercentage = 0.8f; // Commencer le fondu à 60% pour les clics
-    float exponentialPower = 3.0f; // Facteur de puissance pour le fondu exponentiel
+    // float expFadeOutStartPercentage = 0.8f; // Commencer le fondu à 60% pour les clics
+    // float exponentialPower = 3.0f; // Facteur de puissance pour le fondu exponentiel
 
     for (auto&  sound : drumSounds_) {
       // std::cout << "voici len: " << sound->getLength() << " et pourcentage de début de fadeout: " << fadeOutStartPercentage << std::endl;
@@ -520,7 +523,7 @@ const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const 
 
 void AdikDrum::demo() {
     // Tester les sons
-    for (int i = 0; i < drumSounds_.size(); ++i) {
+    for (size_t i = 0; i < drumSounds_.size(); ++i) {
         drumPlayer_.playSound(i);
         long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));

@@ -5,10 +5,11 @@
 #include <algorithm>
 #include <memory> // Pour std::shared_ptr
 
-AudioMixer::AudioMixer(int numChannels) 
+AudioMixer::AudioMixer(size_t numChannels) 
   : channelList_(numChannels), // initialiser la taille du vecteur  
     globalVolume_(0.8f), // Initialiser le volume global à 0.8
     numChannels_(numChannels) {
+
     if (numChannels > channelList_.size()) {
         std::cerr << "Attention : Le nombre de canaux demandé dépasse la taille du mixer." << std::endl;
     }
@@ -33,15 +34,20 @@ AudioMixer::~AudioMixer() {
 
 bool AudioMixer::init(int sampleRate, int channels, int bits) {
     // Ajoute ici toute initialisation spécifique à AudioMixer si nécessaire
+    (void)sampleRate;
+    (void)channels;
+    (void)bits;
     std::cout << "AudioMixer initialized." << std::endl;
+    return true;
 }
 
 void AudioMixer::close() {
     // Ajoute ici toute fermeture spécifique à AudioMixer si nécessaire
     std::cout << "AudioMixer closed." << std::endl;
 }
-void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::play(size_t channel, std::shared_ptr<AudioSound> sound) {
+    // Note: channel est de type size_t, donc forcément >=0, donc, on n'a pas besoin de le tester.
+    if (channel < channelList_.size()) {
         // Autoriser la lecture sur le canal du métronome même s'il est réservé
         if (channel == metronomeChannel_ || !channelList_[channel].reserved) {
             channelList_[channel].sound = sound;
@@ -61,15 +67,15 @@ void AudioMixer::play(int channel, std::shared_ptr<AudioSound> sound) {
     }
 }
 
-bool AudioMixer::isChannelPlaying(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+bool AudioMixer::isChannelPlaying(size_t channel) const {
+    if (channel < channelList_.size()) {
         return channelList_[channel].isPlaying();
     }
     return false;
 }
 
-void AudioMixer::pause(int channel) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::pause(size_t channel) {
+    if (channel < channelList_.size()) {
         channelList_[channel].active_ = false;
         if (channelList_[channel].sound) {
             channelList_[channel].sound->setActive(false);
@@ -79,8 +85,8 @@ void AudioMixer::pause(int channel) {
     }
 }
 
-void AudioMixer::stop(int channel) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::stop(size_t channel) {
+    if (channel < channelList_.size()) {
         channelList_[channel].active_ = false;
         channelList_[channel].sound.reset(); // Décrémente le compteur de références
     } else {
@@ -88,8 +94,8 @@ void AudioMixer::stop(int channel) {
     }
 }
 
-float AudioMixer::getVolume(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+float AudioMixer::getVolume(size_t channel) const {
+    if (channel < channelList_.size()) {
         return channelList_[channel].volume;
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
@@ -97,8 +103,8 @@ float AudioMixer::getVolume(int channel) const {
     }
 }
 
-void AudioMixer::setVolume(int channel, float volume) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::setVolume(size_t channel, float volume) {
+    if (channel < channelList_.size()) {
         channelList_[channel].volume = std::clamp(volume, 0.0f, 1.0f);
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
@@ -115,8 +121,8 @@ void AudioMixer::setGlobalVolume(float volume) {
 }
 
 
-bool AudioMixer::isChannelActive(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+bool AudioMixer::isChannelActive(size_t channel) const {
+    if (channel < channelList_.size()) {
         return channelList_[channel].active_;
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
@@ -124,8 +130,8 @@ bool AudioMixer::isChannelActive(int channel) const {
     }
 }
 
-void AudioMixer::setChannelActive(int channel, bool active) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::setChannelActive(size_t channel, bool active) {
+    if (channel < channelList_.size()) {
         channelList_[channel].active_ = active;
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
@@ -133,8 +139,8 @@ void AudioMixer::setChannelActive(int channel, bool active) {
 }
 
 
-std::shared_ptr<AudioSound> AudioMixer::getSound(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+std::shared_ptr<AudioSound> AudioMixer::getSound(size_t channel) const {
+    if (channel < channelList_.size()) {
         return channelList_[channel].sound; // Retourne le shared_ptr
     } else {
         std::cerr << "Canal invalide : " << channel << std::endl;
@@ -142,36 +148,37 @@ std::shared_ptr<AudioSound> AudioMixer::getSound(int channel) const {
     }
 }
 
-void AudioMixer::reserveChannel(int channel, bool reserved) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::reserveChannel(size_t channel, bool reserved) {
+    if (channel < channelList_.size()) {
         channelList_[channel].reserved = reserved;
     } else {
         std::cerr << "Erreur: Canal " << channel << " invalide pour la réservation." << std::endl;
     }
 }
 
-bool AudioMixer::isChannelReserved(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+bool AudioMixer::isChannelReserved(size_t channel) const {
+    // channel is size_t, so, no nedd to test >=0
+    if (channel < channelList_.size()) {
         return channelList_[channel].reserved;
     }
     return false;
 }
 
-size_t AudioMixer::getChannelCurPos(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+size_t AudioMixer::getChannelCurPos(size_t channel) const {
+    if (channel < channelList_.size()) {
         return channelList_[channel].curPos;
     }
     return 0;
 }
 
-void AudioMixer::setChannelCurPos(int channel, size_t pos) {
-    if (channel >= 0 && channel < channelList_.size()) {
+void AudioMixer::setChannelCurPos(size_t channel, size_t pos) {
+    if (channel < channelList_.size()) {
         channelList_[channel].curPos = pos;
     }
 }
 
-size_t AudioMixer::getChannelEndPos(int channel) const {
-    if (channel >= 0 && channel < channelList_.size()) {
+size_t AudioMixer::getChannelEndPos(size_t channel) const {
+    if (channel < channelList_.size()) {
         return channelList_[channel].endPos;
     }
     return 0;
@@ -181,8 +188,8 @@ std::vector<ChannelInfo>& AudioMixer::getChannelList() {
     return channelList_;
 }
 
-void AudioMixer::setChannelMuted(int channelIndex, bool muted) {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+void AudioMixer::setChannelMuted(size_t channelIndex, bool muted) {
+    if (channelIndex < channelList_.size()) {
         channelList_[channelIndex].muted = muted;
         std::cout << "Canal " << channelIndex << " est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
     } else {
@@ -190,8 +197,8 @@ void AudioMixer::setChannelMuted(int channelIndex, bool muted) {
     }
 }
 
-bool AudioMixer::isChannelMuted(int channelIndex) const {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+bool AudioMixer::isChannelMuted(size_t channelIndex) const {
+    if (channelIndex < channelList_.size()) {
         return channelList_[channelIndex].muted;
     }
     return false; // Par défaut, non muté si l'index est invalide
@@ -203,8 +210,8 @@ void AudioMixer::resetMute() {
     }
     std::cout << "Tous les canaux ont été démutés." << std::endl;
 }
-void AudioMixer::setChannelPan(int channelIndex, float panValue) {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+void AudioMixer::setChannelPan(size_t channelIndex, float panValue) {
+    if (channelIndex < channelList_.size()) {
         channelList_[channelIndex].pan = std::clamp(panValue, -1.0f, 1.0f);
         std::cout << "Pan du canal " << channelIndex << " réglé à " << channelList_[channelIndex].pan << std::endl;
     } else {
@@ -212,15 +219,15 @@ void AudioMixer::setChannelPan(int channelIndex, float panValue) {
     }
 }
 
-float AudioMixer::getChannelPan(int channelIndex) const {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
+float AudioMixer::getChannelPan(size_t channelIndex) const {
+    if (channelIndex < channelList_.size()) {
         return channelList_[channelIndex].pan;
     }
     return 0.0f; // Par défaut au centre si l'index est invalide
 }
 
-void AudioMixer::fadeInLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels) {
-    if (channelIndex >= 0 && channelIndex < channelList_.size() && durationFrames > 0) {
+void AudioMixer::fadeInLinear(size_t channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels) {
+    if (channelIndex < channelList_.size() && durationFrames > 0) {
         ChannelInfo& channel = channelList_[channelIndex];
         float startVolume = channel.volume;
         for (unsigned long frame = 0; frame < durationFrames; ++frame) {
@@ -234,8 +241,8 @@ void AudioMixer::fadeInLinear(int channelIndex, std::vector<float>& bufData, uns
     }
 }
 
-void AudioMixer::fadeOutLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels) {
-    if (channelIndex >= 0 && channelIndex < channelList_.size() && durationFrames > 0) {
+void AudioMixer::fadeOutLinear(size_t channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels) {
+    if (channelIndex < channelList_.size() && durationFrames > 0) {
         ChannelInfo& channel = channelList_[channelIndex];
         float startVolume = channel.volume;
         for (unsigned long frame = 0; frame < durationFrames; ++frame) {
@@ -249,7 +256,7 @@ void AudioMixer::fadeOutLinear(int channelIndex, std::vector<float>& bufData, un
     }
 }
 
-void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, unsigned long framesPerBuffer, int outputNumChannels) {
+void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t framesPerBuffer, size_t outputNumChannels) {
     for (size_t i = 0; i < channelList_.size(); ++i) {
         auto& chan = channelList_[i];
         if (chan.isActive() && !chan.muted && chan.sound) {
@@ -259,7 +266,7 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, unsigned long fr
                 float pan = chan.pan;
                 int numSoundChannels = chan.sound->getNumChannels();
 
-                for (unsigned long frame = 0; frame < framesPerBuffer; ++frame) {
+                for (size_t frame = 0; frame < framesPerBuffer; ++frame) {
                     float leftSample = 0.0f;
                     float rightSample = 0.0f;
 

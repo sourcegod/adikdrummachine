@@ -24,7 +24,7 @@ public:
 
 // Nouvelle fonction de hard clipping
 
-    const double getBpm() const;
+    double getBpm() const { return bpm_; }
     void setBpm(double newBpm);
     bool isSoundPlaying() const;
     void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer

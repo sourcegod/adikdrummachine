@@ -34,8 +34,8 @@ public:
 
 private:
     AudioDriver audioDriver_;
-    AudioMixer mixer_;
     int sampleRate_;
+    AudioMixer mixer_;
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Membre public pour stocker les sons
     std::shared_ptr<AudioSound> soundClick1_;
     std::shared_ptr<AudioSound> soundClick2_;

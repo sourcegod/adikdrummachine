@@ -7,11 +7,11 @@
 #include "audiosound.h"
 
 struct ChannelInfo {
+    std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
     bool active_;
     float volume;
     float pan; // Ajouter cette ligne
 
-    std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
     bool reserved;
     size_t startPos; // Position de début de la lecture (sera 0)
     size_t curPos;   // Position de lecture actuelle
@@ -21,54 +21,57 @@ struct ChannelInfo {
     bool isActive() const { return active_; }
     void setActive(bool active) { active_ = active; }
     bool muted;
-    ChannelInfo() : sound(nullptr), curPos(0), endPos(0), volume(1.0f), 
-        active_(false), reserved(false), 
-        muted(false), pan(0.0) {}
+    ChannelInfo() 
+      : sound(nullptr), 
+      active_(false), volume(1.0f), pan(0.0f),
+      reserved(false), 
+      startPos(0), curPos(0), endPos(0), 
+      muted(false) {}
 
 };
 
 class AudioMixer {
 public:
-    AudioMixer(int numChannels);
+    AudioMixer(size_t numChannels);
     ~AudioMixer();
 
     bool init(int sampleRate = 44100, int channels = 2, int bits = 16);
     void close();
-    void play(int channel, std::shared_ptr<AudioSound> sound); // Prend un shared_ptr
-    void pause(int channel);
-    void stop(int channel);
-    float getVolume(int channel) const;
-    void setVolume(int channel, float volume);
+    void play(size_t channel, std::shared_ptr<AudioSound> sound); // Prend un shared_ptr
+    void pause(size_t channel);
+    void stop(size_t channel);
+    float getVolume(size_t channel) const;
+    void setVolume(size_t channel, float volume);
     float getGlobalVolume() const;     // Nouvelle fonction
     void setGlobalVolume(float volume); // Nouvelle fonction
 
-    bool isChannelActive(int channel) const;
-    void setChannelActive(int channel, bool active);
-    std::shared_ptr<AudioSound> getSound(int channel) const; // Retourne un shared_ptr
-    void reserveChannel(int channel, bool reserved); // Nouvelle fonction pour réserver un canal
-    bool isChannelReserved(int channel) const; // Nouvelle fonction pour vérifier si un canal est réservé
-    bool isChannelPlaying(int channel) const;
+    bool isChannelActive(size_t channel) const;
+    void setChannelActive(size_t channel, bool active);
+    std::shared_ptr<AudioSound> getSound(size_t channel) const; // Retourne un shared_ptr
+    void reserveChannel(size_t channel, bool reserved); // Nouvelle fonction pour réserver un canal
+    bool isChannelReserved(size_t channel) const; // Nouvelle fonction pour vérifier si un canal est réservé
+    bool isChannelPlaying(size_t channel) const;
 
-    size_t getChannelCurPos(int channel) const;
-    void setChannelCurPos(int channel, size_t pos);
-    size_t getChannelEndPos(int channel) const;
+    size_t getChannelCurPos(size_t channel) const;
+    void setChannelCurPos(size_t channel, size_t pos);
+    size_t getChannelEndPos(size_t channel) const;
     std::vector<ChannelInfo>& getChannelList();
-    void setChannelMuted(int channelIndex, bool muted);
-    bool isChannelMuted(int channelIndex) const;
+    void setChannelMuted(size_t channelIndex, bool muted);
+    bool isChannelMuted(size_t channelIndex) const;
     void resetMute();
-    void setChannelPan(int channelIndex, float panValue);
-    float getChannelPan(int channelIndex) const;
+    void setChannelPan(size_t channelIndex, float panValue);
+    float getChannelPan(size_t channelIndex) const;
 
-    void fadeInLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
-    void fadeOutLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
-    ChannelInfo getChannelInfo(int channelIndex) { return channelList_[channelIndex]; }
-    void mixSoundData(std::vector<float>& outputBuffer, unsigned long framesPerBuffer, int outputNumChannels);
+    void fadeInLinear(size_t channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
+    void fadeOutLinear(size_t channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
+    ChannelInfo getChannelInfo(size_t channelIndex) { return channelList_[channelIndex]; }
+    void mixSoundData(std::vector<float>& outputBuffer, size_t framesPerBuffer, size_t outputNumChannels);
 
 private:
-    unsigned int numChannels_;
     std::vector<ChannelInfo> channelList_;
-
     float globalVolume_; // Variable pour le volume global
+    size_t numChannels_;
+
     static const int metronomeChannel_ = 0;
 };
 

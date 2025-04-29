@@ -159,7 +159,6 @@ void DrumPlayer::playPattern() {
 }
 // */
 
-const double DrumPlayer::getBpm() const { return bpm_; }
 void DrumPlayer::setBpm(double newBpm) {
     if (newBpm >=5 &&  newBpm <= 800) {
         bpm_ = newBpm;

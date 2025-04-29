@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 
-AudioSound::AudioSound(std::vector<double> data, int numChannels) 
+AudioSound::AudioSound(std::vector<double> data, size_t numChannels) 
     : rawData_(std::move(data)), numChannels_(numChannels),
     active_(false),
     length_(data.size()) {
@@ -92,7 +92,7 @@ void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
                 float gain = 1.0f - static_cast<float>(i) / fadeOutDurationFrames;
                 size_t index = (fadeOutStartFrame + i) * numChannels_;
                 if (index < rawData_.size()) {
-                    for (int channel = 0; channel < numChannels_; ++channel) {
+                    for (size_t channel = 0; channel < numChannels_; ++channel) {
                         rawData_[index + channel] *= gain;
                     }
                 }
@@ -112,7 +112,7 @@ void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFac
                 float gain = 1.0f - std::pow(timeRatio, powerFactor);
                 size_t index = (fadeOutStartFrame + i) * numChannels_;
                 if (index < rawData_.size()) {
-                    for (int channel = 0; channel < numChannels_; ++channel) {
+                    for (size_t channel = 0; channel < numChannels_; ++channel) {
                         rawData_[index + channel] *= gain;
                     }
                 }
