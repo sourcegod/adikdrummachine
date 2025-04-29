@@ -20,11 +20,12 @@ public:
     void resetCurPos() { curPos =0; }   // Pour recommencer la lecture du son
     size_t getCurPos() const { return curPos; }   // Pour recommencer la lecture du son
     int getNumChannels() const { return numChannels_; }
+    // std::vector<float> readData(size_t numFrames);
     size_t readData(size_t numFrames);
     bool isFramesRemaining(unsigned long framesRemaining) const { return (endPos - curPos) <= framesRemaining; }
     std::vector<float>& getSoundBuffer() { return soundBuffer_; }
-    // void applyStaticFadeOut(unsigned long fadeOutDurationInFrames);
-    void applyStaticFadeOut(float fadeOutStartPercent);
+    void applyStaticFadeOutLinear(float fadeOutStartPercent);
+    void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor); 
 
 
 private:

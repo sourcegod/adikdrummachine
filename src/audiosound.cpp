@@ -1,7 +1,9 @@
 #include "audiosound.h"
+#include <cmath> // for std::pow
 #include <algorithm> // Pour std::min
 #include <vector>
 #include <iostream>
+
 AudioSound::AudioSound(std::vector<double> data, int numChannels) 
     : rawData_(std::move(data)), numChannels_(numChannels),
     active_(false),
@@ -80,7 +82,7 @@ std::vector<float> AudioSound::readData(size_t numFrames) {
 */
 
 
-void AudioSound::applyStaticFadeOut(float fadeOutStartPercent) {
+void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
     if (fadeOutStartPercent >= 0.0f && fadeOutStartPercent <= 1.0f) {
         unsigned long fadeOutStartFrame = static_cast<unsigned long>(length_ * fadeOutStartPercent);
         unsigned long fadeOutDurationFrames = length_ - fadeOutStartFrame;
@@ -99,19 +101,23 @@ void AudioSound::applyStaticFadeOut(float fadeOutStartPercent) {
     }
 }
 
-/*
-void AudioSound::applyStaticFadeOut(unsigned long fadeOutDurationInFrames) {
-    if (length_ > fadeOutDurationInFrames) {
-        for (unsigned long i = 0; i < fadeOutDurationInFrames; ++i) {
-            float gain = 1.0f - static_cast<float>(i) / fadeOutDurationInFrames;
-            size_t index = (length_ - fadeOutDurationInFrames + i) * numChannels_;
-            if (index < rawData_.size()) {
-                for (int channel = 0; channel < numChannels_; ++channel) {
-                    rawData_[index + channel] *= gain;
+void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor) {
+    if (fadeOutStartPercent >= 0.0f && fadeOutStartPercent <= 1.0f && powerFactor > 0.0f) {
+        unsigned long fadeOutStartFrame = static_cast<unsigned long>(length_ * fadeOutStartPercent);
+        unsigned long fadeOutDurationFrames = length_ - fadeOutStartFrame;
+
+        if (fadeOutDurationFrames > 0) {
+            for (unsigned long i = 0; i < fadeOutDurationFrames; ++i) {
+                float timeRatio = static_cast<float>(i) / fadeOutDurationFrames;
+                float gain = 1.0f - std::pow(timeRatio, powerFactor);
+                size_t index = (fadeOutStartFrame + i) * numChannels_;
+                if (index < rawData_.size()) {
+                    for (int channel = 0; channel < numChannels_; ++channel) {
+                        rawData_[index + channel] *= gain;
+                    }
                 }
             }
         }
     }
 }
-*/
 

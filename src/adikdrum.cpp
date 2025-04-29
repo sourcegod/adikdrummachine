@@ -326,8 +326,8 @@ bool AdikDrum::initApp() {
     std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
     float fadeOutStartPercentage = 0.1f; // Appliquer le fondu à partir d'un pourcentage de la longueur
-    soundClick1->applyStaticFadeOut(fadeOutStartPercentage);
-    soundClick2->applyStaticFadeOut(fadeOutStartPercentage);
+    soundClick1->applyStaticFadeOutLinear(fadeOutStartPercentage);
+    soundClick2->applyStaticFadeOutLinear(fadeOutStartPercentage);
  
     // global structure for now
     mixer_ = AudioMixer(numChannelsMixer);
@@ -541,10 +541,18 @@ void AdikDrum::loadSounds() {
     drumSounds_.push_back(soundFactory.generateTestTone(660.0, 0.1)); // Exemple pour CowBell
     drumSounds_.push_back(soundFactory.generateTestTone(440.0, 0.3)); // Exemple pour Tambourine
     
-    float fadeOutStartPercentage = 0.1f; // Appliquer le fondu à partir d'un pourcentage de la longueur
+    float fadeOutStartPercentage = 0.3f; // Appliquer le fondu à partir d'un pourcentage de la longueur
+    float expFadeOutStartPercentage = 0.8f; // Commencer le fondu à 60% pour les clics
+    float exponentialPower = 3.0f; // Facteur de puissance pour le fondu exponentiel
+
     for (auto&  sound : drumSounds_) {
-      std::cout << "voici len: " << sound->getLength() << " et pourcentage de début de fadeout: " << fadeOutStartPercentage << std::endl;
-      sound->applyStaticFadeOut(fadeOutStartPercentage);
+      // std::cout << "voici len: " << sound->getLength() << " et pourcentage de début de fadeout: " << fadeOutStartPercentage << std::endl;
+      // Appliquer un fondu linéaire par défaut
+      sound->applyStaticFadeOutLinear(fadeOutStartPercentage);
+      
+      // std::cout << "Appliquer un fondu exponentiel au clic." << std::endl;
+      // sound->applyStaticFadeOutExp(expFadeOutStartPercentage, exponentialPower);
+
     }
       
 
