@@ -61,7 +61,6 @@ public:
 
     void fadeInLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
     void fadeOutLinear(int channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
-    bool isEndOfTrackApproaching(int channelIndex, unsigned long framesRemainingThreshold) const;
     ChannelInfo getChannelInfo(int channelIndex) { return channelList_[channelIndex]; }
 
 private:

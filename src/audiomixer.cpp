@@ -249,15 +249,4 @@ void AudioMixer::fadeOutLinear(int channelIndex, std::vector<float>& bufData, un
     }
 }
 
-bool AudioMixer::isEndOfTrackApproaching(int channelIndex, unsigned long framesRemainingThreshold) const {
-    if (channelIndex >= 0 && channelIndex < channelList_.size()) {
-        const ChannelInfo& channel = channelList_[channelIndex];
-        if (channel.sound && channel.isPlaying()) {
-            return (channel.endPos - channel.curPos) <= framesRemainingThreshold;
-        }
-    }
-    return false;
-}
-
-
 
