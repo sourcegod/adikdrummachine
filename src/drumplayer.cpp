@@ -12,11 +12,11 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     : isPlaying(false),
       isClicking(false),
       currentStep(0),
-      bpm_(100),
       clickStep(0),
       pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
       sampleRate_(44100),
+      bpm_(100),
       beatCounter_(0),
       mixer_(nullptr), // Initialiser à nullptr
       isMuted_(numSounds, false) // Initialiser tous les sons comme non mutés
@@ -53,8 +53,8 @@ void DrumPlayer::playSound0(int soundIndex) {
 }
 */
 
-void DrumPlayer::playSound(int soundIndex) {
-    if (soundIndex >= 0 && soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
+void DrumPlayer::playSound(size_t soundIndex) {
+    if (soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
         mixer_->play(soundIndex+1, drumSounds_[soundIndex]);
     } else {
         std::cerr << "Erreur: Aucun son trouvé avec cet (index: "
@@ -140,7 +140,7 @@ void DrumPlayer::playMetronome() {
 // /*
 void DrumPlayer::playPattern() {
     if (mixer_ && isPlaying) {
-        for (int i = 0; i < drumSounds_.size(); ++i) { //
+        for (size_t i = 0; i < drumSounds_.size(); ++i) { //
             if (pattern_[i][currentStep]) {
                 if (drumSounds_[i]) {
                     
@@ -176,15 +176,15 @@ bool DrumPlayer::isSoundPlaying() const {
     return false;
 }
 
-bool DrumPlayer::isSoundMuted(int soundIndex) const {
-    if (soundIndex >= 0 && soundIndex < isMuted_.size()) {
+bool DrumPlayer::isSoundMuted(size_t soundIndex) const {
+    if (soundIndex < isMuted_.size()) {
         return isMuted_[soundIndex];
     }
     return false; // Par défaut, non muté si l'index est invalide
 }
 
-void DrumPlayer::setSoundMuted(int soundIndex, bool muted) {
-    if (mixer_ && soundIndex >= 0 && soundIndex < drumSounds_.size()) {
+void DrumPlayer::setSoundMuted(size_t soundIndex, bool muted) {
+    if (mixer_ && soundIndex < drumSounds_.size()) {
         int channelToMute = soundIndex+1;
         mixer_->setChannelMuted(channelToMute, muted); // Utiliser la fonction de AudioMixer
         isMuted_[soundIndex] = muted; // Garder une trace locale si nécessaire

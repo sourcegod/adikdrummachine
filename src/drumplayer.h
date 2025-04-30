@@ -14,7 +14,7 @@ public:
     // DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps);
     ~DrumPlayer();
 
-    void playSound(int soundIndex);
+    void playSound(size_t soundIndex);
     void stopAllSounds();
     void playMetronome();
     void playPattern();
@@ -32,8 +32,8 @@ public:
     void stopClick();
     int getNumSteps() const { return numSteps_; }
     int getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
-    bool isSoundMuted(int soundIndex) const;
-    void setSoundMuted(int soundIndex, bool muted);
+    bool isSoundMuted(size_t soundIndex) const;
+    void setSoundMuted(size_t soundIndex, bool muted);
     void resetMute();
 
     bool isPlaying;
