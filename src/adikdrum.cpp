@@ -68,14 +68,14 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
-            if (data->player->playing_) {
+            if (data->player->isPlaying()) {
                 data->player->clickStep = data->player->currentStep;
-                if (data->player->clicking_ && data->player->clickStep % 4 == 0) {
+                if (data->player->isClicking() && data->player->clickStep % 4 == 0) {
                   data->player->playMetronome();
                 }
                 data->player->playPattern();
                 data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
-            } else if (data->player->clicking_) {
+            } else if (data->player->isClicking()) {
                 if (data->player->clickStep % 4 == 0) {
                     data->player->playMetronome();
                 }
@@ -93,7 +93,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         
         }
 
-        if (data->player->playing_ || data->player->clicking_) {
+        if (data->player->isPlaying() || data->player->isClicking()) {
             frameCounter += framesPerBuffer;
         }
         return paContinue;
