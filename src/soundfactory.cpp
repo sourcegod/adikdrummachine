@@ -26,6 +26,7 @@ std::shared_ptr<AudioSound> SoundFactory::applyNoiseEnvelopeToAudioSound(std::sh
 }
 
 std::shared_ptr<AudioSound> SoundFactory::applySquareEnvelopeToAudioSound(std::shared_ptr<AudioSound> audioSound, double duration, double decayRate) {
+    (void)duration;
     std::vector<double>& wave = audioSound->getRawData();
     for (size_t i = 0; i < wave.size(); ++i) {
         double time = static_cast<double>(i) / sampleRate_;
@@ -35,6 +36,7 @@ std::shared_ptr<AudioSound> SoundFactory::applySquareEnvelopeToAudioSound(std::s
 }
 
 std::shared_ptr<AudioSound> SoundFactory::createEnvelopeForAudioSound(double duration, double decayRate) {
+    (void)duration;
     int numSamples = static_cast<int>(duration * sampleRate_);
     std::vector<double> envelope(numSamples);
     for (int i = 0; i < numSamples; ++i) {

@@ -29,9 +29,10 @@ public:
     std::shared_ptr<AudioSound> generateBuzzer(double frequency, double duration);
 
 private:
-    SoundGenerator generator_;
     int sampleRate_;
     double defaultDuration_;
+    SoundGenerator generator_;
+
 };
 
 #endif // SOUNDFACTORY_H
