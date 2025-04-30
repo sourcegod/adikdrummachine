@@ -36,8 +36,6 @@ public:
     void setSoundMuted(size_t soundIndex, bool muted);
     void resetMute();
 
-    bool playing_;
-    bool clicking_;
     bool isPlaying() const { return playing_; }
     bool isClicking() const { return clicking_; }
     void togglePlay() { playing_ = ! playing_; }
@@ -55,6 +53,8 @@ public:
     int sampleRate_;
 
 private:
+    bool playing_;
+    bool clicking_;
     double bpm_;
     int beatCounter_;
     AudioMixer* mixer_; // Pointeur vers l'AudioMixer

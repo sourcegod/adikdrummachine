@@ -9,13 +9,13 @@
 #include <algorithm> // pour std::clamp
 
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
-    : playing_(false),
-      clicking_(false),
-      currentStep(0),
+    : currentStep(0),
       clickStep(0),
       pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
       sampleRate_(44100),
+      playing_(false),
+      clicking_(false),
       bpm_(100),
       beatCounter_(0),
       mixer_(nullptr), // Initialiser à nullptr
