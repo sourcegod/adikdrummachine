@@ -38,6 +38,8 @@ public:
 
     bool playing_;
     bool clicking_;
+    bool isPlaying() const { return playing_; }
+    bool isClicking() const { return clicking_; }
     int currentStep;
     double secondsPerStep;
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Utilisation de shared_ptr
