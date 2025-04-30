@@ -68,14 +68,14 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
 
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
-            if (data->player->isPlaying) {
+            if (data->player->playing_) {
                 data->player->clickStep = data->player->currentStep;
-                if (data->player->isClicking && data->player->clickStep % 4 == 0) {
+                if (data->player->clicking_ && data->player->clickStep % 4 == 0) {
                   data->player->playMetronome();
                 }
                 data->player->playPattern();
                 data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
-            } else if (data->player->isClicking) {
+            } else if (data->player->clicking_) {
                 if (data->player->clickStep % 4 == 0) {
                     data->player->playMetronome();
                 }
@@ -93,7 +93,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
         
         }
 
-        if (data->player->isPlaying || data->player->isClicking) {
+        if (data->player->playing_ || data->player->clicking_) {
             frameCounter += framesPerBuffer;
         }
         return paContinue;
@@ -128,16 +128,16 @@ static int drumMachineCallback(const void* inputBuffer,
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
 
-            if (data->player->isPlaying) {
+            if (data->player->playing_) {
                 data->player->clickStep = data->player->currentStep;
-                if (data->player->isClicking && data->player->clickStep % 4 == 0) {
+                if (data->player->clicking_ && data->player->clickStep % 4 == 0) {
                   // beep();  
                   data->player->playMetronome();
                 }
                 data->player->playPattern();
                 data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
 
-            } else if (data->player->isClicking) {
+            } else if (data->player->clicking_) {
                 if (data->player->clickStep % 4 == 0) {
                     data->player->playMetronome();
                 }
@@ -179,7 +179,7 @@ static int drumMachineCallback(const void* inputBuffer,
             *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
         }
 
-        if (data->player->isPlaying || data->player->isClicking) {
+        if (data->player->playing_ || data->player->clicking_) {
             frameCounter += framesPerBuffer;
         }
         return paContinue;
@@ -352,15 +352,15 @@ void AdikDrum::run() {
             drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = false;
             std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
         } else if (key == ' ') { // Touche Espace
-            drumPlayer_.isPlaying = !drumPlayer_.isPlaying;
-            std::cout << "Play: " << (drumPlayer_.isPlaying ? "ON" : "OFF") << std::endl;
+            drumPlayer_.playing_ = !drumPlayer_.playing_;
+            std::cout << "Play: " << (drumPlayer_.playing_ ? "ON" : "OFF") << std::endl;
         } else if (key == 'c') {
-            drumPlayer_.isClicking = !drumPlayer_.isClicking;
-            if (drumPlayer_.isClicking)
+            drumPlayer_.clicking_ = !drumPlayer_.clicking_;
+            if (drumPlayer_.clicking_)
               drumPlayer_.startClick();
             else
               drumPlayer_.stopClick();
-            std::cout << "Metronome: " << (drumPlayer_.isClicking ? "ON" : "OFF") << std::endl;
+            std::cout << "Metronome: " << (drumPlayer_.clicking_ ? "ON" : "OFF") << std::endl;
 
         } else if (key == 'p') {
             demo();

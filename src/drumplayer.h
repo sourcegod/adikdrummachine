@@ -36,8 +36,8 @@ public:
     void setSoundMuted(size_t soundIndex, bool muted);
     void resetMute();
 
-    bool isPlaying;
-    bool isClicking;
+    bool playing_;
+    bool clicking_;
     int currentStep;
     double secondsPerStep;
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Utilisation de shared_ptr

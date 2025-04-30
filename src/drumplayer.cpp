@@ -9,8 +9,8 @@
 #include <algorithm> // pour std::clamp
 
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
-    : isPlaying(false),
-      isClicking(false),
+    : playing_(false),
+      clicking_(false),
       currentStep(0),
       clickStep(0),
       pattern_(numSounds, std::vector<bool>(numSteps, false)),
@@ -76,8 +76,8 @@ void DrumPlayer::stopAllSounds() {
         }
     }
 
-    isPlaying = false;
-    isClicking = false;
+    playing_ = false;
+    clicking_ = false;
     currentStep = 0;
     clickStep = 0;
     beatCounter_ = 0;
@@ -85,8 +85,8 @@ void DrumPlayer::stopAllSounds() {
 
 
 void DrumPlayer::startClick() {
-    isClicking = true;
-    if (isPlaying) {
+    clicking_ = true;
+    if (playing_) {
       clickStep = currentStep;
       beatCounter_ = clickStep % numSteps_;
     } else {
@@ -107,7 +107,7 @@ void DrumPlayer::startClick() {
 }
 
 void DrumPlayer::stopClick() {
-    isClicking = false;
+    clicking_ = false;
     if (mixer_) {
         if (mixer_->isChannelActive(0)) {
             mixer_->stop(0);
@@ -122,7 +122,7 @@ void DrumPlayer::stopClick() {
 }
 
 void DrumPlayer::playMetronome() {
-    if (isPlaying) {
+    if (playing_) {
         // valable aussi pour si currentStep =0 et beatCounter =0
         beatCounter_ = currentStep / 4; // Note: Le résultat est une division entière puisque les deux nombres sont des entiers.
     }
@@ -139,7 +139,7 @@ void DrumPlayer::playMetronome() {
 
 // /*
 void DrumPlayer::playPattern() {
-    if (mixer_ && isPlaying) {
+    if (mixer_ && playing_) {
         for (size_t i = 0; i < drumSounds_.size(); ++i) { //
             if (pattern_[i][currentStep]) {
                 if (drumSounds_[i]) {
