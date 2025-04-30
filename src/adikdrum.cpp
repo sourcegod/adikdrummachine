@@ -352,15 +352,15 @@ void AdikDrum::run() {
             drumPlayer_.pattern_[cursor_pos.second][cursor_pos.first] = false;
             std::cout << "Step " << cursor_pos.first + 1 << " on sound " << cursor_pos.second + 1 << " deactivated." << std::endl;
         } else if (key == ' ') { // Touche Espace
-            drumPlayer_.playing_ = !drumPlayer_.playing_;
-            std::cout << "Play: " << (drumPlayer_.playing_ ? "ON" : "OFF") << std::endl;
+            drumPlayer_.togglePlay();
+            std::cout << "Play: " << (drumPlayer_.isPlaying() ? "ON" : "OFF") << std::endl;
         } else if (key == 'c') {
-            drumPlayer_.clicking_ = !drumPlayer_.clicking_;
-            if (drumPlayer_.clicking_)
+            drumPlayer_.toggleClick();
+            if (drumPlayer_.isClicking())
               drumPlayer_.startClick();
             else
               drumPlayer_.stopClick();
-            std::cout << "Metronome: " << (drumPlayer_.clicking_ ? "ON" : "OFF") << std::endl;
+            std::cout << "Metronome: " << (drumPlayer_.isClicking() ? "ON" : "OFF") << std::endl;
 
         } else if (key == 'p') {
             demo();
