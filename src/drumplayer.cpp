@@ -19,7 +19,9 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       bpm_(100),
       beatCounter_(0),
       mixer_(nullptr), // Initialiser à nullptr
-      isMuted_(numSounds, false) // Initialiser tous les sons comme non mutés
+      isMuted_(numSounds, false), // Initialiser tous les sons comme non mutés
+      lastSoundIndex_(0)
+
 {
     setBpm(bpm_);
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
@@ -53,6 +55,15 @@ void DrumPlayer::playSound0(int soundIndex) {
 }
 */
 
+std::shared_ptr<AudioSound> DrumPlayer::getSound(size_t soundIndex) {
+    if (soundIndex < drumSounds_.size()) {
+        return drumSounds_[soundIndex];
+    } else {
+        std::cerr << "Erreur: Index de son hors limites: " << soundIndex << std::endl;
+        return nullptr;
+    }
+}
+
 void DrumPlayer::playSound(size_t soundIndex) {
     if (soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
         mixer_->play(soundIndex+1, drumSounds_[soundIndex]);
@@ -62,6 +73,24 @@ void DrumPlayer::playSound(size_t soundIndex) {
     }
 }
 
+/*
+auto& DrumPlayer::getSound(size_t soundIndex) {
+    if (soundIndex < drumSounds_.size()) {
+        return drumSounds_[soundIndex];
+    }
+
+    return nullptr;
+}
+*/
+
+void DrumPlayer::playLastSound() {
+    std::shared_ptr<AudioSound> lastSound = getSound(lastSoundIndex_);
+    if (lastSound) {
+        const int channelIndex = 17;
+        mixer_->play(channelIndex, lastSound);
+        std::cout << "Rejouer le dernier son joué (index " << lastSoundIndex_ + 1 << ") sur le canal " << channelIndex << "." << std::endl;
+    }
+}
 
 void DrumPlayer::stopAllSounds() {
     auto& chanList = mixer_->getChannelList();  

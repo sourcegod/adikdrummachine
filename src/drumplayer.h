@@ -40,6 +40,7 @@ public:
     bool isClicking() const { return clicking_; }
     void togglePlay() { playing_ = ! playing_; }
     void toggleClick() { clicking_ = ! clicking_; }
+    void playLastSound();
 
     int currentStep;
     double secondsPerStep;
@@ -59,6 +60,9 @@ private:
     int beatCounter_;
     AudioMixer* mixer_; // Pointeur vers l'AudioMixer
     std::vector<bool> isMuted_; // true si le son est muté
+    size_t lastSoundIndex_; // Nouveau membre privé
+
+    std::shared_ptr<AudioSound> getSound(size_t soundIndex); 
 
 };
 
