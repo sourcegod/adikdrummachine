@@ -5,7 +5,7 @@
  *  Date: Sat, 12/04/2025
  *  Author: Coolbrother
  *  */
-
+//----------------------------------------
 
 #include "adikdrum.h"
 #include <iostream>
@@ -29,6 +29,8 @@
 #include "drumplayer.h"
 #include "audiomixer.h"
 
+//----------------------------------------
+
 const double PI = 3.14159265358979323846;
 const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
 const float GLOBAL_GAIN = 0.2f;
@@ -48,6 +50,8 @@ std::map<char, int> keyToSoundMap = {
 void beep() {
     std::cout << '\a' << std::flush;
 }
+
+//----------------------------------------
 
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
@@ -101,96 +105,7 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     return paContinue;
 }
 
-
-/*
- * Ancienne version mixer sample par sample
-static int drumMachineCallback(const void* inputBuffer, 
-                                 void* outputBuffer,
-                                 unsigned long framesPerBuffer,
-                                 const PaStreamCallbackTimeInfo* timeInfo,
-                                 PaStreamCallbackFlags statusFlags,
-                                 void* userData) {
-    AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
-    if (data && data->mixer) {
-        float* out = static_cast<float*>(outputBuffer);
-        static unsigned long frameCounter = 0;
-        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
-
-        // std::cout << "je suis dans le callback" << callbackCounter << " fois " << std::endl;
-        // Récupération du nombre de canaux de sortie (en supposant que outputBuffer est un tableau de float)
-        const int outputNumChannels = 2; // On part du principe de la stéréo pour l'instant.
-                                         // Une méthode plus robuste pourrait être nécessaire
-                                         // si le nombre de canaux de sortie est variable.
-        // Création et initialisation du buffer de mixage en float
-        std::vector<float> bufData(framesPerBuffer * outputNumChannels, 0.0f);
-
-
-        if (frameCounter >= samplesPerStep) {
-            frameCounter = 0;
-
-            if (data->player->playing_) {
-                data->player->clickStep = data->player->currentStep;
-                if (data->player->clicking_ && data->player->clickStep % 4 == 0) {
-                  // beep();  
-                  data->player->playMetronome();
-                }
-                data->player->playPattern();
-                data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
-
-            } else if (data->player->clicking_) {
-                if (data->player->clickStep % 4 == 0) {
-                    data->player->playMetronome();
-                }
-                data->player->clickStep = (data->player->clickStep + 1) % data->player->getNumSteps();
-            }
-        }
-
-        // Mixer les sons
-        for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-            float leftMix = 0.0f;
-            float rightMix = 0.0f;
-            for (auto& chan : data->mixer->getChannelList()) {
-                if (chan.isActive() && !chan.muted && chan.sound) {
-                    size_t curPos = chan.curPos;
-                    size_t endPos = chan.endPos;
-                    if (curPos < endPos) {
-                        // beep();
-                        float panValue = chan.pan;
-                        float rightGain = std::max(0.0f, 1.0f - panValue);
-                        float leftGain = std::max(0.0f, 1.0f + panValue);
-                        const double* soundData = static_cast<const AudioSound*>(chan.sound.get())->getData();
-                        int numSoundChannels = chan.sound->getNumChannels();
-                        double sampleLeftDouble = soundData[curPos * numSoundChannels];
-                        double sampleRightDouble = (numSoundChannels == 2) ? soundData[curPos * numSoundChannels + 1] : sampleLeftDouble;
-                        float volume = chan.volume;
-
-                        // std::cout << "Canal: " << &chan << ", curPos: " << curPos << ", sampleLeft: " << sampleLeftDouble << ", sampleRight: " << sampleRightDouble << std::endl;
-
-                        leftMix += static_cast<float>(sampleLeftDouble * volume * leftGain);
-                        rightMix += static_cast<float>(sampleRightDouble * volume * rightGain);
-                        chan.curPos++;
-                    } else {
-                        chan.setActive(false);
-                    }
-                }
-            }
-            // std::cout << "leftMix avant clip: " << leftMix << ", rightMix avant clip: " << rightMix << std::endl;
-            *out++ = static_cast<float>(data->player->hardClip(leftMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
-            *out++ = static_cast<float>(data->player->hardClip(rightMix * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
-        }
-
-        if (data->player->playing_ || data->player->clicking_) {
-            frameCounter += framesPerBuffer;
-        }
-        return paContinue;
-    }
-        
-    
-    // beep();
-    // callbackCounter++;
-    return paContinue;
-}
-*/
+//----------------------------------------
 
 // Fonction pour initialiser le terminal
 termios initTermios(int echo) {
@@ -204,11 +119,13 @@ termios initTermios(int echo) {
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     return oldt;
 }
+//----------------------------------------
 
 // Fonction pour restaurer les paramètres du terminal
 void resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
+//----------------------------------------
 
 AdikDrum::AdikDrum()
     : cursorPos({0, 0}),
@@ -245,11 +162,13 @@ AdikDrum::AdikDrum()
                "  Touches [q-k, a-i]: Jouer le son correspondant\n";
 
 }
+//----------------------------------------
 
 
 AdikDrum::~AdikDrum() {
     // closeApp();
 }
+//----------------------------------------
 
 bool AdikDrum::initApp() {
     const int numChannelsMixer = 32; // Clarifier le nom pour le mixer
@@ -300,6 +219,7 @@ bool AdikDrum::initApp() {
 
     return true;
 }
+//----------------------------------------
 
 void AdikDrum::closeApp() {
     audioDriver_.stop();
@@ -307,6 +227,7 @@ void AdikDrum::closeApp() {
     std::cout << "AdikDrum fermé." << std::endl;
 
 }
+//----------------------------------------
 
 
 void AdikDrum::run() {
@@ -376,6 +297,7 @@ void AdikDrum::run() {
     // Resets the terminal
     resetTermios(oldTerm);
 }
+//----------------------------------------
 
 void AdikDrum::loadSounds() {
     const int sampleRate = 44100;
@@ -416,10 +338,12 @@ void AdikDrum::loadSounds() {
       
 
 }
+//----------------------------------------
 
 const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const {
     return drumSounds_;
 }
+//----------------------------------------
 
 void AdikDrum::demo() {
     // Tester les sons
@@ -434,6 +358,7 @@ void AdikDrum::demo() {
     displayMessage(msgText_);
 
 }
+//----------------------------------------
 
 void AdikDrum::loadPattern() {
     msgText_ = "Chargement d'un pattern de démonstration...";
@@ -452,11 +377,12 @@ void AdikDrum::loadPattern() {
     drumPlayer_.resetMute();
     displayGrid(drumPlayer_.pattern_, cursorPos);
 }
+//----------------------------------------
 
 void AdikDrum::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
-
+//----------------------------------------
 
 void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
     std::ostringstream oss;
@@ -481,6 +407,7 @@ void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair
     oss << std::endl;
     displayMessage(oss.str());
 }
+//----------------------------------------
 
 void AdikDrum::selectStep() {
     drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = true;
@@ -489,6 +416,7 @@ void AdikDrum::selectStep() {
     drumPlayer_.playSound(cursorPos.second);
     displayGrid(drumPlayer_.pattern_, cursorPos);
 }
+//----------------------------------------
 
 void AdikDrum::unselectStep() {
     drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = false;
@@ -496,6 +424,7 @@ void AdikDrum::unselectStep() {
     displayMessage(msgText_);
     displayGrid(drumPlayer_.pattern_, cursorPos);
 }
+//----------------------------------------
 
 void AdikDrum::moveCursorUp() {
     if (cursorPos.second > 0) {
@@ -508,6 +437,7 @@ void AdikDrum::moveCursorUp() {
         beep();
     }
 }
+//----------------------------------------
 
 void AdikDrum::moveCursorDown() {
     if (cursorPos.second < numSounds_ - 1) {
@@ -520,6 +450,7 @@ void AdikDrum::moveCursorDown() {
         beep();
     }
 }
+//----------------------------------------
 
 void AdikDrum::moveCursorRight() {
     if (cursorPos.first < numSteps_ - 1) {
@@ -532,6 +463,7 @@ void AdikDrum::moveCursorRight() {
         displayMessage("Reached the end (right).");
     }
 }
+//----------------------------------------
 
 void AdikDrum::moveCursorLeft() {
     if (cursorPos.first > 0) {
@@ -544,12 +476,14 @@ void AdikDrum::moveCursorLeft() {
         displayMessage("Reached the beginning (left).");
     }
 }
+//----------------------------------------
 
 void AdikDrum::playPause() {
     drumPlayer_.togglePlay();
     msgText_ = std::string("Play: ") + (drumPlayer_.isPlaying() ? "ON" : "OFF");
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::toggleClick() {
     drumPlayer_.toggleClick();
@@ -561,12 +495,14 @@ void AdikDrum::toggleClick() {
         drumPlayer_.stopClick();
     }
 }
+//----------------------------------------
 
 void AdikDrum::stopAllSounds() {
     drumPlayer_.stopAllSounds();
     msgText_ = "All sounds stopped.";
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::toggleMute() {
     int currentSoundIndex = cursorPos.second;
@@ -577,12 +513,14 @@ void AdikDrum::toggleMute() {
                ") est maintenant " + (currentMuted ? "démuté" : "muté") + ".";
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::resetMute() {
     drumPlayer_.resetMute();
     msgText_ = "Tous les sons ont été démutés.";
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::changeVolume(float deltaVolume) {
     float currentVolume = mixer_.getGlobalVolume();
@@ -590,6 +528,7 @@ void AdikDrum::changeVolume(float deltaVolume) {
     msgText_ = "Volume global: " + std::to_string(static_cast<int>(mixer_.getGlobalVolume() * 10)) + "/10";
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::changeBpm(float deltaBpm) {
     auto bpm = drumPlayer_.getBpm();
@@ -597,6 +536,7 @@ void AdikDrum::changeBpm(float deltaBpm) {
     msgText_ = "BPM réglé à " + std::to_string(drumPlayer_.getBpm());
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::changePan(float deltaPan) {
     int currentChannelIndex = cursorPos.second + 1;
@@ -606,6 +546,7 @@ void AdikDrum::changePan(float deltaPan) {
                " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
     displayMessage(msgText_);
 }
+//----------------------------------------
 
 void AdikDrum::playKey(char key) {
     if (keyToSoundMap.count(key)) {
@@ -613,7 +554,8 @@ void AdikDrum::playKey(char key) {
         drumPlayer_.playSound(soundIndex);
     }
 }
-
+//----------------------------------------
+//==== End of class AdikDrum ====
 
 
 int main() {
@@ -624,4 +566,5 @@ int main() {
     }
     return 0;
 }
+//----------------------------------------
 
