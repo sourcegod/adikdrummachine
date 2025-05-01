@@ -10,6 +10,7 @@
 #include "adikdrum.h"
 #include <iostream>
 #include <string>
+#include <sstream> // for osstringstream
 #include <vector>
 #include <cmath>
 #include <random>
@@ -33,8 +34,6 @@ const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
 const float GLOBAL_GAIN = 0.2f;
 int NUM_STEPS = 16;
 
-// std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
-// std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 volatile int callbackCounter =0;
 termios oldTerm; // pour gérer le terminal
                  //
@@ -210,33 +209,6 @@ termios initTermios(int echo) {
 void resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
-
-/*
-void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
-    // std::cout << "\033[2J\033[H";
-    std::cout << "  ";
-    for (int i = 0; i < NUM_STEPS; ++i) {
-        std::cout << (i + 1) % 10 << " ";
-    }
-    std::cout << std::endl;
-    for (int i = 0; i < NUM_SOUNDS; ++i) {
-        std::cout << (i + 1) % 10 << " ";
-        for (int j = 0; j < NUM_STEPS; ++j) {
-            if (cursor.first == j && cursor.second == i) {
-                std::cout << "x ";
-            } else if (grid[i][j]) {
-                std::cout << "# "; // Affiche '#' si le pas est activé
-            } else {
-                std::cout << "- "; // Affiche '-' si le pas est désactivé
-            }
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-*/
-
-
 
 AdikDrum::AdikDrum()
     : cursorPos({0, 0}),
@@ -671,26 +643,29 @@ void AdikDrum::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
 
+
 void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
-    std::cout << "  ";
+    std::ostringstream oss;
+    oss << "  ";
     for (int i = 0; i < numSteps_; ++i) {
-        std::cout << (i + 1) % 10 << " ";
+        oss << (i + 1) % 10 << " ";
     }
-    std::cout << std::endl;
+    oss << std::endl;
     for (int i = 0; i < numSounds_; ++i) {
-        std::cout << (i + 1) % 10 << " ";
+        oss << (i + 1) % 10 << " ";
         for (int j = 0; j < numSteps_; ++j) {
             if (cursor.first == j && cursor.second == i) {
-                std::cout << "x ";
+                oss << "x ";
             } else if (grid[i][j]) {
-                std::cout << "# ";
+                oss << "# ";
             } else {
-                std::cout << "- ";
+                oss << "- ";
             }
         }
-        std::cout << std::endl;
+        oss << std::endl;
     }
-    std::cout << std::endl;
+    oss << std::endl;
+    displayMessage(oss.str());
 }
 
 void AdikDrum::selectStep() {
