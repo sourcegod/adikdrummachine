@@ -250,6 +250,8 @@ void AdikDrum::run() {
             playPause(); // Appelle la nouvelle fonction
         } else if (key == 'c') { // Touche 'c'
             toggleClick(); // Appelle la nouvelle fonction
+        } else if (key == 'l') { // Touche 'l'
+            triggerLastSound(); // Déclenche la relecture du dernier son
 
         } else if (key == 'p') {
             demo();
@@ -553,6 +555,13 @@ void AdikDrum::playKey(char key) {
         int soundIndex = keyToSoundMap[key];
         drumPlayer_.playSound(soundIndex);
     }
+}
+//----------------------------------------
+
+void AdikDrum::triggerLastSound() {
+    drumPlayer_.playLastSound();
+    msgText_ = "Rejouer le dernier son sur le canal 17.";
+    displayMessage(msgText_);
 }
 //----------------------------------------
 //==== End of class AdikDrum ====

@@ -67,28 +67,18 @@ std::shared_ptr<AudioSound> DrumPlayer::getSound(size_t soundIndex) {
 void DrumPlayer::playSound(size_t soundIndex) {
     if (soundIndex < drumSounds_.size() && drumSounds_[soundIndex]) {
         mixer_->play(soundIndex+1, drumSounds_[soundIndex]);
+        lastSoundIndex_ = soundIndex;
     } else {
         std::cerr << "Erreur: Aucun son trouvé avec cet (index: "
                   << soundIndex << ")" << std::endl;
     }
 }
 
-/*
-auto& DrumPlayer::getSound(size_t soundIndex) {
-    if (soundIndex < drumSounds_.size()) {
-        return drumSounds_[soundIndex];
-    }
-
-    return nullptr;
-}
-*/
-
 void DrumPlayer::playLastSound() {
     std::shared_ptr<AudioSound> lastSound = getSound(lastSoundIndex_);
     if (lastSound) {
         const int channelIndex = 17;
         mixer_->play(channelIndex, lastSound);
-        std::cout << "Rejouer le dernier son joué (index " << lastSoundIndex_ + 1 << ") sur le canal " << channelIndex << "." << std::endl;
     }
 }
 

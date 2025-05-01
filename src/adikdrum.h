@@ -50,6 +50,7 @@ public:
     void changeBpm(float deltaBpm);
     void changePan(float deltaPan);
     void playKey(char key);        
+    void triggerLastSound();
 
 private:
     AudioDriver audioDriver_;
@@ -67,6 +68,7 @@ private:
     std::string msgText_;
 
 };
+//==== End of class AdikDrum ====
 
 
 #endif // ADIKDRUM_H
