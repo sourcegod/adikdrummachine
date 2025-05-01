@@ -350,21 +350,13 @@ void AdikDrum::run() {
         } else if (key == ')') { // Touche ')'
             changeBpm(5.0f);     // Augmenter le BPM
 
-        } else if (key == '[') {
-            int currentChannelIndex = cursorPos.second + 1;
-            mixer_.setChannelPan(currentChannelIndex,
-                                std::max(-1.0f, mixer_.getChannelPan(currentChannelIndex) - 0.1f));
-            msgText_ = "Pan du canal " + std::to_string(currentChannelIndex) + " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
-            displayMessage(msgText_);
-        } else if (key == ']') {
-            int currentChannelIndex = cursorPos.second + 1;
-            mixer_.setChannelPan(currentChannelIndex,
-                                std::min(1.0f, mixer_.getChannelPan(currentChannelIndex) + 0.1f));
-            msgText_ = "Pan du canal " + std::to_string(currentChannelIndex) + " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
-            displayMessage(msgText_);
+        } else if (key == '[') { // Touche '['
+            changePan(-0.1f);
+        } else if (key == ']') { // Touche ']'
+            changePan(0.1f);
         } else if (keyToSoundMap.count(key)) {
-            int soundIndex = keyToSoundMap[key];
-            drumPlayer_.playSound(soundIndex);
+            playKey(key); // Gérer les autres touches pour jouer des sons
+
         } else if (key == '\033') { // Code d'échappement
             read(STDIN_FILENO, &key, 1); // Lit '['
             read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
@@ -755,6 +747,24 @@ void AdikDrum::changeBpm(float deltaBpm) {
     msgText_ = "BPM réglé à " + std::to_string(drumPlayer_.getBpm());
     displayMessage(msgText_);
 }
+
+void AdikDrum::changePan(float deltaPan) {
+    int currentChannelIndex = cursorPos.second + 1;
+    float currentPan = mixer_.getChannelPan(currentChannelIndex);
+    mixer_.setChannelPan(currentChannelIndex, std::clamp(currentPan + deltaPan, -1.0f, 1.0f));
+    msgText_ = "Pan du canal " + std::to_string(currentChannelIndex) +
+               " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
+    displayMessage(msgText_);
+}
+
+void AdikDrum::playKey(char key) {
+    if (keyToSoundMap.count(key)) {
+        int soundIndex = keyToSoundMap[key];
+        drumPlayer_.playSound(soundIndex);
+    }
+}
+
+
 
 int main() {
     AdikDrum adikDrumApp;

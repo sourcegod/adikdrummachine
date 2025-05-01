@@ -48,7 +48,8 @@ public:
     void resetMute();
     void changeVolume(float deltaVolume);
     void changeBpm(float deltaBpm);
-
+    void changePan(float deltaPan);
+    void playKey(char key);        
 
 private:
     AudioDriver audioDriver_;
