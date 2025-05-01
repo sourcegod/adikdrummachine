@@ -335,17 +335,11 @@ void AdikDrum::run() {
         } else if (key == 16) { // Ctrl+p
             loadPattern();
         } else if (key == 'v') {
-            drumPlayer_.stopAllSounds();
-            displayMessage("All sounds stopped.");
+            stopAllSounds();
         } else if (key == 'x') {
-            int currentSoundIndex = cursorPos.second;
-            bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
-            drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
-            msgText_ = "Son " + std::to_string(currentSoundIndex) + " (canal " + std::to_string(currentSoundIndex + 1) + ") est maintenant " + (currentMuted ? "démuté" : "muté") + ".";
-            displayMessage(msgText_);
+            toggleMute();
         } else if (key == 'X') {
-            drumPlayer_.resetMute();
-            displayMessage("Tous les sons ont été démutés.");
+            resetMute();
         } else if (key == '+') {
             float currentVolume = mixer_.getGlobalVolume();
             mixer_.setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
@@ -746,7 +740,27 @@ void AdikDrum::toggleClick() {
     }
 }
 
+void AdikDrum::stopAllSounds() {
+    drumPlayer_.stopAllSounds();
+    msgText_ = "All sounds stopped.";
+    displayMessage(msgText_);
+}
 
+void AdikDrum::toggleMute() {
+    int currentSoundIndex = cursorPos.second;
+    bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
+    drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
+    msgText_ = "Son " + std::to_string(currentSoundIndex) +
+               " (canal " + std::to_string(currentSoundIndex + 1) +
+               ") est maintenant " + (currentMuted ? "démuté" : "muté") + ".";
+    displayMessage(msgText_);
+}
+
+void AdikDrum::resetMute() {
+    drumPlayer_.resetMute();
+    msgText_ = "Tous les sons ont été démutés.";
+    displayMessage(msgText_);
+}
 
 int main() {
     AdikDrum adikDrumApp;

@@ -43,6 +43,10 @@ public:
     void moveCursorLeft();
     void playPause();
     void toggleClick();
+    void stopAllSounds();
+    void toggleMute();
+    void resetMute();
+
 
 private:
     AudioDriver audioDriver_;
