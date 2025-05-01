@@ -331,10 +331,8 @@ void AdikDrum::run() {
 
         } else if (key == 'p') {
             demo();
-            displayMessage("Playing demo");
         } else if (key == 16) { // Ctrl+p
             loadPattern();
-            displayGrid(drumPlayer_.pattern_, cursorPos);
         } else if (key == 'v') {
             drumPlayer_.stopAllSounds();
             displayMessage("All sounds stopped.");
@@ -608,32 +606,34 @@ const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const 
 
 void AdikDrum::demo() {
     // Tester les sons
+    std::string msg = "Demo en train de jouer";
+    displayMessage(msg);
     for (size_t i = 0; i < drumSounds_.size(); ++i) {
         drumPlayer_.playSound(i);
         long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
     }
+    msg = "Demo terminée.";
+    displayMessage(msg);
 
 }
 
 void AdikDrum::loadPattern() {
-    std::cout << "Chargement d'un pattern de démonstration..." << std::endl;
-    // Exemple de pattern aléatoire
+    std::string msg = "Chargement d'un pattern de démonstration...";
+    displayMessage(msg);
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, 1); // 0 ou 1
+    std::uniform_int_distribution<> distrib(0, 1);
 
-    // std::cout << "pattern.size: " << drumPlayer_.pattern_.size() << std::endl;
-    // std::cout << "numSteps: " << drumPlayer_.numSteps_ << std::endl;
     for (size_t i = 0; i < drumPlayer_.pattern_.size(); ++i) {
         for (int j = 0; j < drumPlayer_.numSteps_; ++j) {
-            drumPlayer_.pattern_[i][j] = (distrib(gen) == 1); // Assigne aléatoirement true ou false
+            drumPlayer_.pattern_[i][j] = (distrib(gen) == 1);
         }
     }
-    std::cout << "Pattern de démonstration chargé." << std::endl;
-    drumPlayer_.resetMute(); // Réinitialiser le mute lors du chargement d'un nouveau pattern
-
-    // Afficher le pattern chargé en utilisant displayGrid
+    msg = "Pattern de démonstration chargé.";
+    displayMessage(msg);
+    drumPlayer_.resetMute();
+    displayGrid(drumPlayer_.pattern_, cursorPos);
 }
 
 void AdikDrum::displayMessage(const std::string& message) {
