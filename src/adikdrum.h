@@ -51,6 +51,7 @@ public:
     void changePan(float deltaPan);
     void playKey(char key);        
     void triggerLastSound();
+    void playCurrentSound();
 
 private:
     AudioDriver audioDriver_;

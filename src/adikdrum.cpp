@@ -252,6 +252,8 @@ void AdikDrum::run() {
             toggleClick(); // Appelle la nouvelle fonction
         } else if (key == 'l') { // Touche 'l'
             triggerLastSound(); // Déclenche la relecture du dernier son
+        } else if (key == 'm') { // Touche 'm'
+            playCurrentSound(); // Joue le son courant
 
         } else if (key == 'p') {
             demo();
@@ -561,6 +563,14 @@ void AdikDrum::playKey(char key) {
 void AdikDrum::triggerLastSound() {
     drumPlayer_.playLastSound();
     // msgText_ = "Rejouer le dernier son sur le canal 17.";
+    // displayMessage(msgText_);
+}
+//----------------------------------------
+
+void AdikDrum::playCurrentSound() {
+    size_t currentSoundIndex = static_cast<size_t>(cursorPos.second);
+    drumPlayer_.playSound(currentSoundIndex);
+    // msgText_ = "Jouer le son " + std::to_string(currentSoundIndex + 1) + " (canal " + std::to_string(currentSoundIndex + 1) + ").";
     // displayMessage(msgText_);
 }
 //----------------------------------------
