@@ -560,8 +560,8 @@ void AdikDrum::playKey(char key) {
 
 void AdikDrum::triggerLastSound() {
     drumPlayer_.playLastSound();
-    msgText_ = "Rejouer le dernier son sur le canal 17.";
-    displayMessage(msgText_);
+    // msgText_ = "Rejouer le dernier son sur le canal 17.";
+    // displayMessage(msgText_);
 }
 //----------------------------------------
 //==== End of class AdikDrum ====
