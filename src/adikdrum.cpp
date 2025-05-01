@@ -9,6 +9,7 @@
 
 #include "adikdrum.h"
 #include <iostream>
+#include <string>
 #include <vector>
 #include <cmath>
 #include <random>
@@ -330,6 +331,153 @@ void AdikDrum::closeApp() {
 
 }
 
+
+void AdikDrum::run() {
+    oldTerm = initTermios(0);
+    std::string msg = "Le clavier est initialisé.";
+    displayMessage(msg);
+
+    displayGrid(pattern, cursor_pos); // Affiche la grille au démarrage
+
+    char key;
+    while (read(STDIN_FILENO, &key, 1) == 1) {
+        if (key == 'Q') break;
+
+        if (key == '\n') { // Touche Enter
+            pattern[cursor_pos.second][cursor_pos.first] = true;
+            msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " activated and playing.";
+            displayMessage(msg);
+            drumPlayer_.playSound(cursor_pos.second);
+            displayGrid(pattern, cursor_pos);
+        } else if (key == 127) { // Touche Backspace
+            pattern[cursor_pos.second][cursor_pos.first] = false;
+            msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " deactivated.";
+            displayMessage(msg);
+            displayGrid(pattern, cursor_pos);
+        } else if (key == ' ') { // Touche Espace
+            drumPlayer_.togglePlay();
+            msg = std::string("Play: ") + (drumPlayer_.isPlaying() ? "ON" : "OFF");
+            displayMessage(msg);
+        } else if (key == 'c') {
+            drumPlayer_.toggleClick();
+            msg = std::string("Metronome: ") + (drumPlayer_.isClicking() ? "ON" : "OFF");
+            displayMessage(msg);
+        } else if (key == 'p') {
+            demo();
+            displayMessage("Playing demo");
+        } else if (key == 16) { // Ctrl+p
+            loadPattern();
+            displayGrid(drumPlayer_.pattern_, cursor_pos);
+        } else if (key == 'v') {
+            drumPlayer_.stopAllSounds();
+            displayMessage("All sounds stopped.");
+        } else if (key == 'x') {
+            int currentSoundIndex = cursor_pos.second;
+            bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
+            drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
+            msg = "Son " + std::to_string(currentSoundIndex) + " (canal " + std::to_string(currentSoundIndex + 1) + ") est maintenant " + (currentMuted ? "démuté" : "muté") + ".";
+            displayMessage(msg);
+        } else if (key == 'X') {
+            drumPlayer_.resetMute();
+            displayMessage("Tous les sons ont été démutés.");
+        } else if (key == '+') {
+            float currentVolume = mixer_.getGlobalVolume();
+            mixer_.setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
+            msg = "Volume global: " + std::to_string(static_cast<int>(mixer_.getGlobalVolume() * 10)) + "/10";
+            displayMessage(msg);
+        } else if (key == '-') {
+            float currentVolume = mixer_.getGlobalVolume();
+            mixer_.setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
+            msg = "Volume global: " + std::to_string(static_cast<int>(mixer_.getGlobalVolume() * 10)) + "/10";
+            displayMessage(msg);
+        } else if (key == '(') {
+            auto bpm = drumPlayer_.getBpm();
+            if (bpm > 5.0) {
+                drumPlayer_.setBpm(bpm - 5.0);
+                msg = "BPM decreased to " + std::to_string(drumPlayer_.getBpm());
+                displayMessage(msg);
+            } else {
+                beep();
+                displayMessage("Minimum BPM reached.");
+            }
+        } else if (key == ')') {
+            auto bpm = drumPlayer_.getBpm();
+            if (bpm < 800.0) {
+                drumPlayer_.setBpm(bpm + 5.0);
+                msg = "BPM increased to " + std::to_string(drumPlayer_.getBpm());
+                displayMessage(msg);
+            } else {
+                beep();
+                displayMessage("Maximum BPM reached.");
+            }
+        } else if (key == '[') {
+            int currentChannelIndex = cursor_pos.second + 1;
+            mixer_.setChannelPan(currentChannelIndex,
+                                std::max(-1.0f, mixer_.getChannelPan(currentChannelIndex) - 0.1f));
+            msg = "Pan du canal " + std::to_string(currentChannelIndex) + " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
+            displayMessage(msg);
+        } else if (key == ']') {
+            int currentChannelIndex = cursor_pos.second + 1;
+            mixer_.setChannelPan(currentChannelIndex,
+                                std::min(1.0f, mixer_.getChannelPan(currentChannelIndex) + 0.1f));
+            msg = "Pan du canal " + std::to_string(currentChannelIndex) + " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
+            displayMessage(msg);
+        } else if (keyToSoundMap.count(key)) {
+            int soundIndex = keyToSoundMap[key];
+            drumPlayer_.playSound(soundIndex);
+        } else if (key == '\033') { // Code d'échappement
+            read(STDIN_FILENO, &key, 1); // Lit '['
+            read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
+            if (key == 'A') { // Flèche haut
+                if (cursor_pos.second > 0) {
+                    cursor_pos.second--;
+                    displayGrid(pattern, cursor_pos);
+                    msg = "Cursor up, playing sound " + std::to_string(cursor_pos.second + 1);
+                    displayMessage(msg);
+                    drumPlayer_.playSound(cursor_pos.second);
+                } else {
+                    beep();
+                }
+            } else if (key == 'B') { // Flèche bas
+                if (cursor_pos.second < NUM_SOUNDS - 1) {
+                    cursor_pos.second++;
+                    displayGrid(pattern, cursor_pos);
+                    msg = "Cursor down, playing sound " + std::to_string(cursor_pos.second + 1);
+                    displayMessage(msg);
+                    drumPlayer_.playSound(cursor_pos.second);
+                } else {
+                    beep();
+                }
+            } else if (key == 'C') { // Flèche droite
+                if (cursor_pos.first < NUM_STEPS - 1) {
+                    cursor_pos.first++;
+                    displayGrid(pattern, cursor_pos);
+                    msg = "Cursor right, step " + std::to_string(cursor_pos.first + 1);
+                    displayMessage(msg);
+                } else {
+                    beep();
+                    displayMessage("Reached the end (right).");
+                }
+            } else if (key == 'D') { // Flèche gauche
+                if (cursor_pos.first > 0) {
+                    cursor_pos.first--;
+                    displayGrid(pattern, cursor_pos);
+                    msg = "Cursor left, step " + std::to_string(cursor_pos.first + 1);
+                    displayMessage(msg);
+                } else {
+                    beep();
+                    displayMessage("Reached the beginning (left).");
+                }
+            }
+        }
+    } // End the while Loop
+
+    // Resets the terminal
+    resetTermios(oldTerm);
+}
+
+/*
+ * Old version
 void AdikDrum::run() {
     // std::cout << helpText << std::endl; // Afficher le texte d'aide au début
     // initialiser le clavier
@@ -476,6 +624,7 @@ void AdikDrum::run() {
     resetTermios(oldTerm);
 
 }
+*/
 
 void AdikDrum::loadSounds() {
     const int sampleRate = 44100;
@@ -550,6 +699,11 @@ void AdikDrum::loadPattern() {
 
     // Afficher le pattern chargé en utilisant displayGrid
 }
+
+void AdikDrum::displayMessage(const std::string& message) {
+    std::cout << message << std::endl;
+}
+
 
 int main() {
     AdikDrum adikDrumApp;

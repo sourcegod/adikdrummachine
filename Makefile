@@ -1,8 +1,8 @@
 # Makefile for adikdrum Machine
 # Date: Sat, 12/04/2025
-# Author: Coolbrother
+# Author: CoolbrothUer
 CC = g++
-CFLAGS = -std=c++17 -Wall -Wextra -pedantic #
+CFLAGS = -std=c++2a -Wall -Wextra -pedantic #
 LIBS = -lportaudio
 
 SRCS_DIR = src

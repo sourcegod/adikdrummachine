@@ -31,6 +31,8 @@ public:
     void demo();
     void loadPattern();
 
+    void displayMessage(const std::string& message); 
+
 
 private:
     AudioDriver audioDriver_;
