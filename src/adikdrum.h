@@ -57,6 +57,7 @@ private:
     DrumPlayer drumPlayer_; // Note: il faut Déclarer drumPlayer_ APRÈS numSounds_ et numSteps_, pour l'ordre d'initialisation des membres
 
     DrumMachineData drumData_;
+    std::string msgText_;
 
 };
 
