@@ -340,36 +340,16 @@ void AdikDrum::run() {
             toggleMute();
         } else if (key == 'X') {
             resetMute();
-        } else if (key == '+') {
-            float currentVolume = mixer_.getGlobalVolume();
-            mixer_.setGlobalVolume(std::min(1.0f, currentVolume + 0.1f));
-            msgText_ = "Volume global: " + std::to_string(static_cast<int>(mixer_.getGlobalVolume() * 10)) + "/10";
-            displayMessage(msgText_);
-        } else if (key == '-') {
-            float currentVolume = mixer_.getGlobalVolume();
-            mixer_.setGlobalVolume(std::max(0.0f, currentVolume - 0.1f));
-            msgText_ = "Volume global: " + std::to_string(static_cast<int>(mixer_.getGlobalVolume() * 10)) + "/10";
-            displayMessage(msgText_);
-        } else if (key == '(') {
-            auto bpm = drumPlayer_.getBpm();
-            if (bpm > 5.0) {
-                drumPlayer_.setBpm(bpm - 5.0);
-                msgText_ = "BPM decreased to " + std::to_string(drumPlayer_.getBpm());
-                displayMessage(msgText_);
-            } else {
-                beep();
-                displayMessage("Minimum BPM reached.");
-            }
-        } else if (key == ')') {
-            auto bpm = drumPlayer_.getBpm();
-            if (bpm < 800.0) {
-                drumPlayer_.setBpm(bpm + 5.0);
-                msgText_ = "BPM increased to " + std::to_string(drumPlayer_.getBpm());
-                displayMessage(msgText_);
-            } else {
-                beep();
-                displayMessage("Maximum BPM reached.");
-            }
+        } else if (key == '+') { // Touche '+'
+            changeVolume(0.1f); // Augmenter le volume
+        } else if (key == '-') { // Touche '-'
+            changeVolume(-0.1f); // Diminuer le volume
+
+        } else if (key == '(') { // Touche '('
+            changeBpm(-5.0f);    // Diminuer le BPM
+        } else if (key == ')') { // Touche ')'
+            changeBpm(5.0f);     // Augmenter le BPM
+
         } else if (key == '[') {
             int currentChannelIndex = cursorPos.second + 1;
             mixer_.setChannelPan(currentChannelIndex,
@@ -759,6 +739,20 @@ void AdikDrum::toggleMute() {
 void AdikDrum::resetMute() {
     drumPlayer_.resetMute();
     msgText_ = "Tous les sons ont été démutés.";
+    displayMessage(msgText_);
+}
+
+void AdikDrum::changeVolume(float deltaVolume) {
+    float currentVolume = mixer_.getGlobalVolume();
+    mixer_.setGlobalVolume(std::clamp(currentVolume + deltaVolume, 0.0f, 1.0f));
+    msgText_ = "Volume global: " + std::to_string(static_cast<int>(mixer_.getGlobalVolume() * 10)) + "/10";
+    displayMessage(msgText_);
+}
+
+void AdikDrum::changeBpm(float deltaBpm) {
+    auto bpm = drumPlayer_.getBpm();
+    drumPlayer_.setBpm(bpm + deltaBpm);
+    msgText_ = "BPM réglé à " + std::to_string(drumPlayer_.getBpm());
     displayMessage(msgText_);
 }
 

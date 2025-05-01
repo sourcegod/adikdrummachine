@@ -46,6 +46,8 @@ public:
     void stopAllSounds();
     void toggleMute();
     void resetMute();
+    void changeVolume(float deltaVolume);
+    void changeBpm(float deltaBpm);
 
 
 private:
