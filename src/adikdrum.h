@@ -33,6 +33,7 @@ public:
     void loadPattern();
 
     void displayMessage(const std::string& message); 
+    void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor);
     void selectStep();
     void unselectStep();
     void moveCursorUp();

@@ -211,6 +211,7 @@ void resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
+/*
 void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
     // std::cout << "\033[2J\033[H";
     std::cout << "  ";
@@ -233,6 +234,7 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
     }
     std::cout << std::endl;
 }
+*/
 
 
 
@@ -668,6 +670,29 @@ void AdikDrum::loadPattern() {
 void AdikDrum::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
+
+void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
+    std::cout << "  ";
+    for (int i = 0; i < numSteps_; ++i) {
+        std::cout << (i + 1) % 10 << " ";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < numSounds_; ++i) {
+        std::cout << (i + 1) % 10 << " ";
+        for (int j = 0; j < numSteps_; ++j) {
+            if (cursor.first == j && cursor.second == i) {
+                std::cout << "x ";
+            } else if (grid[i][j]) {
+                std::cout << "# ";
+            } else {
+                std::cout << "- ";
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 void AdikDrum::selectStep() {
     drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = true;
     std::string msg = "Step " + std::to_string(cursorPos.first + 1) + " on sound " + std::to_string(cursorPos.second + 1) + " activated and playing.";
