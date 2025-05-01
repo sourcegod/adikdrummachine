@@ -65,5 +65,6 @@ private:
     std::shared_ptr<AudioSound> getSound(size_t soundIndex); 
 
 };
+//==== End of class DrumPlayer ====
 
 #endif // DRUMPLAYER_H

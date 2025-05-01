@@ -27,14 +27,17 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
 
 }
+//----------------------------------------
 
 DrumPlayer::~DrumPlayer() {
     // Les shared_ptr se chargeront de la gestion de la durée de vie des AudioSound
 }
+//----------------------------------------
 
 void DrumPlayer::setMixer(AudioMixer& mixer) {
     mixer_ = &mixer;
 }
+//----------------------------------------
 
 /*
 void DrumPlayer::playSound0(int soundIndex) {
@@ -54,6 +57,7 @@ void DrumPlayer::playSound0(int soundIndex) {
     }
 }
 */
+//----------------------------------------
 
 std::shared_ptr<AudioSound> DrumPlayer::getSound(size_t soundIndex) {
     if (soundIndex < drumSounds_.size()) {
@@ -63,6 +67,7 @@ std::shared_ptr<AudioSound> DrumPlayer::getSound(size_t soundIndex) {
         return nullptr;
     }
 }
+//----------------------------------------
 
 void DrumPlayer::playSound(size_t soundIndex) {
     auto sound = getSound(soundIndex);
@@ -74,6 +79,7 @@ void DrumPlayer::playSound(size_t soundIndex) {
                   << soundIndex << ")" << std::endl;
     }
 }
+//----------------------------------------
 
 void DrumPlayer::playLastSound() {
     std::shared_ptr<AudioSound> lastSound = getSound(lastSoundIndex_);
@@ -82,6 +88,7 @@ void DrumPlayer::playLastSound() {
         mixer_->play(channelIndex, lastSound);
     }
 }
+//----------------------------------------
 
 void DrumPlayer::stopAllSounds() {
     auto& chanList = mixer_->getChannelList();  
@@ -102,6 +109,7 @@ void DrumPlayer::stopAllSounds() {
     clickStep = 0;
     beatCounter_ = 0;
 }
+//----------------------------------------
 
 
 void DrumPlayer::startClick() {
@@ -125,6 +133,7 @@ void DrumPlayer::startClick() {
     }
 
 }
+//----------------------------------------
 
 void DrumPlayer::stopClick() {
     clicking_ = false;
@@ -140,6 +149,7 @@ void DrumPlayer::stopClick() {
     }
 
 }
+//----------------------------------------
 
 void DrumPlayer::playMetronome() {
     if (playing_) {
@@ -156,8 +166,8 @@ void DrumPlayer::playMetronome() {
         beatCounter_ = (beatCounter_ + 1) % 4;
     }
 }
+//----------------------------------------
 
-// /*
 void DrumPlayer::playPattern() {
     if (mixer_ && playing_) {
         for (size_t i = 0; i < drumSounds_.size(); ++i) { //
@@ -177,7 +187,7 @@ void DrumPlayer::playPattern() {
         }
     }
 }
-// */
+//----------------------------------------
 
 void DrumPlayer::setBpm(double newBpm) {
     if (newBpm >=5 &&  newBpm <= 800) {
@@ -186,6 +196,7 @@ void DrumPlayer::setBpm(double newBpm) {
     }
 
 }
+//----------------------------------------
 
 bool DrumPlayer::isSoundPlaying() const {
     for (const auto& sound : drumSounds_) {
@@ -195,6 +206,7 @@ bool DrumPlayer::isSoundPlaying() const {
     }
     return false;
 }
+//----------------------------------------
 
 bool DrumPlayer::isSoundMuted(size_t soundIndex) const {
     if (soundIndex < isMuted_.size()) {
@@ -202,6 +214,7 @@ bool DrumPlayer::isSoundMuted(size_t soundIndex) const {
     }
     return false; // Par défaut, non muté si l'index est invalide
 }
+//----------------------------------------
 
 void DrumPlayer::setSoundMuted(size_t soundIndex, bool muted) {
     if (mixer_ && soundIndex < drumSounds_.size()) {
@@ -211,6 +224,7 @@ void DrumPlayer::setSoundMuted(size_t soundIndex, bool muted) {
         std::cout << "Son " << soundIndex<< " (canal " << channelToMute << ") est maintenant " << (muted ? "muté" : "démuté") << "." << std::endl;
     }
 }
+//----------------------------------------
 
 void DrumPlayer::resetMute() {
     if (mixer_) {
@@ -221,5 +235,6 @@ void DrumPlayer::resetMute() {
     std::fill(isMuted_.begin(), isMuted_.end(), false);
     std::cout << "Tous les sons ont été démutés." << std::endl;
 }
-
+//----------------------------------------
+//==== End of class DrumPlayer ====
 
