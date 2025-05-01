@@ -325,13 +325,10 @@ void AdikDrum::run() {
         } else if (key == 127) { // Touche Backspace
             unselectStep();
         } else if (key == ' ') { // Touche Espace
-            drumPlayer_.togglePlay();
-            msg = std::string("Play: ") + (drumPlayer_.isPlaying() ? "ON" : "OFF");
-            displayMessage(msg);
-        } else if (key == 'c') {
-            drumPlayer_.toggleClick();
-            msg = std::string("Metronome: ") + (drumPlayer_.isClicking() ? "ON" : "OFF");
-            displayMessage(msg);
+            playPause(); // Appelle la nouvelle fonction
+        } else if (key == 'c') { // Touche 'c'
+            toggleClick(); // Appelle la nouvelle fonction
+
         } else if (key == 'p') {
             demo();
             displayMessage("Playing demo");
@@ -730,6 +727,24 @@ void AdikDrum::moveCursorLeft() {
         displayMessage("Reached the beginning (left).");
     }
 }
+
+void AdikDrum::playPause() {
+    drumPlayer_.togglePlay();
+    std::string msg = std::string("Play: ") + (drumPlayer_.isPlaying() ? "ON" : "OFF");
+    displayMessage(msg);
+}
+
+void AdikDrum::toggleClick() {
+    drumPlayer_.toggleClick();
+    std::string msg = std::string("Metronome: ") + (drumPlayer_.isClicking() ? "ON" : "OFF");
+    displayMessage(msg);
+    if (drumPlayer_.isClicking()) {
+        drumPlayer_.startClick();
+    } else {
+        drumPlayer_.stopClick();
+    }
+}
+
 
 
 int main() {
