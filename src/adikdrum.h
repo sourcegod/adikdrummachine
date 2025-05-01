@@ -32,6 +32,8 @@ public:
     void loadPattern();
 
     void displayMessage(const std::string& message); 
+    void selectStep();
+    void unselectStep();
 
 
 private:

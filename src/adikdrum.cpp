@@ -344,16 +344,17 @@ void AdikDrum::run() {
         if (key == 'Q') break;
 
         if (key == '\n') { // Touche Enter
+            selectStep();
+
+            /*
             pattern[cursor_pos.second][cursor_pos.first] = true;
             msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " activated and playing.";
             displayMessage(msg);
             drumPlayer_.playSound(cursor_pos.second);
             displayGrid(pattern, cursor_pos);
+            */
         } else if (key == 127) { // Touche Backspace
-            pattern[cursor_pos.second][cursor_pos.first] = false;
-            msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " deactivated.";
-            displayMessage(msg);
-            displayGrid(pattern, cursor_pos);
+            unselectStep();
         } else if (key == ' ') { // Touche Espace
             drumPlayer_.togglePlay();
             msg = std::string("Play: ") + (drumPlayer_.isPlaying() ? "ON" : "OFF");
@@ -702,6 +703,20 @@ void AdikDrum::loadPattern() {
 
 void AdikDrum::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
+}
+void AdikDrum::selectStep() {
+    pattern[cursor_pos.second][cursor_pos.first] = true;
+    std::string msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " activated and playing.";
+    displayMessage(msg);
+    drumPlayer_.playSound(cursor_pos.second);
+    displayGrid(pattern, cursor_pos);
+}
+
+void AdikDrum::unselectStep() {
+    pattern[cursor_pos.second][cursor_pos.first] = false;
+    std::string msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " deactivated.";
+    displayMessage(msg);
+    displayGrid(pattern, cursor_pos);
 }
 
 
