@@ -33,8 +33,8 @@ const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
 const float GLOBAL_GAIN = 0.2f;
 int NUM_STEPS = 16;
 
-std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
-std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
+// std::pair<int, int> cursor_pos = {0, 0}; // {x, y}
+// std::vector<std::vector<bool>> pattern(NUM_SOUNDS, std::vector<bool>(NUM_STEPS, false));
 volatile int callbackCounter =0;
 termios oldTerm; // pour gérer le terminal
                  //
@@ -237,11 +237,13 @@ void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int>
 
 
 AdikDrum::AdikDrum()
-    : sampleRate_(44100),
+    : cursorPos({0, 0}),
+      sampleRate_(44100),
       mixer_(18),
       numSounds_(16),
       numSteps_(16),
-      drumPlayer_(numSounds_, numSteps_) 
+      drumPlayer_(numSounds_, numSteps_)
+
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
       helpText = "Appuyez sur les touches suivantes pour contrôler l'application:\n"
@@ -301,7 +303,7 @@ bool AdikDrum::initApp() {
     // Assigner les sons du métronome à DrumPlayer
     drumPlayer_.soundClick1_ = soundClick1;
     drumPlayer_.soundClick2_ = soundClick2;
-    drumPlayer_.pattern_ = pattern; // Assign the global pattern to the player
+    // drumPlayer_.pattern_ = pattern; // Assign the global pattern to the player
 
     const int numOutputChannels = 2; // Définir explicitement le nombre de canaux de sortie
     if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, drumMachineCallback, &drumData_)) {
@@ -337,7 +339,8 @@ void AdikDrum::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
 
-    displayGrid(pattern, cursor_pos); // Affiche la grille au démarrage
+    // displayGrid(pattern, cursorPos); // Affiche la grille au démarrage
+    displayGrid(drumPlayer_.pattern_, cursorPos);
 
     char key;
     while (read(STDIN_FILENO, &key, 1) == 1) {
@@ -345,14 +348,6 @@ void AdikDrum::run() {
 
         if (key == '\n') { // Touche Enter
             selectStep();
-
-            /*
-            pattern[cursor_pos.second][cursor_pos.first] = true;
-            msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " activated and playing.";
-            displayMessage(msg);
-            drumPlayer_.playSound(cursor_pos.second);
-            displayGrid(pattern, cursor_pos);
-            */
         } else if (key == 127) { // Touche Backspace
             unselectStep();
         } else if (key == ' ') { // Touche Espace
@@ -368,12 +363,12 @@ void AdikDrum::run() {
             displayMessage("Playing demo");
         } else if (key == 16) { // Ctrl+p
             loadPattern();
-            displayGrid(drumPlayer_.pattern_, cursor_pos);
+            displayGrid(drumPlayer_.pattern_, cursorPos);
         } else if (key == 'v') {
             drumPlayer_.stopAllSounds();
             displayMessage("All sounds stopped.");
         } else if (key == 'x') {
-            int currentSoundIndex = cursor_pos.second;
+            int currentSoundIndex = cursorPos.second;
             bool currentMuted = drumPlayer_.isSoundMuted(currentSoundIndex);
             drumPlayer_.setSoundMuted(currentSoundIndex, !currentMuted);
             msg = "Son " + std::to_string(currentSoundIndex) + " (canal " + std::to_string(currentSoundIndex + 1) + ") est maintenant " + (currentMuted ? "démuté" : "muté") + ".";
@@ -412,13 +407,13 @@ void AdikDrum::run() {
                 displayMessage("Maximum BPM reached.");
             }
         } else if (key == '[') {
-            int currentChannelIndex = cursor_pos.second + 1;
+            int currentChannelIndex = cursorPos.second + 1;
             mixer_.setChannelPan(currentChannelIndex,
                                 std::max(-1.0f, mixer_.getChannelPan(currentChannelIndex) - 0.1f));
             msg = "Pan du canal " + std::to_string(currentChannelIndex) + " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
             displayMessage(msg);
         } else if (key == ']') {
-            int currentChannelIndex = cursor_pos.second + 1;
+            int currentChannelIndex = cursorPos.second + 1;
             mixer_.setChannelPan(currentChannelIndex,
                                 std::min(1.0f, mixer_.getChannelPan(currentChannelIndex) + 0.1f));
             msg = "Pan du canal " + std::to_string(currentChannelIndex) + " réglé à " + std::to_string(mixer_.getChannelPan(currentChannelIndex));
@@ -430,47 +425,16 @@ void AdikDrum::run() {
             read(STDIN_FILENO, &key, 1); // Lit '['
             read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
             if (key == 'A') { // Flèche haut
-                if (cursor_pos.second > 0) {
-                    cursor_pos.second--;
-                    displayGrid(pattern, cursor_pos);
-                    msg = "Cursor up, playing sound " + std::to_string(cursor_pos.second + 1);
-                    displayMessage(msg);
-                    drumPlayer_.playSound(cursor_pos.second);
-                } else {
-                    beep();
-                }
+                moveCursorUp();
             } else if (key == 'B') { // Flèche bas
-                if (cursor_pos.second < NUM_SOUNDS - 1) {
-                    cursor_pos.second++;
-                    displayGrid(pattern, cursor_pos);
-                    msg = "Cursor down, playing sound " + std::to_string(cursor_pos.second + 1);
-                    displayMessage(msg);
-                    drumPlayer_.playSound(cursor_pos.second);
-                } else {
-                    beep();
-                }
+                moveCursorDown();
             } else if (key == 'C') { // Flèche droite
-                if (cursor_pos.first < NUM_STEPS - 1) {
-                    cursor_pos.first++;
-                    displayGrid(pattern, cursor_pos);
-                    msg = "Cursor right, step " + std::to_string(cursor_pos.first + 1);
-                    displayMessage(msg);
-                } else {
-                    beep();
-                    displayMessage("Reached the end (right).");
-                }
+                moveCursorRight();
             } else if (key == 'D') { // Flèche gauche
-                if (cursor_pos.first > 0) {
-                    cursor_pos.first--;
-                    displayGrid(pattern, cursor_pos);
-                    msg = "Cursor left, step " + std::to_string(cursor_pos.first + 1);
-                    displayMessage(msg);
-                } else {
-                    beep();
-                    displayMessage("Reached the beginning (left).");
-                }
-            }
-        }
+                moveCursorLeft();
+            } // End arrow keys conditions
+
+        } // End key == \033
     } // End the while Loop
 
     // Resets the terminal
@@ -705,18 +669,66 @@ void AdikDrum::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
 void AdikDrum::selectStep() {
-    pattern[cursor_pos.second][cursor_pos.first] = true;
-    std::string msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " activated and playing.";
+    drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = true;
+    std::string msg = "Step " + std::to_string(cursorPos.first + 1) + " on sound " + std::to_string(cursorPos.second + 1) + " activated and playing.";
     displayMessage(msg);
-    drumPlayer_.playSound(cursor_pos.second);
-    displayGrid(pattern, cursor_pos);
+    drumPlayer_.playSound(cursorPos.second);
+    displayGrid(drumPlayer_.pattern_, cursorPos);
 }
 
 void AdikDrum::unselectStep() {
-    pattern[cursor_pos.second][cursor_pos.first] = false;
-    std::string msg = "Step " + std::to_string(cursor_pos.first + 1) + " on sound " + std::to_string(cursor_pos.second + 1) + " deactivated.";
+    drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = false;
+    std::string msg = "Step " + std::to_string(cursorPos.first + 1) + " on sound " + std::to_string(cursorPos.second + 1) + " deactivated.";
     displayMessage(msg);
-    displayGrid(pattern, cursor_pos);
+    displayGrid(drumPlayer_.pattern_, cursorPos);
+}
+
+void AdikDrum::moveCursorUp() {
+    if (cursorPos.second > 0) {
+        cursorPos.second--;
+        displayGrid(drumPlayer_.pattern_, cursorPos);
+        std::string msg = "Cursor up, playing sound " + std::to_string(cursorPos.second + 1);
+        displayMessage(msg);
+        drumPlayer_.playSound(cursorPos.second);
+    } else {
+        beep();
+    }
+}
+
+void AdikDrum::moveCursorDown() {
+    if (cursorPos.second < numSounds_ - 1) {
+        cursorPos.second++;
+        displayGrid(drumPlayer_.pattern_, cursorPos);
+        std::string msg = "Cursor down, playing sound " + std::to_string(cursorPos.second + 1);
+        displayMessage(msg);
+        drumPlayer_.playSound(cursorPos.second);
+    } else {
+        beep();
+    }
+}
+
+void AdikDrum::moveCursorRight() {
+    if (cursorPos.first < numSteps_ - 1) {
+        cursorPos.first++;
+        displayGrid(drumPlayer_.pattern_, cursorPos);
+        std::string msg = "Cursor right, step " + std::to_string(cursorPos.first + 1);
+        displayMessage(msg);
+    } else {
+        beep();
+        displayMessage("Reached the end (right).");
+    }
+}
+
+void AdikDrum::moveCursorLeft() {
+    if (cursorPos.first > 0) {
+        cursorPos.first--;
+        displayGrid(drumPlayer_.pattern_, cursorPos);
+        std::string msg = "Cursor left, step " + std::to_string(cursorPos.first + 1);
+        displayMessage(msg);
+    } else {
+        beep();
+        displayMessage("Reached the beginning (left).");
+    }
 }
 
 

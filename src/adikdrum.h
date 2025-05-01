@@ -17,6 +17,7 @@ public:
     };
 
     std::string helpText;
+    std::pair<int, int> cursorPos;
 
 
 
@@ -34,7 +35,10 @@ public:
     void displayMessage(const std::string& message); 
     void selectStep();
     void unselectStep();
-
+    void moveCursorUp();
+    void moveCursorDown();
+    void moveCursorRight();
+    void moveCursorLeft();
 
 private:
     AudioDriver audioDriver_;
