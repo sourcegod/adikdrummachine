@@ -129,14 +129,14 @@ void resetTermios(termios oldt) {
 //----------------------------------------
 
 AdikDrum::AdikDrum(UIApp* uiApp)
-    : cursorPos({0, 0}),
+    : uiApp_(uiApp),
+      cursorPos({0, 0}),
       sampleRate_(44100),
-      mixer_(18),
+      mixer_(32),
       numSounds_(16),
       numSteps_(16),
       drumPlayer_(numSounds_, numSteps_),
-      msgText_(""), // Initialisation optionnelle
-      uiApp_(uiApp)
+      msgText_("") // Initialisation optionnelle
 
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
@@ -604,7 +604,6 @@ void AdikDrum::playCurrentSound() {
 int main() {
     AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
     ConsoleUIApp consoleUI(adikDrumApp); // Créer ConsoleUIApp en passant une référence à AdikDrum
-
     adikDrumApp.uiApp_ = &consoleUI; // Assigner l'UIApp à AdikDrum
     if (!adikDrumApp.initApp()) {
         return false;

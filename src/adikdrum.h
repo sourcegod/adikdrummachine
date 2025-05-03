@@ -19,12 +19,10 @@ public:
         double sampleRate;
     };
 
-    int numSounds_;
-    int numSteps_;
-    std::string helpText;
-    std::pair<int, int> cursorPos;
-    std::map<char, int> keyToSoundMap;
     UIApp* uiApp_; // Pointeur vers l'objet UIApp
+    std::string helpText;
+    std::pair<size_t, size_t> cursorPos;
+    std::map<char, int> keyToSoundMap;
 
 
     AdikDrum(UIApp* uiApp); // Constructeur prend un pointeur UIApp
@@ -58,19 +56,24 @@ public:
     void playKey(char key);        
     void triggerLastSound();
     void playCurrentSound();
+    auto& getPattern() { return drumPlayer_.pattern_; }
+    size_t getNumSounds() const { return numSounds_; }
+    size_t getNumSteps() const { return numSteps_; }
 
 private:
     AudioDriver audioDriver_;
     int sampleRate_;
     AudioMixer mixer_;
+    size_t numSounds_;
+    size_t numSteps_;
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Membre public pour stocker les sons
     std::shared_ptr<AudioSound> soundClick1_;
     std::shared_ptr<AudioSound> soundClick2_;
     int initialBpm_;
     DrumPlayer drumPlayer_; // Note: il faut Déclarer drumPlayer_ APRÈS numSounds_ et numSteps_, pour l'ordre d'initialisation des membres
+    std::string msgText_;
 
     DrumMachineData drumData_;
-    std::string msgText_;
 
 };
 //==== End of class AdikDrum ====
