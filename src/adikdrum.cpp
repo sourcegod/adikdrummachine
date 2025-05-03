@@ -492,7 +492,7 @@ void AdikDrum::playCurrentSound() {
 //----------------------------------------
 //==== End of class AdikDrum ====
 
-
+/*
 int main() {
     AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
     ConsoleUIApp consoleUI(adikDrumApp); // Créer ConsoleUIApp en passant une référence à AdikDrum
@@ -509,6 +509,7 @@ int main() {
 
     return 0;
 }
+*/
 
 /*
 int main() {

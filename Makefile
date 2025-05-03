@@ -10,7 +10,7 @@ BUILD_DIR = build
 SRCS = $(wildcard $(SRCS_DIR)/*.cpp)
 HDRS = $(wildcard $(SRCS_DIR)/*.h)
 OBJS = $(patsubst $(SRCS_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
-EXEC = $(BUILD_DIR)/adikdrum
+EXEC = $(BUILD_DIR)/adikcui
 
 all: $(EXEC)
 

@@ -147,3 +147,24 @@ void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::
 }
 //----------------------------------------
 //==== End of class ConsoleUIApp ====
+
+
+int main() {
+    AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
+    ConsoleUIApp consoleUI(adikDrumApp); // Créer ConsoleUIApp en passant une référence à AdikDrum
+    adikDrumApp.uiApp_ = &consoleUI; // Assigner l'UIApp à AdikDrum
+    if (!adikDrumApp.initApp()) {
+        return 1; // Changer le code de retour en cas d'erreur
+    }
+
+    if (consoleUI.init()) {
+        consoleUI.run();
+        consoleUI.close();
+    }
+    adikDrumApp.closeApp();
+
+    return 0;
+}
+
+//----------------------------------------
+//==== End of class ConsoleUIApp ====
