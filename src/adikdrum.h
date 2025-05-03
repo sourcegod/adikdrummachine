@@ -22,7 +22,6 @@ public:
     UIApp* uiApp_; // Pointeur vers l'objet UIApp
     std::string helpText;
     std::pair<size_t, size_t> cursorPos;
-    std::map<char, int> keyToSoundMap;
 
 
     AdikDrum(UIApp* uiApp); // Constructeur prend un pointeur UIApp
@@ -30,7 +29,6 @@ public:
 
     bool initApp();
     void closeApp();
-    void run(); // Fonction pour la boucle principale (gestion du clavier)
     void loadSounds();
     const std::vector<std::shared_ptr<AudioSound>>& getDrumSounds() const;
     void demo();

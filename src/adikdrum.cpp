@@ -9,6 +9,11 @@
 
 #include "adikdrum.h"
 #include "consoleuiapp.h" // Inclure l'en-tête de ConsoleUIApp
+#include "audiodriver.h" // Inclure le header de AudioDriver
+#include "soundfactory.h" // Inclure le header de SoundFactory
+#include "drumplayer.h"
+#include "audiomixer.h"
+#include "constants.h"
 #include <iostream>
 #include <string>
 #include <sstream> // for osstringstream
@@ -18,36 +23,15 @@
 #include <portaudio.h>
 #include <algorithm>
 #include <map>
-#include <termios.h>
-#include <unistd.h>
 #include <utility> // Pour utiliser std::pair
 // for performance checking
 #include <thread>
 #include <chrono>
 
-#include "audiodriver.h" // Inclure le header de AudioDriver
-#include "soundfactory.h" // Inclure le header de SoundFactory
-#include "drumplayer.h"
-#include "audiomixer.h"
-#include "constants.h"
 //----------------------------------------
 
-// const double PI = 3.14159265358979323846;
-// const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
-// const float GLOBAL_GAIN = 0.2f;
-// int NUM_STEPS = 16;
 
 volatile int callbackCounter =0;
-termios oldTerm; // pour gérer le terminal
-                 //
-// Mapping des touches et des sons
-std::map<char, int> keyToSoundMap = {
-    {'q', 0}, {'s', 1}, {'d', 2}, {'f', 3},
-    {'g', 4}, {'h', 5}, {'j', 6}, {'k', 7},
-    {'a', 8}, {'z', 9}, {'e', 10}, {'r', 11},
-    {'t', 12}, {'y', 13}, {'u', 14}, {'i', 15}
-};
-
 void beep() {
     std::cout << '\a' << std::flush;
 }
@@ -106,26 +90,6 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     return paContinue;
 }
 
-//----------------------------------------
-
-// Fonction pour initialiser le terminal
-termios initTermios(int echo) {
-    termios oldt;
-    tcgetattr(STDIN_FILENO, &oldt);
-    termios newt = oldt;
-    newt.c_lflag &= ~(ICANON);
-    if (echo == 0) {
-        newt.c_lflag &= ~(ECHO);
-    }
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    return oldt;
-}
-//----------------------------------------
-
-// Fonction pour restaurer les paramètres du terminal
-void resetTermios(termios oldt) {
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-}
 //----------------------------------------
 
 AdikDrum::AdikDrum(UIApp* uiApp)
@@ -228,80 +192,6 @@ void AdikDrum::closeApp() {
     // audioDriver_.close(); // not nessary cause it managing by the AudioDriver's destructor
     std::cout << "AdikDrum fermé." << std::endl;
 
-}
-//----------------------------------------
-
-
-void AdikDrum::run() {
-    oldTerm = initTermios(0);
-    msgText_ = "Le clavier est initialisé.";
-    displayMessage(msgText_);
-
-    // displayGrid(pattern, cursorPos); // Affiche la grille au démarrage
-    displayGrid(drumPlayer_.pattern_, cursorPos);
-
-    char key;
-    while (read(STDIN_FILENO, &key, 1) == 1) {
-        if (key == 'Q') break;
-
-        if (key == '\n') { // Touche Enter
-            selectStep();
-        } else if (key == 127) { // Touche Backspace
-            unselectStep();
-        } else if (key == ' ') { // Touche Espace
-            playPause(); // Appelle la nouvelle fonction
-        } else if (key == 'c') { // Touche 'c'
-            toggleClick(); // Appelle la nouvelle fonction
-        } else if (key == 'l') { // Touche 'l'
-            triggerLastSound(); // Déclenche la relecture du dernier son
-        } else if (key == 'm') { // Touche 'm'
-            playCurrentSound(); // Joue le son courant
-
-        } else if (key == 'p') {
-            demo();
-        } else if (key == 16) { // Ctrl+p
-            loadPattern();
-        } else if (key == 'v') {
-            stopAllSounds();
-        } else if (key == 'x') {
-            toggleMute();
-        } else if (key == 'X') {
-            resetMute();
-        } else if (key == '+') { // Touche '+'
-            changeVolume(0.1f); // Augmenter le volume
-        } else if (key == '-') { // Touche '-'
-            changeVolume(-0.1f); // Diminuer le volume
-
-        } else if (key == '(') { // Touche '('
-            changeBpm(-5.0f);    // Diminuer le BPM
-        } else if (key == ')') { // Touche ')'
-            changeBpm(5.0f);     // Augmenter le BPM
-
-        } else if (key == '[') { // Touche '['
-            changePan(-0.1f);
-        } else if (key == ']') { // Touche ']'
-            changePan(0.1f);
-        } else if (keyToSoundMap.count(key)) {
-            playKey(key); // Gérer les autres touches pour jouer des sons
-
-        } else if (key == '\033') { // Code d'échappement
-            read(STDIN_FILENO, &key, 1); // Lit '['
-            read(STDIN_FILENO, &key, 1); // Lit le code de la flèche
-            if (key == 'A') { // Flèche haut
-                moveCursorUp();
-            } else if (key == 'B') { // Flèche bas
-                moveCursorDown();
-            } else if (key == 'C') { // Flèche droite
-                moveCursorRight();
-            } else if (key == 'D') { // Flèche gauche
-                moveCursorLeft();
-            } // End arrow keys conditions
-
-        } // End key == \033
-    } // End the while Loop
-
-    // Resets the terminal
-    resetTermios(oldTerm);
 }
 //----------------------------------------
 
