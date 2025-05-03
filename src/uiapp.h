@@ -12,7 +12,7 @@ public:
     virtual void run() = 0;
     virtual void close() = 0;
     virtual void displayMessage(const std::string& message) = 0;
-    virtual void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor) = 0;
+    virtual void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) = 0;
 };
 
 #endif // UIAPP_H

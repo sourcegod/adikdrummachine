@@ -396,7 +396,9 @@ void AdikDrum::displayMessage(const std::string& message) {
 
 void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
     if (uiApp_) {
-        uiApp_->displayGrid(grid, cursor);
+    auto numSounds = getNumSounds();
+    auto numSteps = getNumSteps();
+        uiApp_->displayGrid(grid, cursor, numSounds, numSteps);
     } else {
         std::cerr << "Erreur: UIApp n'est pas initialisé." << std::endl;
     }

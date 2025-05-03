@@ -45,7 +45,9 @@ void ConsoleUIApp::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
     auto& pattern = adikDrum_.getPattern();
-    adikDrum_.displayGrid(pattern, adikDrum_.cursorPos); // Affiche la grille au démarrage
+    auto numSounds = adikDrum_.getNumSounds();
+    auto numSteps = adikDrum_.getNumSteps();
+    displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps); // Affiche la grille au démarrage
 
     char key;
     while (read(STDIN_FILENO, &key, 1) == 1) {
@@ -113,16 +115,16 @@ void ConsoleUIApp::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
 
-void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor) {
+void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
     std::ostringstream oss;
     oss << "  ";
-    for (size_t i = 0; i < adikDrum_.getNumSteps(); ++i) {
+    for (size_t i = 0; i < numSteps; ++i) {
         oss << (i + 1) % 10 << " ";
     }
     oss << std::endl;
-    for (size_t i = 0; i < adikDrum_.getNumSounds(); ++i) {
+    for (size_t i = 0; i < numSounds; ++i) {
         oss << (i + 1) % 10 << " ";
-        for (size_t j = 0; j < adikDrum_.getNumSteps(); ++j) {
+        for (size_t j = 0; j < numSteps; ++j) {
             if (cursor.first == j && cursor.second == i) {
                 oss << "x ";
             } else if (grid[i][j]) {

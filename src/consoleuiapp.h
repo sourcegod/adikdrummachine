@@ -17,7 +17,7 @@ public:
     void run() override;
     void close() override;
     void displayMessage(const std::string& message) override;
-    void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor) override;
+    void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) override;
 
 private:
     AdikDrum& adikDrum_;
