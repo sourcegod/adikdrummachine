@@ -604,12 +604,17 @@ void AdikDrum::playCurrentSound() {
 int main() {
     AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
     ConsoleUIApp consoleUI(adikDrumApp); // Créer ConsoleUIApp en passant une référence à AdikDrum
+
     adikDrumApp.uiApp_ = &consoleUI; // Assigner l'UIApp à AdikDrum
+    if (!adikDrumApp.initApp()) {
+        return false;
+    }
 
     if (consoleUI.init()) {
         consoleUI.run();
         consoleUI.close();
     }
+    adikDrumApp.closeApp();
 
     return 0;
 }

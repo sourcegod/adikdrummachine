@@ -36,6 +36,8 @@ bool ConsoleUIApp::init() {
         perror("tcgetattr");
         return false;
     }
+    
+
     return true;
 }
 
@@ -100,12 +102,11 @@ void ConsoleUIApp::run() {
         } // End main key handling
     } // End the while Loop
 
-    // Resets the terminal
-    resetTermios(oldTerm);
 }
 
 void ConsoleUIApp::close() {
-    // Rien de spécifique à fermer pour l'instant dans la console
+    // Resets the terminal
+    resetTermios(oldTerm);
 }
 
 void ConsoleUIApp::displayMessage(const std::string& message) {
