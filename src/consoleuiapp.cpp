@@ -1,5 +1,6 @@
 #include "consoleuiapp.h"
 #include "adikdrum.h"
+#include "constants.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -83,7 +84,7 @@ void ConsoleUIApp::run() {
             adikDrum_.changePan(-0.1f);
         } else if (key == ']') { // Touche ']'
             adikDrum_.changePan(0.1f);
-        } else if (adikDrum_.keyToSoundMap.count(key)) {
+        } else if (KEY_TO_SOUND_MAP.count(key)) {
             adikDrum_.playKey(key); // Gérer les autres touches pour jouer des sons
         } else if (key == 'l') { // Touche 'l'
             adikDrum_.triggerLastSound(); // Déclenche la relecture du dernier son

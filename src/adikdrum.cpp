@@ -29,13 +29,13 @@
 #include "soundfactory.h" // Inclure le header de SoundFactory
 #include "drumplayer.h"
 #include "audiomixer.h"
-
+#include "constants.h"
 //----------------------------------------
 
-const double PI = 3.14159265358979323846;
-const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
-const float GLOBAL_GAIN = 0.2f;
-int NUM_STEPS = 16;
+// const double PI = 3.14159265358979323846;
+// const int NUM_SOUNDS = 16; // Notre constante globale pour le nombre de sons
+// const float GLOBAL_GAIN = 0.2f;
+// int NUM_STEPS = 16;
 
 volatile int callbackCounter =0;
 termios oldTerm; // pour gérer le terminal
@@ -577,14 +577,13 @@ void AdikDrum::changePan(float deltaPan) {
     displayMessage(msgText_);
 }
 //----------------------------------------
-
 void AdikDrum::playKey(char key) {
-    if (keyToSoundMap.count(key)) {
-        int soundIndex = keyToSoundMap[key];
+    auto it = KEY_TO_SOUND_MAP.find(key);
+    if (it != KEY_TO_SOUND_MAP.end()) {
+        int soundIndex = it->second;
         drumPlayer_.playSound(soundIndex);
     }
 }
-//----------------------------------------
 
 void AdikDrum::triggerLastSound() {
     drumPlayer_.playLastSound();
