@@ -29,7 +29,9 @@ void ConsoleUIApp::resetTermios(termios oldt) {
 //----------------------------------------
 
 
-ConsoleUIApp::ConsoleUIApp(AdikDrum& adikDrum) : adikDrum_(adikDrum) {}
+ConsoleUIApp::ConsoleUIApp(AdikDrum& adikDrum) : adikDrum_(adikDrum) {
+}
+//----------------------------------------
 
 bool ConsoleUIApp::init() {
     oldTerm = initTermios(0); // Réutilise la fonction d'initialisation du terminal
@@ -41,6 +43,7 @@ bool ConsoleUIApp::init() {
 
     return true;
 }
+//----------------------------------------
 
 void ConsoleUIApp::run() {
     std::string msg = "Le clavier est initialisé.";
@@ -106,15 +109,18 @@ void ConsoleUIApp::run() {
     } // End the while Loop
 
 }
+//----------------------------------------
 
 void ConsoleUIApp::close() {
     // Resets the terminal
     resetTermios(oldTerm);
 }
+//----------------------------------------
 
 void ConsoleUIApp::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
+//----------------------------------------
 
 void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
     std::ostringstream oss;
@@ -139,3 +145,5 @@ void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::
     oss << std::endl;
     displayMessage(oss.str());
 }
+//----------------------------------------
+//==== End of class ConsoleUIApp ====

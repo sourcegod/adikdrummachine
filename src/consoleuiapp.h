@@ -23,5 +23,6 @@ private:
     AdikDrum& adikDrum_;
     termios oldTerm;
 };
+//==== End of class ConsoleUIApp ====
 
 #endif // CONSOLEUIAPP_H
