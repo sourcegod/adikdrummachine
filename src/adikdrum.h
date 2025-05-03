@@ -5,8 +5,11 @@
 #include "drumplayer.h"
 #include "audiomixer.h"
 #include "audiosound.h"
+#include "uiapp.h" // Inclure l'interface UIApp
 #include <vector>
 #include <string>
+#include <sstream>
+#include <map>
 
 class AdikDrum {
 public:
@@ -16,12 +19,15 @@ public:
         double sampleRate;
     };
 
+    int numSounds_;
+    int numSteps_;
     std::string helpText;
     std::pair<int, int> cursorPos;
+    std::map<char, int> keyToSoundMap;
+    UIApp* uiApp_; // Pointeur vers l'objet UIApp
 
 
-
-    AdikDrum();
+    AdikDrum(UIApp* uiApp); // Constructeur prend un pointeur UIApp
     ~AdikDrum();
 
     bool initApp();
@@ -60,8 +66,6 @@ private:
     std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Membre public pour stocker les sons
     std::shared_ptr<AudioSound> soundClick1_;
     std::shared_ptr<AudioSound> soundClick2_;
-    int numSounds_;
-    int numSteps_;
     int initialBpm_;
     DrumPlayer drumPlayer_; // Note: il faut Déclarer drumPlayer_ APRÈS numSounds_ et numSteps_, pour l'ordre d'initialisation des membres
 

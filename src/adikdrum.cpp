@@ -8,6 +8,7 @@
 //----------------------------------------
 
 #include "adikdrum.h"
+#include "consoleuiapp.h" // Inclure l'en-tête de ConsoleUIApp
 #include <iostream>
 #include <string>
 #include <sstream> // for osstringstream
@@ -127,14 +128,15 @@ void resetTermios(termios oldt) {
 }
 //----------------------------------------
 
-AdikDrum::AdikDrum()
+AdikDrum::AdikDrum(UIApp* uiApp)
     : cursorPos({0, 0}),
       sampleRate_(44100),
       mixer_(18),
       numSounds_(16),
       numSteps_(16),
       drumPlayer_(numSounds_, numSteps_),
-      msgText_("") // Initialisation optionnelle
+      msgText_(""), // Initialisation optionnelle
+      uiApp_(uiApp)
 
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
@@ -384,6 +386,27 @@ void AdikDrum::loadPattern() {
 //----------------------------------------
 
 void AdikDrum::displayMessage(const std::string& message) {
+    if (uiApp_) {
+        uiApp_->displayMessage(message);
+    } else {
+        std::cerr << "Erreur: UIApp n'est pas initialisé." << std::endl;
+    }
+}
+//----------------------------------------
+
+void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
+    if (uiApp_) {
+        uiApp_->displayGrid(grid, cursor);
+    } else {
+        std::cerr << "Erreur: UIApp n'est pas initialisé." << std::endl;
+    }
+}
+//----------------------------------------
+
+
+
+/*
+void AdikDrum::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
 //----------------------------------------
@@ -412,6 +435,7 @@ void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair
     displayMessage(oss.str());
 }
 //----------------------------------------
+*/
 
 void AdikDrum::selectStep() {
     drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = true;
@@ -578,6 +602,20 @@ void AdikDrum::playCurrentSound() {
 
 
 int main() {
+    AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
+    ConsoleUIApp consoleUI(adikDrumApp); // Créer ConsoleUIApp en passant une référence à AdikDrum
+    adikDrumApp.uiApp_ = &consoleUI; // Assigner l'UIApp à AdikDrum
+
+    if (consoleUI.init()) {
+        consoleUI.run();
+        consoleUI.close();
+    }
+
+    return 0;
+}
+
+/*
+int main() {
     AdikDrum adikDrumApp;
     if (adikDrumApp.initApp()) {
         adikDrumApp.run();
@@ -586,4 +624,5 @@ int main() {
     return 0;
 }
 //----------------------------------------
+*/
 

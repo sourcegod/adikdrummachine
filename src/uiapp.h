@@ -2,6 +2,7 @@
 #define UIAPP_H
 
 #include <string>
+#include <vector>
 
 class UIApp {
 public:
