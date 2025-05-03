@@ -1,4 +1,4 @@
-#include "consoleuiapp.h"
+#include "adikcuiapp.h"
 #include "adikdrum.h"
 #include "constants.h"
 #include <iostream>
@@ -9,7 +9,7 @@
 #include <sstream>
 
 // Fonction pour initialiser le terminal
-termios ConsoleUIApp::initTermios(int echo) {
+termios AdikCUIApp::initTermios(int echo) {
     termios oldt;
     tcgetattr(STDIN_FILENO, &oldt);
     termios newt = oldt;
@@ -23,17 +23,17 @@ termios ConsoleUIApp::initTermios(int echo) {
 //----------------------------------------
 
 // Fonction pour restaurer les paramètres du terminal
-void ConsoleUIApp::resetTermios(termios oldt) {
+void AdikCUIApp::resetTermios(termios oldt) {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 //----------------------------------------
 
 
-ConsoleUIApp::ConsoleUIApp(AdikDrum& adikDrum) : adikDrum_(adikDrum) {
+AdikCUIApp::AdikCUIApp(AdikDrum& adikDrum) : adikDrum_(adikDrum) {
 }
 //----------------------------------------
 
-bool ConsoleUIApp::init() {
+bool AdikCUIApp::init() {
     oldTerm = initTermios(0); // Réutilise la fonction d'initialisation du terminal
     if (tcgetattr(STDIN_FILENO, &oldTerm) == -1) {
         perror("tcgetattr");
@@ -45,7 +45,7 @@ bool ConsoleUIApp::init() {
 }
 //----------------------------------------
 
-void ConsoleUIApp::run() {
+void AdikCUIApp::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
     auto& pattern = adikDrum_.getPattern();
@@ -111,18 +111,18 @@ void ConsoleUIApp::run() {
 }
 //----------------------------------------
 
-void ConsoleUIApp::close() {
+void AdikCUIApp::close() {
     // Resets the terminal
     resetTermios(oldTerm);
 }
 //----------------------------------------
 
-void ConsoleUIApp::displayMessage(const std::string& message) {
+void AdikCUIApp::displayMessage(const std::string& message) {
     std::cout << message << std::endl;
 }
 //----------------------------------------
 
-void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
+void AdikCUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
     std::ostringstream oss;
     oss << "  ";
     for (size_t i = 0; i < numSteps; ++i) {
@@ -146,15 +146,15 @@ void ConsoleUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::
     displayMessage(oss.str());
 }
 //----------------------------------------
-//==== End of class ConsoleUIApp ====
+//==== End of class AdikCUIApp ====
 
 
 int main() {
     AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
-    ConsoleUIApp consoleUI(adikDrumApp); // Créer ConsoleUIApp en passant une référence à AdikDrum
+    AdikCUIApp consoleUI(adikDrumApp); // Créer AdikCUIApp en passant une référence à AdikDrum
     adikDrumApp.uiApp_ = &consoleUI; // Assigner l'UIApp à AdikDrum
     if (!adikDrumApp.initApp()) {
-        return 1; // Changer le code de retour en cas d'erreur
+        return false; // Changer le code de retour en cas d'erreur
     }
 
     if (consoleUI.init()) {
@@ -165,6 +165,5 @@ int main() {
 
     return 0;
 }
-
 //----------------------------------------
-//==== End of class ConsoleUIApp ====
+

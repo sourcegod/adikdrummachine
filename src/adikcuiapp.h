@@ -1,14 +1,14 @@
-#ifndef CONSOLEUIAPP_H
-#define CONSOLEUIAPP_H
+#ifndef ADIKCUIAPP_H
+#define ADIKCUIAPP_H
 
 #include "uiapp.h"
 #include "adikdrum.h" // Inclure AdikDrum pour pouvoir l'utiliser
 #include <termios.h>
 
-class ConsoleUIApp : public UIApp {
+class AdikCUIApp : public UIApp {
 public:
-    ConsoleUIApp(AdikDrum& adikDrum);
-    ~ConsoleUIApp() override = default;
+    AdikCUIApp(AdikDrum& adikDrum);
+    ~AdikCUIApp() override = default;
 
     termios initTermios(int echo);
     void resetTermios(termios oldt);
@@ -23,6 +23,6 @@ private:
     AdikDrum& adikDrum_;
     termios oldTerm;
 };
-//==== End of class ConsoleUIApp ====
+//==== End of class AdikCUIApp ====
 
-#endif // CONSOLEUIAPP_H
+#endif // ADIKCUIAPP_H

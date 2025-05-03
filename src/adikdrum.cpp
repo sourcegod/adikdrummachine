@@ -8,7 +8,7 @@
 //----------------------------------------
 
 #include "adikdrum.h"
-#include "consoleuiapp.h" // Inclure l'en-tête de ConsoleUIApp
+#include "adikcuiapp.h" // Inclure l'en-tête de ConsoleUIApp
 #include "audiodriver.h" // Inclure le header de AudioDriver
 #include "soundfactory.h" // Inclure le header de SoundFactory
 #include "drumplayer.h"
