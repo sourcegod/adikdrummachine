@@ -5,9 +5,6 @@
 #include <portaudio.h>
 
 
-#include "audiodriver.h"
-#include <iostream>
-
 AudioDriver::AudioDriver() : stream_(nullptr), lastError_(paNoError) {
     PaError err = Pa_Initialize();
     if (err != paNoError) {
@@ -16,10 +13,12 @@ AudioDriver::AudioDriver() : stream_(nullptr), lastError_(paNoError) {
     }
     std::cout << "PortAudio is initialized successfully" << std::endl;
 }
+//----------------------------------------
 
 AudioDriver::~AudioDriver() {
     close();
 }
+//----------------------------------------
 
 bool AudioDriver::init(int numChannels, int sampleRate, int framesPerBuffer, void *userData) {
     PaStreamParameters outputParameters;
@@ -58,6 +57,7 @@ bool AudioDriver::init(int numChannels, int sampleRate, int framesPerBuffer, voi
 
     return true;
 }
+//----------------------------------------
 
 bool AudioDriver::start() {
     if (stream_ == nullptr) {
@@ -75,6 +75,7 @@ bool AudioDriver::start() {
  
     return true;
 }
+//----------------------------------------
 
 bool AudioDriver::stop() {
     if (stream_ != nullptr) {
@@ -95,6 +96,7 @@ bool AudioDriver::stop() {
     }
     return true;
 }
+//----------------------------------------
 
 bool AudioDriver::close() {
     if (stream_ != nullptr) {
@@ -114,6 +116,7 @@ bool AudioDriver::close() {
     }
     return true;
 }
+//----------------------------------------
 
 int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
@@ -166,7 +169,6 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
     }
     return paContinue;
 }
-
 //----------------------------------------
-
+//==== End of class AudioDriver ====
 

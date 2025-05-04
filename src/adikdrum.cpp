@@ -17,14 +17,13 @@
 
 #include <iostream>
 #include <string>
-#include <sstream> // for osstringstream
 #include <vector>
 #include <cmath>
-#include <random>
-#include <portaudio.h>
 #include <algorithm>
 #include <map>
 #include <utility> // Pour utiliser std::pair
+#include <random>
+
 // for performance checking
 #include <thread>
 #include <chrono>
@@ -289,48 +288,14 @@ void AdikDrum::displayMessage(const std::string& message) {
 
 void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
     if (uiApp_) {
-    auto numSounds = getNumSounds();
-    auto numSteps = getNumSteps();
+        auto numSounds = getNumSounds();
+        auto numSteps = getNumSteps();
         uiApp_->displayGrid(grid, cursor, numSounds, numSteps);
     } else {
         std::cerr << "Erreur: UIApp n'est pas initialisé." << std::endl;
     }
 }
 //----------------------------------------
-
-
-
-/*
-void AdikDrum::displayMessage(const std::string& message) {
-    std::cout << message << std::endl;
-}
-//----------------------------------------
-
-void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<int, int> cursor) {
-    std::ostringstream oss;
-    oss << "  ";
-    for (int i = 0; i < numSteps_; ++i) {
-        oss << (i + 1) % 10 << " ";
-    }
-    oss << std::endl;
-    for (int i = 0; i < numSounds_; ++i) {
-        oss << (i + 1) % 10 << " ";
-        for (int j = 0; j < numSteps_; ++j) {
-            if (cursor.first == j && cursor.second == i) {
-                oss << "x ";
-            } else if (grid[i][j]) {
-                oss << "# ";
-            } else {
-                oss << "- ";
-            }
-        }
-        oss << std::endl;
-    }
-    oss << std::endl;
-    displayMessage(oss.str());
-}
-//----------------------------------------
-*/
 
 void AdikDrum::selectStep() {
     drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = true;
