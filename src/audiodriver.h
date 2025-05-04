@@ -8,8 +8,8 @@ public:
     AudioDriver();
     ~AudioDriver();
 
-    bool init(int numChannels, int sampleRate, int framesPerBuffer, PaStreamCallback *callback, void *userData);
-    // bool init(PaStreamCallback *callback, void *userData, int sampleRate, int framesPerBuffer);
+    bool init(int numChannels, int sampleRate, int framesPerBuffer, void *userData);
+    // bool init(int numChannels, int sampleRate, int framesPerBuffer, PaStreamCallback *callback, void *userData);
     bool start();
     bool stop();
     bool close(); // Nouvelle fonction
@@ -18,6 +18,14 @@ public:
 private:
     PaStream* stream_;
     PaError lastError_;
+
+    static int drumMachineCallback(const void *inputBuffer, 
+                                 void *outputBuffer,
+                                 unsigned long framesPerBuffer,
+                                 const PaStreamCallbackTimeInfo *timeInfo,
+                                 PaStreamCallbackFlags statusFlags,
+                                 void *userData);
+
 
 };
 

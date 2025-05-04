@@ -33,12 +33,13 @@
 
 
 volatile int callbackCounter =0;
+
 void beep() {
     std::cout << '\a' << std::flush;
 }
-
 //----------------------------------------
 
+/*
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,
@@ -90,8 +91,8 @@ static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
     }
     return paContinue;
 }
-
 //----------------------------------------
+*/
 
 AdikDrum::AdikDrum(UIApp* uiApp)
     : uiApp_(uiApp),
@@ -167,7 +168,8 @@ bool AdikDrum::initApp() {
     // drumPlayer_.pattern_ = pattern; // Assign the global pattern to the player
 
     const int numOutputChannels = 2; // Définir explicitement le nombre de canaux de sortie
-    if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, drumMachineCallback, &drumData_)) {
+    if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, &drumData_)) {
+    // if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, drumMachineCallback, &drumData_)) {
         std::cerr << "Erreur lors de l'initialisation de l'AudioDriver." << std::endl;
         return 1;
     }
