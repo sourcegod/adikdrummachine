@@ -130,10 +130,11 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
     AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
     if (data && data->mixer) {
         float* out = static_cast<float*>(outputBuffer);
-        static unsigned long frameCounter = 0;
-        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
-        const int outputNumChannels = 2; // Assumons stéréo pour l'instant
-        std::vector<float> bufData(framesPerBuffer * outputNumChannels, 0.0f);
+        static size_t frameCounter = 0;
+        const size_t outputNumChannels = 2; // Assumons stéréo pour l'instant
+        size_t samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
+        const size_t numFrames = framesPerBuffer * outputNumChannels;
+        std::vector<float> bufData(numFrames, 0.0f);
 
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
@@ -156,7 +157,7 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
         data->mixer->mixSoundData(bufData, framesPerBuffer, outputNumChannels);
 
         // Copie du buffer de mixage vers le buffer de sortie PortAudio
-        for (unsigned long i = 0; i < framesPerBuffer * outputNumChannels; ++i) {
+        for (size_t i =0; i < numFrames; ++i) {
           // Note: il est recommandé de convertir la sortie en static_cast float, pour éviter des comportements inattendus de convertion de types implicites.  
           out[i] = static_cast<float>(data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
         

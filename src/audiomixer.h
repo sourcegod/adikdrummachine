@@ -32,6 +32,8 @@ struct ChannelInfo {
 
 class AudioMixer {
 public:
+
+    std::vector<float> soundBuffer;
     AudioMixer(size_t numChannels);
     ~AudioMixer();
 

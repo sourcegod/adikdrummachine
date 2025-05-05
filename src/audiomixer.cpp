@@ -256,30 +256,29 @@ void AudioMixer::fadeOutLinear(size_t channelIndex, std::vector<float>& bufData,
     }
 }
 
-void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t framesPerBuffer, size_t outputNumChannels) {
+void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
     for (size_t i = 0; i < channelList_.size(); ++i) {
         auto& chan = channelList_[i];
         if (chan.isActive() && !chan.muted && chan.sound) {
-            if (chan.sound->readData(framesPerBuffer) > 0) {
-                std::vector<float> soundBuffer = chan.sound->getSoundBuffer();
+            // soundBuffer is initialized on readData function, only whether sampleToRead > 0
+            if (chan.sound->readData(soundBuffer, numFrames) > 0) {
                 float volume = chan.volume;
                 float pan = chan.pan;
                 int numSoundChannels = chan.sound->getNumChannels();
 
-                for (size_t frame = 0; frame < framesPerBuffer; ++frame) {
+                for (size_t i=0; i < numFrames; ++i) {
                     float leftSample = 0.0f;
                     float rightSample = 0.0f;
-
                     if (numSoundChannels == 1) {
-                        leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
-                        rightSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f + pan);
+                        leftSample = soundBuffer[i * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = soundBuffer[i * numSoundChannels] * volume * std::max(0.0f, 1.0f + pan);
                     } else if (numSoundChannels == 2) {
-                        leftSample = soundBuffer[frame * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
-                        rightSample = soundBuffer[frame * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
+                        leftSample = soundBuffer[i * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = soundBuffer[i * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
                     }
 
-                    outputBuffer[frame * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
-                    outputBuffer[frame * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
+                    outputBuffer[i * outputNumChannels] += leftSample;     // Accumulation pour le canal gauche
+                    outputBuffer[i * outputNumChannels + 1] += rightSample;    // Accumulation pour le canal droit
                 }
             }
         }

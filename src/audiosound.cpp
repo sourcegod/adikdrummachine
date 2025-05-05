@@ -37,13 +37,33 @@ double AudioSound::getNextSample() {
     }
 }
 
+size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
+  // std::cout << "voici length: " << length_ << std::endl;  
+  size_t samplesToRead = std::min(numFrames, static_cast<size_t>(endPos - curPos) * numChannels_);
+
+    if (samplesToRead > 0) {
+        // réinitialiser le vecteur existant
+        bufData.assign(numFrames, 0.0f);
+        const double* sourceBegin = rawData_.data() + (curPos * numChannels_);
+        float* destBegin = bufData.data();
+        for (size_t i = 0; i < samplesToRead; ++i) {
+            destBegin[i] = static_cast<float>(sourceBegin[i]);
+        }
+        curPos += samplesToRead / numChannels_; // Avancer le curPos en frames
+    }
+
+    return samplesToRead;
+}
+
+
+/*
 size_t AudioSound::readData(size_t numFrames) {
   // std::cout << "voici length: " << length_ << std::endl;  
-  size_t samplesToRead = std::min(numFrames * numChannels_, static_cast<size_t>(endPos - curPos) * numChannels_);
+  size_t samplesToRead = std::min(numFrames, static_cast<size_t>(endPos - curPos) * numChannels_);
 
     if (samplesToRead > 0) {
       // réinitialiser le vecteur existant
-      soundBuffer_.assign(samplesToRead, 0.0f); // Créer le buffer à la taille exacte des données à lire
+        soundBuffer_.assign(samplesToRead, 0.0f); // Créer le buffer à la taille exacte des données à lire
         const double* sourceBegin = rawData_.data() + (curPos * numChannels_);
         float* destBegin = soundBuffer_.data();
         for (size_t i = 0; i < samplesToRead; ++i) {
@@ -54,6 +74,7 @@ size_t AudioSound::readData(size_t numFrames) {
 
     return samplesToRead;
 }
+*/
 
 /*
 // Autre version

@@ -20,7 +20,7 @@ public:
     void resetCurPos() { curPos =0; }   // Pour recommencer la lecture du son
     size_t getCurPos() const { return curPos; }   // Pour recommencer la lecture du son
     size_t getNumChannels() const { return numChannels_; }
-    // std::vector<float> readData(size_t numFrames);
+    size_t readData(std::vector<float>& bufData, size_t numFrames);
     size_t readData(size_t numFrames);
     bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) <= framesRemaining; }
     std::vector<float>& getSoundBuffer() { return soundBuffer_; }
