@@ -21,19 +21,17 @@ public:
     size_t getCurPos() const { return curPos; }   // Pour recommencer la lecture du son
     size_t getNumChannels() const { return numChannels_; }
     size_t readData(std::vector<float>& bufData, size_t numFrames);
-    size_t readData(size_t numFrames);
     bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) <= framesRemaining; }
-    std::vector<float>& getSoundBuffer() { return soundBuffer_; }
     void applyStaticFadeOutLinear(float fadeOutStartPercent);
     void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor); 
 
 
 private:
     std::vector<double> rawData_;
-    std::vector<float> soundBuffer_;
     size_t numChannels_;
     bool active_;
     size_t length_;
 };
+//==== End of class AudioSound ====
 
 #endif // AUDIOSOUND_H

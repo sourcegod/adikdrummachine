@@ -76,5 +76,6 @@ private:
 
     static const int metronomeChannel_ = 0;
 };
+//==== End of class AudioMixer ====
 
 #endif // AUDIOMIXER_H

@@ -13,12 +13,13 @@ AudioSound::AudioSound(std::vector<double> data, size_t numChannels)
     startPos =0;
     curPos =0;
     endPos = getSize();
-    soundBuffer_ = {};
 }
+//----------------------------------------
 
 AudioSound::~AudioSound() {
     // Pas de ressources spécifiques à libérer pour l'instant
 }
+//----------------------------------------
 
 void AudioSound::setActive(bool active) {
     active_ = active;
@@ -26,6 +27,7 @@ void AudioSound::setActive(bool active) {
         curPos =0; // Réinitialiser la lecture quand le son s'arrête
     }
 }
+//----------------------------------------
 
 double AudioSound::getNextSample() {
     if (active_ && curPos < endPos) {
@@ -36,6 +38,7 @@ double AudioSound::getNextSample() {
         return 0.0; // Retourner 0.0 quand le son est fini
     }
 }
+//----------------------------------------
 
 size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
   // std::cout << "voici length: " << length_ << std::endl;  
@@ -54,27 +57,7 @@ size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
 
     return samplesToRead;
 }
-
-
-/*
-size_t AudioSound::readData(size_t numFrames) {
-  // std::cout << "voici length: " << length_ << std::endl;  
-  size_t samplesToRead = std::min(numFrames, static_cast<size_t>(endPos - curPos) * numChannels_);
-
-    if (samplesToRead > 0) {
-      // réinitialiser le vecteur existant
-        soundBuffer_.assign(samplesToRead, 0.0f); // Créer le buffer à la taille exacte des données à lire
-        const double* sourceBegin = rawData_.data() + (curPos * numChannels_);
-        float* destBegin = soundBuffer_.data();
-        for (size_t i = 0; i < samplesToRead; ++i) {
-            destBegin[i] = static_cast<float>(sourceBegin[i]);
-        }
-        curPos += samplesToRead / numChannels_; // Avancer le curPos en frames
-    }
-
-    return samplesToRead;
-}
-*/
+//----------------------------------------
 
 /*
 // Autre version
@@ -100,8 +83,8 @@ std::vector<float> AudioSound::readData(size_t numFrames) {
 
     return buffer;
 }
+//----------------------------------------
 */
-
 
 void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
     if (fadeOutStartPercent >= 0.0f && fadeOutStartPercent <= 1.0f) {
@@ -121,6 +104,7 @@ void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
         }
     }
 }
+//----------------------------------------
 
 void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor) {
     if (fadeOutStartPercent >= 0.0f && fadeOutStartPercent <= 1.0f && powerFactor > 0.0f) {
@@ -141,4 +125,6 @@ void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFac
         }
     }
 }
+//----------------------------------------
+//==== End of class AudioSound ====
 
