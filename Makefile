@@ -3,7 +3,8 @@
 # Author: CoolbrothUer
 CC = g++
 CFLAGS = -std=c++2a -Wall -Wextra -pedantic #
-LIBS = -lportaudio
+LIBS = -lportaudio -lsndfile
+# LIBS = -lportaudio `pkg-config --libs libsndfile`
 
 SRCS_DIR = src
 BUILD_DIR = build
