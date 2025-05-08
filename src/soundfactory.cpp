@@ -15,6 +15,7 @@ SoundFactory::~SoundFactory() {}
 std::shared_ptr<AudioSound> SoundFactory::applyEnvelopeToAudioSound(std::shared_ptr<AudioSound> audioSound, double decayRate) {
     std::vector<double>& wave = audioSound->getRawData();
     for (size_t i = 0; i < wave.size(); ++i) {
+
         double time = static_cast<double>(i) / sampleRate_;
         wave[i] *= exp(-time * decayRate);
     }

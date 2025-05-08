@@ -8,6 +8,9 @@ class AudioSound {
 public:
     size_t startPos, curPos, endPos =0;
     AudioSound(std::vector<double> data, size_t numChannels);
+    // Constructeur temporaire
+    AudioSound(std::vector<float> data, size_t numChannels);
+
     ~AudioSound();
 
     bool isActive() const { return active_; }

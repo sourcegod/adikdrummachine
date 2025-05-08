@@ -3,9 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <cstdint>
 #include <optional>
 #include <sndfile.h> // Include libsndfile header
+#include "audiosound.h"
 
 namespace adikdrum {
 
@@ -21,6 +23,7 @@ public:
     std::optional<uint32_t> getSampleRate() const;
     std::optional<uint32_t> getBitDepth() const; // libsndfile retourne la profondeur en bits
     std::optional<std::vector<float>> getSamples() const;
+    std::optional<std::shared_ptr<AudioSound>> getSound() const;
 
 private:
     SNDFILE* sndFile_ = nullptr;

@@ -8,6 +8,8 @@
 //----------------------------------------
 
 #include "adikdrum.h"
+#include "audiofile.h" // Inclure l'en-tête de AudioFile
+
 #include "adikcuiapp.h" // Inclure l'en-tête de ConsoleUIApp
 #include "audiodriver.h" // Inclure le header de AudioDriver
 #include "soundfactory.h" // Inclure le header de SoundFactory
@@ -196,7 +198,54 @@ void AdikDrum::closeApp() {
 
 }
 //----------------------------------------
+void AdikDrum::loadSounds() {
+    const int sampleRate = 44100;
+    const double defaultDuration = 0.1;
+    SoundFactory soundFactory(sampleRate, defaultDuration);
+    drumSounds_.clear(); // S'assurer que le vecteur est vide avant de charger
+    drumSounds_.resize(16); // Redimensionner pour avoir 16 éléments (comme dans ton code)
 
+    adikdrum::AudioFile audioFile;
+    if (audioFile.load("./media/funky.wav")) {
+        std::optional<std::shared_ptr<AudioSound>> funkySound = audioFile.getSound();
+        if (funkySound.has_value()) {
+            drumSounds_[0] = funkySound.value();
+            std::cout << "Loaded funky.wav at index 0." << std::endl;
+        } else {
+            std::cerr << "Error: Could not get AudioSound from funky.wav." << std::endl;
+            // Si le chargement échoue, on pourrait quand même générer un son par défaut
+            drumSounds_[0] = soundFactory.generateKick();
+        }
+    } else {
+        std::cerr << "Error loading ./media/funky.wav. Loading default kick instead." << std::endl;
+        drumSounds_[0] = soundFactory.generateKick();
+    }
+
+    drumSounds_[1] = soundFactory.generateSnare();
+    drumSounds_[2] = soundFactory.generateHiHat(0.25);
+    drumSounds_[3] = soundFactory.generateKick2();
+    drumSounds_[4] = soundFactory.generateSnare2();
+    drumSounds_[5] = soundFactory.generateCymbal(3.0);
+    drumSounds_[6] = soundFactory.generateTestTone(440.0, defaultDuration);
+    drumSounds_[7] = soundFactory.generateTestTone(550.0, defaultDuration);
+    drumSounds_[8] = soundFactory.generateTestTone(220.0, defaultDuration); // Exemple pour RimShot
+    drumSounds_[9] = soundFactory.generateTestTone(330.0, defaultDuration); // Exemple pour HandClap
+    drumSounds_[10] = soundFactory.generateHiHat(0.5); // Exemple pour HiHatOpen
+    drumSounds_[11] = soundFactory.generateTestTone(110.0, defaultDuration); // Exemple pour LowTom
+    drumSounds_[12] = soundFactory.generateTestTone(165.0, defaultDuration); // Exemple pour MidTom
+    drumSounds_[13] = soundFactory.generateTestTone(275.0, defaultDuration); // Exemple pour HiTom
+    drumSounds_[14] = soundFactory.generateTestTone(660.0, 0.1); // Exemple pour CowBell
+    drumSounds_[15] = soundFactory.generateTestTone(440.0, 0.3); // Exemple pour Tambourine
+
+    float fadeOutStartPercentage = 0.3f;
+    for (auto& sound : drumSounds_) {
+        if (sound) { // Vérifier si le shared_ptr n'est pas nul
+            sound->applyStaticFadeOutLinear(fadeOutStartPercentage);
+        }
+    }
+}
+
+/*
 void AdikDrum::loadSounds() {
     const int sampleRate = 44100;
     const double defaultDuration = 0.1;
@@ -237,6 +286,7 @@ void AdikDrum::loadSounds() {
 
 }
 //----------------------------------------
+*/
 
 const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const {
     return drumSounds_;

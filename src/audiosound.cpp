@@ -15,6 +15,17 @@ AudioSound::AudioSound(std::vector<double> data, size_t numChannels)
     endPos = getSize();
 }
 //----------------------------------------
+// Constructeur temporaire
+AudioSound::AudioSound(std::vector<float> data, size_t numChannels)
+    : numChannels_(numChannels),
+      active_(false) {
+    rawData_.resize(data.size());
+    std::transform(data.begin(), data.end(), rawData_.begin(), [](float f){ return static_cast<double>(f); });
+    length_ = rawData_.size();
+    startPos = 0;
+    curPos = 0;
+    endPos = length_;
+}
 
 AudioSound::~AudioSound() {
     // Pas de ressources spécifiques à libérer pour l'instant
