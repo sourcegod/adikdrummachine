@@ -288,7 +288,8 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
     for (size_t i = 0; i < channelList_.size(); ++i) {
         auto& chan = channelList_[i];
         if (chan.isActive() && !chan.muted && chan.sound) {
-            // soundBuffer is initialized on readData function, only whether sampleToRead > 0
+            // soudBuffer must be initialized before passing to readData function
+            soundBuffer.assign(numFrames, 0.0f);
             if (chan.sound->readData(soundBuffer, numFrames) > 0) {
                 float volume = chan.volume;
                 float pan = chan.pan;

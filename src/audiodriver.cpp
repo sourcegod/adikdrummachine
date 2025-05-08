@@ -133,8 +133,8 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
         static size_t frameCounter = 0;
         const size_t outputNumChannels = 2; // Assumons stéréo pour l'instant
         size_t samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
-        const size_t numFrames = framesPerBuffer * outputNumChannels;
-        std::vector<float> bufData(numFrames, 0.0f);
+        const size_t numSamples = framesPerBuffer * outputNumChannels;
+        std::vector<float> bufData(numSamples, 0.0f);
 
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
@@ -157,7 +157,7 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
         data->mixer->mixSoundData(bufData, framesPerBuffer, outputNumChannels);
 
         // Copie du buffer de mixage vers le buffer de sortie PortAudio
-        for (size_t i =0; i < numFrames; ++i) {
+        for (size_t i =0; i < numSamples; ++i) {
           // Note: il est recommandé de convertir la sortie en static_cast float, pour éviter des comportements inattendus de convertion de types implicites.  
           out[i] = static_cast<float>(data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
         
