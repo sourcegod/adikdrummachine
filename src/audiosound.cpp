@@ -1,8 +1,9 @@
 #include "audiosound.h"
 #include <vector>
-#include <iostream> // Pour les éventuels messages de debug
-#include <cmath>    // Pour std::pow
 #include <cstring> // for std::memcpy
+#include <cmath>
+
+namespace adikdrum {
 
 AudioSound::AudioSound(std::vector<float> data, size_t numChannels, size_t sampleRate, size_t bitDepth)
     : rawData_(std::move(data)), numChannels_(numChannels),
@@ -13,7 +14,6 @@ AudioSound::AudioSound(std::vector<float> data, size_t numChannels, size_t sampl
     curPos = 0;
     endPos = length_;
 }
-
 
 AudioSound::~AudioSound() {
     // Rien de spécifique à faire ici pour l'instant
@@ -27,7 +27,7 @@ float AudioSound::getNextSample() {
     if (curPos < endPos) {
         return rawData_[curPos++];
     }
-    return 0.0f; // Ou une autre valeur par défaut si nécessaire
+    return 0.0f;
 }
 
 size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
@@ -40,34 +40,15 @@ size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
         float* destBegin = bufData.data();
         std::memcpy(destBegin, sourceBegin, actualSamplesRead * sizeof(float));
         curPos += actualSamplesRead;
-    } else {
-        // Si plus de données à lire, on pourrait laisser bufData tel quel (rempli de zéros par l'appelant)
-        // ou explicitement ne rien faire ici.
     }
 
-    return actualSamplesRead / numChannels_; // Retourner le nombre de frames réellement lues
+    return actualSamplesRead / numChannels_;
 }
-//----------------------------------------
-
-/*
-size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
-    size_t framesToRead = std::min(numFrames, (endPos - curPos) / numChannels_);
-    size_t samplesToRead = framesToRead * numChannels_;
-
-    if (samplesToRead > 0) {
-        bufData.assign(rawData_.begin() + curPos, rawData_.begin() + curPos + samplesToRead);
-        curPos += samplesToRead;
-        return framesToRead;
-    }
-    return 0;
-}
-*/
 
 void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
     if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f) {
-        return; // Pourcentage invalide
+        return;
     }
-
     size_t fadeOutStart = static_cast<size_t>(length_ * fadeOutStartPercent);
     for (size_t i = fadeOutStart; i < length_; ++i) {
         float amplitude = 1.0f - static_cast<float>(i - fadeOutStart) / (length_ - fadeOutStart);
@@ -77,9 +58,8 @@ void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
 
 void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor) {
     if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f || powerFactor <= 0.0f) {
-        return; // Pourcentage ou facteur invalide
+        return;
     }
-
     size_t fadeOutStart = static_cast<size_t>(length_ * fadeOutStartPercent);
     for (size_t i = fadeOutStart; i < length_; ++i) {
         float t = static_cast<float>(i - fadeOutStart) / (length_ - fadeOutStart);
@@ -88,4 +68,4 @@ void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFac
     }
 }
 
-
+} // namespace adikdrum

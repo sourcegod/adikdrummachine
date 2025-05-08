@@ -3,6 +3,10 @@
 
 #include <vector>
 #include <cstddef> // for size_t
+#include <memory>  // Pour std::shared_ptr
+
+namespace adikdrum {
+
 
 class AudioSound {
 public:
@@ -19,28 +23,29 @@ public:
     const float* getData() const { return rawData_.data(); }
     size_t getSize() const { return rawData_.size(); }
     size_t getLength() const { return length_; }
-    virtual float getNextSample(); // Rendu virtuel
+    virtual float getNextSample();
     void resetCurPos() { curPos = 0; }
     size_t getCurPos() const { return curPos; }
     size_t getNumChannels() const { return numChannels_; }
     size_t getSampleRate() const { return sampleRate_; }
     size_t getBitDepth() const { return bitDepth_; }
-
-
-    virtual size_t readData(std::vector<float>& bufData, size_t numFrames); // Rendu virtuel
-    virtual bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) >= framesRemaining * numChannels_; } // Rendu virtuel
-    virtual void applyStaticFadeOutLinear(float fadeOutStartPercent); // Rendu virtuel
-    virtual void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor); // Rendu virtuel
+    virtual size_t readData(std::vector<float>& bufData, size_t numFrames);
+    virtual bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) >= framesRemaining * numChannels_; }
+    virtual void applyStaticFadeOutLinear(float fadeOutStartPercent);
+    virtual void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor);
 
 private:
     std::vector<float> rawData_;
-    size_t numChannels_ =1;
-    size_t sampleRate_ =44100; // Valeur par défaut
-    size_t bitDepth_ =16;     // Valeur par défaut
-
+    size_t numChannels_;
+    size_t sampleRate_;
+    size_t bitDepth_;
     bool active_ = false;
     size_t length_ = 0;
 };
 //==== End of class AudioSound ====
+
+
+using SoundPtr = std::shared_ptr<AudioSound>;
+} // namespace adikdrum
 
 #endif // AUDIOSOUND_H
