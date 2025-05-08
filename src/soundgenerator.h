@@ -7,15 +7,17 @@
 
 class SoundGenerator {
 public:
-    std::vector<double> generateSilence(int length);
-    std::vector<double> generateSineWave(double frequency, int sampleRate, double durationSec, double amplitude = 1.0, double attackTime = 0.01, double releaseTime = 0.1);
-    std::vector<double> generateSquareWave(double frequency, int sampleRate, double durationSec, double amplitude = 1.0);
-    std::vector<double> generateSawtoothWave(double frequency, int sampleRate, int durationMs);
-    std::vector<double> generateTriangleWave(double frequency, int sampleRate, int durationMs);
-    std::vector<double> generateCosineWave(double frequency, int sampleRate, int durationMs);
-    std::vector<double> generateWhiteNoise(int sampleRate, double durationSec, double amplitude = 1.0, double attackTime = 0.01, double releaseTime = 0.1);
+    std::vector<float> generateSilence(int length);
+    std::vector<float> generateSineWave(float frequency, int sampleRate, float durationSec, float amplitude = 1.0f, float attackTime = 0.01f, float releaseTime = 0.1f);
+    std::vector<float> generateSquareWave(float frequency, int sampleRate, float durationSec, float amplitude = 1.0f);
+    std::vector<float> generateSawtoothWave(float frequency, int sampleRate, int durationMs);
+    std::vector<float> generateTriangleWave(float frequency, int sampleRate, int durationMs);
+    std::vector<float> generateCosineWave(float frequency, int sampleRate, int durationMs);
+    std::vector<float> generateWhiteNoise(int sampleRate, float durationSec, float amplitude = 1.0f, float attackTime = 0.01f, float releaseTime = 0.1f);
     //
     // Tu peux ajouter d'autres déclarations de fonctions de génération d'ondes ici
 };
 
 #endif // SOUNDGENERATOR_H
+
+

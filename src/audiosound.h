@@ -6,34 +6,40 @@
 
 class AudioSound {
 public:
-    size_t startPos, curPos, endPos =0;
-    AudioSound(std::vector<double> data, size_t numChannels);
-    // Constructeur temporaire
-    AudioSound(std::vector<float> data, size_t numChannels);
+    size_t startPos = 0;
+    size_t curPos = 0;
+    size_t endPos = 0;
 
-    ~AudioSound();
+    AudioSound(std::vector<float> data, size_t numChannels = 1, size_t sampleRate = 44100, size_t bitDepth = 16);
+    virtual ~AudioSound();
 
-    bool isActive() const { return active_; }
-    void setActive(bool active);
-    std::vector<double>& getRawData() { return rawData_; }
-    const double* getData() const { return rawData_.data(); }
+    virtual bool isActive() const { return active_; }
+    virtual void setActive(bool active);
+    std::vector<float>& getRawData() { return rawData_; }
+    const float* getData() const { return rawData_.data(); }
     size_t getSize() const { return rawData_.size(); }
     size_t getLength() const { return length_; }
-    double getNextSample(); // Pour obtenir l'échantillon suivant
-    void resetCurPos() { curPos =0; }   // Pour recommencer la lecture du son
-    size_t getCurPos() const { return curPos; }   // Pour recommencer la lecture du son
+    virtual float getNextSample(); // Rendu virtuel
+    void resetCurPos() { curPos = 0; }
+    size_t getCurPos() const { return curPos; }
     size_t getNumChannels() const { return numChannels_; }
-    size_t readData(std::vector<float>& bufData, size_t numFrames);
-    bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) <= framesRemaining; }
-    void applyStaticFadeOutLinear(float fadeOutStartPercent);
-    void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor); 
+    size_t getSampleRate() const { return sampleRate_; }
+    size_t getBitDepth() const { return bitDepth_; }
 
+
+    virtual size_t readData(std::vector<float>& bufData, size_t numFrames); // Rendu virtuel
+    virtual bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) >= framesRemaining * numChannels_; } // Rendu virtuel
+    virtual void applyStaticFadeOutLinear(float fadeOutStartPercent); // Rendu virtuel
+    virtual void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor); // Rendu virtuel
 
 private:
-    std::vector<double> rawData_;
-    size_t numChannels_;
-    bool active_;
-    size_t length_;
+    std::vector<float> rawData_;
+    size_t numChannels_ =1;
+    size_t sampleRate_ =44100; // Valeur par défaut
+    size_t bitDepth_ =16;     // Valeur par défaut
+
+    bool active_ = false;
+    size_t length_ = 0;
 };
 //==== End of class AudioSound ====
 

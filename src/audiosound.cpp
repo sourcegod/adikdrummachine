@@ -1,141 +1,91 @@
 #include "audiosound.h"
-#include <cmath> // for std::pow
-#include <algorithm> // Pour std::min
 #include <vector>
-#include <iostream>
+#include <iostream> // Pour les éventuels messages de debug
+#include <cmath>    // Pour std::pow
+#include <cstring> // for std::memcpy
 
-AudioSound::AudioSound(std::vector<double> data, size_t numChannels) 
+AudioSound::AudioSound(std::vector<float> data, size_t numChannels, size_t sampleRate, size_t bitDepth)
     : rawData_(std::move(data)), numChannels_(numChannels),
-    active_(false),
-    length_(data.size()) {
-      
-    length_ = getSize();
-    startPos =0;
-    curPos =0;
-    endPos = getSize();
-}
-//----------------------------------------
-// Constructeur temporaire
-AudioSound::AudioSound(std::vector<float> data, size_t numChannels)
-    : numChannels_(numChannels),
-      active_(false) {
-    rawData_.resize(data.size());
-    std::transform(data.begin(), data.end(), rawData_.begin(), [](float f){ return static_cast<double>(f); });
-    length_ = rawData_.size();
+      sampleRate_(sampleRate), bitDepth_(bitDepth),
+      active_(false),
+      length_(rawData_.size()) {
     startPos = 0;
     curPos = 0;
     endPos = length_;
 }
 
+
 AudioSound::~AudioSound() {
-    // Pas de ressources spécifiques à libérer pour l'instant
+    // Rien de spécifique à faire ici pour l'instant
 }
-//----------------------------------------
 
 void AudioSound::setActive(bool active) {
     active_ = active;
-    if (!active_) {
-        curPos =0; // Réinitialiser la lecture quand le son s'arrête
-    }
 }
-//----------------------------------------
 
-double AudioSound::getNextSample() {
-    if (active_ && curPos < endPos) {
+float AudioSound::getNextSample() {
+    if (curPos < endPos) {
         return rawData_[curPos++];
-    } else {
-        active_ = false; // Le son est terminé
-        curPos =0;
-        return 0.0; // Retourner 0.0 quand le son est fini
     }
+    return 0.0f; // Ou une autre valeur par défaut si nécessaire
 }
-//----------------------------------------
 
 size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
-  // std::cout << "voici length: " << length_ << std::endl;  
-  size_t samplesToRead = std::min(numFrames, static_cast<size_t>(endPos - curPos) * numChannels_);
+    size_t samplesToRead = numFrames * numChannels_;
+    size_t samplesRemaining = endPos - curPos;
+    size_t actualSamplesRead = std::min(samplesToRead, samplesRemaining);
 
-    if (samplesToRead > 0) {
-        // réinitialiser le vecteur existant
-        bufData.assign(numFrames, 0.0f);
-        const double* sourceBegin = rawData_.data() + (curPos * numChannels_);
+    if (actualSamplesRead > 0) {
+        const float* sourceBegin = rawData_.data() + curPos;
         float* destBegin = bufData.data();
-        for (size_t i = 0; i < samplesToRead; ++i) {
-            destBegin[i] = static_cast<float>(sourceBegin[i]);
-        }
-        curPos += samplesToRead / numChannels_; // Avancer le curPos en frames
+        std::memcpy(destBegin, sourceBegin, actualSamplesRead * sizeof(float));
+        curPos += actualSamplesRead;
+    } else {
+        // Si plus de données à lire, on pourrait laisser bufData tel quel (rempli de zéros par l'appelant)
+        // ou explicitement ne rien faire ici.
     }
 
-    return samplesToRead;
+    return actualSamplesRead / numChannels_; // Retourner le nombre de frames réellement lues
 }
 //----------------------------------------
 
 /*
-// Autre version
-std::vector<float> AudioSound::readData(size_t numFrames) {
-    std::vector<float> buffer(numFrames * numChannels_);
-    size_t framesRead = 0;
+size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
+    size_t framesToRead = std::min(numFrames, (endPos - curPos) / numChannels_);
+    size_t samplesToRead = framesToRead * numChannels_;
 
-    while (framesRead < numFrames && curPos < endPos) {
-        for (int channel = 0; channel < numChannels_; ++channel) {
-            buffer[(framesRead * numChannels_) + channel] = static_cast<float>(rawData_[curPos * numChannels_ + channel]);
-        }
-        curPos++;
-        framesRead++;
+    if (samplesToRead > 0) {
+        bufData.assign(rawData_.begin() + curPos, rawData_.begin() + curPos + samplesToRead);
+        curPos += samplesToRead;
+        return framesToRead;
     }
-
-    // Si on a lu moins de frames que demandé, on remplit le reste avec des zéros (silence)
-    while (framesRead < numFrames) {
-        for (int channel = 0; channel < numChannels_; ++channel) {
-            buffer[(framesRead * numChannels_) + channel] = 0.0f;
-        }
-        framesRead++;
-    }
-
-    return buffer;
+    return 0;
 }
-//----------------------------------------
 */
 
 void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
-    if (fadeOutStartPercent >= 0.0f && fadeOutStartPercent <= 1.0f) {
-        unsigned long fadeOutStartFrame = static_cast<unsigned long>(length_ * fadeOutStartPercent);
-        unsigned long fadeOutDurationFrames = length_ - fadeOutStartFrame;
+    if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f) {
+        return; // Pourcentage invalide
+    }
 
-        if (fadeOutDurationFrames > 0) {
-            for (unsigned long i = 0; i < fadeOutDurationFrames; ++i) {
-                float gain = 1.0f - static_cast<float>(i) / fadeOutDurationFrames;
-                size_t index = (fadeOutStartFrame + i) * numChannels_;
-                if (index < rawData_.size()) {
-                    for (size_t channel = 0; channel < numChannels_; ++channel) {
-                        rawData_[index + channel] *= gain;
-                    }
-                }
-            }
-        }
+    size_t fadeOutStart = static_cast<size_t>(length_ * fadeOutStartPercent);
+    for (size_t i = fadeOutStart; i < length_; ++i) {
+        float amplitude = 1.0f - static_cast<float>(i - fadeOutStart) / (length_ - fadeOutStart);
+        rawData_[i] *= amplitude;
     }
 }
-//----------------------------------------
 
 void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor) {
-    if (fadeOutStartPercent >= 0.0f && fadeOutStartPercent <= 1.0f && powerFactor > 0.0f) {
-        unsigned long fadeOutStartFrame = static_cast<unsigned long>(length_ * fadeOutStartPercent);
-        unsigned long fadeOutDurationFrames = length_ - fadeOutStartFrame;
+    if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f || powerFactor <= 0.0f) {
+        return; // Pourcentage ou facteur invalide
+    }
 
-        if (fadeOutDurationFrames > 0) {
-            for (unsigned long i = 0; i < fadeOutDurationFrames; ++i) {
-                float timeRatio = static_cast<float>(i) / fadeOutDurationFrames;
-                float gain = 1.0f - std::pow(timeRatio, powerFactor);
-                size_t index = (fadeOutStartFrame + i) * numChannels_;
-                if (index < rawData_.size()) {
-                    for (size_t channel = 0; channel < numChannels_; ++channel) {
-                        rawData_[index + channel] *= gain;
-                    }
-                }
-            }
-        }
+    size_t fadeOutStart = static_cast<size_t>(length_ * fadeOutStartPercent);
+    for (size_t i = fadeOutStart; i < length_; ++i) {
+        float t = static_cast<float>(i - fadeOutStart) / (length_ - fadeOutStart);
+        float amplitude = std::pow(1.0f - t, powerFactor);
+        rawData_[i] *= amplitude;
     }
 }
-//----------------------------------------
-//==== End of class AudioSound ====
+
 

@@ -2,90 +2,90 @@
 #include <cmath>
 #include <random>
 
-const double PI = 3.14159265358979323846;
+const float PI = 3.14159265358979323846f;
 
 // Fonction pour générer du silence
-std::vector<double> SoundGenerator::generateSilence(int length) {
-    std::vector<double> wave(length, 0.0);
+std::vector<float> SoundGenerator::generateSilence(int length) {
+    std::vector<float> wave(length, 0.0f);
     return wave;
 }
 
 // Fonction pour générer une onde sinusoïdale
-std::vector<double> SoundGenerator::generateSineWave(double frequency, int sampleRate, double durationSec, double amplitude, double attackTime, double releaseTime) {
+std::vector<float> SoundGenerator::generateSineWave(float frequency, int sampleRate, float durationSec, float amplitude, float attackTime, float releaseTime) {
     int numSamples = static_cast<int>(durationSec * sampleRate);
-    std::vector<double> wave(numSamples);
+    std::vector<float> wave(numSamples);
     for (int i = 0; i < numSamples; ++i) {
-        double time = static_cast<double>(i) / sampleRate;
-        double envelope = 1.0;
+        float time = static_cast<float>(i) / sampleRate;
+        float envelope = 1.0f;
         if (time < attackTime) {
             envelope = time / attackTime;
         } else if (time > durationSec - releaseTime) {
             envelope = (durationSec - time) / releaseTime;
         }
-        wave[i] = envelope * amplitude * sin(2.0 * PI * frequency * time);
+        wave[i] = envelope * amplitude * sinf(2.0f * PI * frequency * time);
     }
     return wave;
 }
 
-std::vector<double> SoundGenerator::generateSquareWave(double frequency, int sampleRate, double durationSec, double amplitude) {
+std::vector<float> SoundGenerator::generateSquareWave(float frequency, int sampleRate, float durationSec, float amplitude) {
     int numSamples = static_cast<int>(durationSec * sampleRate);
-    std::vector<double> wave(numSamples);
+    std::vector<float> wave(numSamples);
     for (int i = 0; i < numSamples; ++i) {
-        double time = static_cast<double>(i) / sampleRate;
-        wave[i] = amplitude * (sin(2.0 * PI * frequency * time) >= 0 ? 1.0 : -1.0);
+        float time = static_cast<float>(i) / sampleRate;
+        wave[i] = amplitude * (sinf(2.0f * PI * frequency * time) >= 0 ? 1.0f : -1.0f);
     }
     return wave;
 }
 
 // Fonction pour générer une onde en dents de scie
-std::vector<double> SoundGenerator::generateSawtoothWave(double frequency, int sampleRate, int durationMs) {
-    int numSamples = static_cast<int>((durationMs / 1000.0) * sampleRate);
-    std::vector<double> wave(numSamples);
+std::vector<float> SoundGenerator::generateSawtoothWave(float frequency, int sampleRate, int durationMs) {
+    int numSamples = static_cast<int>((durationMs / 1000.0f) * sampleRate);
+    std::vector<float> wave(numSamples);
     for (int i = 0; i < numSamples; ++i) {
-        double time = static_cast<double>(i) / sampleRate;
-        wave[i] = 2.0 * (fmod(frequency * time, 1.0) - 0.5);
+        float time = static_cast<float>(i) / sampleRate;
+        wave[i] = 2.0f * (fmodf(frequency * time, 1.0f) - 0.5f);
     }
     return wave;
 }
 
 
 // Fonction pour générer une onde triangulaire
-std::vector<double> SoundGenerator::generateTriangleWave(double frequency, int sampleRate, int durationMs) {
-    int numSamples = static_cast<int>((durationMs / 1000.0) * sampleRate);
-    std::vector<double> wave(numSamples);
+std::vector<float> SoundGenerator::generateTriangleWave(float frequency, int sampleRate, int durationMs) {
+    int numSamples = static_cast<int>((durationMs / 1000.0f) * sampleRate);
+    std::vector<float> wave(numSamples);
     for (int i = 0; i < numSamples; ++i) {
-        double time = static_cast<double>(i) / sampleRate;
-        double phase = fmod(frequency * time, 1.0);
-        if (phase < 0.5) {
-            wave[i] = 2.0 * phase - 1.0;
+        float time = static_cast<float>(i) / sampleRate;
+        float phase = fmodf(frequency * time, 1.0f);
+        if (phase < 0.5f) {
+            wave[i] = 2.0f * phase - 1.0f;
         } else {
-            wave[i] = 1.0 - 2.0 * (phase - 0.5);
+            wave[i] = 1.0f - 2.0f * (phase - 0.5f);
         }
     }
     return wave;
 }
 
 // Fonction pour générer une onde cosinus
-std::vector<double> SoundGenerator::generateCosineWave(double frequency, int sampleRate, int durationMs) {
-    int numSamples = static_cast<int>((durationMs / 1000.0) * sampleRate);
-    std::vector<double> wave(numSamples);
+std::vector<float> SoundGenerator::generateCosineWave(float frequency, int sampleRate, int durationMs) {
+    int numSamples = static_cast<int>((durationMs / 1000.0f) * sampleRate);
+    std::vector<float> wave(numSamples);
     for (int i = 0; i < numSamples; ++i) {
-        double time = static_cast<double>(i) / sampleRate;
-        wave[i] = cos(2.0 * PI * frequency * time);
+        float time = static_cast<float>(i) / sampleRate;
+        wave[i] = cosf(2.0f * PI * frequency * time);
     }
     return wave;
 }
 
 // Fonction pour générer du bruit blanc
-std::vector<double> SoundGenerator::generateWhiteNoise(int sampleRate, double durationSec, double amplitude, double attackTime, double releaseTime) {
+std::vector<float> SoundGenerator::generateWhiteNoise(int sampleRate, float durationSec, float amplitude, float attackTime, float releaseTime) {
     int numSamples = static_cast<int>(durationSec * sampleRate);
-    std::vector<double> wave(numSamples);
+    std::vector<float> wave(numSamples);
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> distrib(-1.0, 1.0);
+    std::uniform_real_distribution<float> distrib(-1.0f, 1.0f);
     for (int i = 0; i < numSamples; ++i) {
-        double time = static_cast<double>(i) / sampleRate;
-        double envelope = 1.0;
+        float time = static_cast<float>(i) / sampleRate;
+        float envelope = 1.0f;
         if (time < attackTime) {
             envelope = time / attackTime;
         } else if (time > durationSec - releaseTime) {
