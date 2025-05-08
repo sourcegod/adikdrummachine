@@ -5,7 +5,7 @@
 #include <cstddef>  // Pour size_t
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
-
+using namespace adikdrum;
 struct ChannelInfo {
     std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
     bool active_;

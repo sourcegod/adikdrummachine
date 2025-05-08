@@ -6,33 +6,36 @@
 #include "soundgenerator.h" // Ajoute cette ligne !
 #include "audiosound.h"
 
+namespace adikdrum {
 
 class SoundFactory {
 public:
-    SoundFactory(int sampleRate, double defaultDuration);
+    SoundFactory(int sampleRate, float defaultDuration);
     ~SoundFactory();
 
-    std::shared_ptr<AudioSound> applyEnvelopeToAudioSound(std::shared_ptr<AudioSound> audioSound, double decayRate);
-    std::shared_ptr<AudioSound> applyNoiseEnvelopeToAudioSound(std::shared_ptr<AudioSound> audioSound, double decayRate);
-    std::shared_ptr<AudioSound> applySquareEnvelopeToAudioSound(std::shared_ptr<AudioSound> audioSound, double duration, double decayRate);
-    std::shared_ptr<AudioSound> createEnvelopeForAudioSound(double duration, double decayRate);
-    std::vector<double> createEnvelope(int sr, double dur, double decayRate);
-    std::vector<double> applyEnvelope(const std::vector<double>& wave, double decayRate);
+    SoundPtr applyEnvelopeToAudioSound(SoundPtr audioSound, float decayRate);
+    SoundPtr applyNoiseEnvelopeToAudioSound(SoundPtr audioSound, float decayRate);
+    SoundPtr applySquareEnvelopeToAudioSound(SoundPtr audioSound, float duration, float decayRate);
+    SoundPtr createEnvelopeForAudioSound(float duration, float decayRate);
+    std::vector<float> createEnvelope(int sr, float dur, float decayRate);
+    std::vector<float> applyEnvelope(const std::vector<float>& wave, float decayRate);
 
-    std::shared_ptr<AudioSound> generateKick();
-    std::shared_ptr<AudioSound> generateSnare();
-    std::shared_ptr<AudioSound> generateHiHat(double durationFactor);
-    std::shared_ptr<AudioSound> generateKick2();
-    std::shared_ptr<AudioSound> generateSnare2();
-    std::shared_ptr<AudioSound> generateCymbal(double durationFactor);
-    std::shared_ptr<AudioSound> generateTestTone(double frequency, double duration);
-    std::shared_ptr<AudioSound> generateBuzzer(double frequency, double duration);
+    SoundPtr generateKick();
+    SoundPtr generateSnare();
+    SoundPtr generateHiHat(float durationFactor);
+    SoundPtr generateKick2();
+    SoundPtr generateSnare2();
+    SoundPtr generateCymbal(float durationFactor);
+    SoundPtr generateTestTone(float frequency = 440.0f, float duration = 0.5f);
+    SoundPtr generateBuzzer(float frequency, float duration);
 
 private:
     int sampleRate_;
-    double defaultDuration_;
+    float defaultDuration_;
     SoundGenerator generator_;
-
 };
 
+} // namespace adikdrum
+
 #endif // SOUNDFACTORY_H
+
