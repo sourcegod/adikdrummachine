@@ -289,6 +289,7 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
         auto& chan = channelList_[i];
         if (chan.isActive() && !chan.muted && chan.sound) {
             // soudBuffer must be initialized before passing to readData function
+            // Note: soundBuffer size must be half smaller of outputBuffer size, to avoid overflow, segmentation fault.
             soundBuffer.assign(numFrames, 0.0f);
             if (chan.sound->readData(soundBuffer, numFrames) > 0) {
                 float volume = chan.volume;
