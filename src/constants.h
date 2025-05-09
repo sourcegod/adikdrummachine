@@ -2,6 +2,8 @@
 #define CONSTANTS_H
 
 #include <map>
+#include <vector>
+#include <string>
 
 // Constantes mathématiques
 const double PI = 3.14159265358979323846;
@@ -18,8 +20,20 @@ const std::map<char, int> KEY_TO_SOUND_MAP = {
 const int NUM_SOUNDS = 16;
 const int NUM_STEPS = 16;
 const int INITIAL_BPM = 120;
-const int MIXER_CHANNELS = 18;
+const int MIXER_CHANNELS = 32;
 const int SAMPLE_RATE = 44100;
 
 const float GLOBAL_GAIN = 0.2f;
+
+const std::string MEDIA_DIR = "./media";
+const std::vector<std::string> SOUND_LIST = {
+        "a440.wav",
+        "drumloop.wav",
+        "funky.wav",
+        "latin.wav",
+        "singing.wav",
+        // "rhodes.wav"
+    };
+
+
 #endif // CONSTANTS_H

@@ -198,7 +198,35 @@ void AdikDrum::closeApp() {
 
 }
 //----------------------------------------
+
 void AdikDrum::loadSounds() {
+    auto soundCount = SOUND_LIST.size();
+    drumSounds_.clear();
+    drumSounds_.resize(soundCount); // Redimensionner drumSounds_ en fonction du nombre de fichiers à charger
+
+    for (size_t i = 0; i < soundCount; ++i) {
+        std::string filePath = MEDIA_DIR + "/" + SOUND_LIST[i]; // Construire le chemin complet du fichier
+        SoundPtr audioSample = std::make_shared<AudioSample>(filePath); // Charger le fichier
+
+        if (audioSample->getLength() > 0) {
+            drumSounds_[i] = audioSample;
+            std::cout << "Loaded " << SOUND_LIST[i] << " at index " << i << std::endl;
+        } else {
+            std::cerr << "Error loading " << filePath << ". Loading default sound instead." << std::endl;
+        }
+    }
+
+    float fadeOutStartPercentage = 0.3f;
+    for (auto& sound : drumSounds_) {
+        if (sound) {
+            sound->applyStaticFadeOutLinear(fadeOutStartPercentage);
+        }
+    }
+
+}
+
+/*
+void AdikDrum::genSounds() {
     const int sampleRate = 44100;
     const double defaultDuration = 0.1;
     SoundFactory soundFactory(sampleRate, defaultDuration);
@@ -239,6 +267,9 @@ void AdikDrum::loadSounds() {
         }
     }
 }
+
+
+*/
 
 /*
 void AdikDrum::loadSounds() {
