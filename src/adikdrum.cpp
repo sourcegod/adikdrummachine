@@ -8,7 +8,7 @@
 //----------------------------------------
 
 #include "adikdrum.h"
-#include "audiofile.h" // Inclure l'en-tête de AudioFile
+#include "audiosample.h" // Inclure la nouvelle classe AudioSample
 
 #include "adikcuiapp.h" // Inclure l'en-tête de ConsoleUIApp
 #include "audiodriver.h" // Inclure le header de AudioDriver
@@ -205,17 +205,12 @@ void AdikDrum::loadSounds() {
     drumSounds_.clear(); // S'assurer que le vecteur est vide avant de charger
     drumSounds_.resize(16); // Redimensionner pour avoir 16 éléments (comme dans ton code)
 
-    adikdrum::AudioFile audioFile;
-    if (audioFile.load("./media/funky.wav")) {
-        std::optional<std::shared_ptr<AudioSound>> funkySound = audioFile.getSound();
-        if (funkySound.has_value()) {
-            drumSounds_[0] = funkySound.value();
-            std::cout << "Loaded funky.wav at index 0." << std::endl;
-        } else {
-            std::cerr << "Error: Could not get AudioSound from funky.wav." << std::endl;
-            // Si le chargement échoue, on pourrait quand même générer un son par défaut
-            drumSounds_[0] = soundFactory.generateKick();
-        }
+    // Utilisation de AudioSample pour charger funky.wav
+    auto fileName = "./media/funky.wav";
+    SoundPtr funkySound = std::make_shared<AudioSample>(fileName); // Créer un AudioSample
+    if (funkySound->getLength() > 0) { // Vérifier si le chargement a réussi
+        drumSounds_[0] = funkySound;
+        std::cout << "Loaded funky.wav at index 0." << std::endl;
     } else {
         std::cerr << "Error loading ./media/funky.wav. Loading default kick instead." << std::endl;
         drumSounds_[0] = soundFactory.generateKick();
