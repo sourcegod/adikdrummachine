@@ -8,8 +8,8 @@ namespace adikdrum {
 AudioSound::AudioSound(std::vector<float> data, size_t numChannels, size_t sampleRate, size_t bitDepth)
     : rawData_(std::move(data)), numChannels_(numChannels),
       sampleRate_(sampleRate), bitDepth_(bitDepth),
-      active_(false),
-      length_(rawData_.size()) {
+      length_(rawData_.size()),
+      active_(false) {
     startPos = 0;
     curPos = 0;
     endPos = length_;

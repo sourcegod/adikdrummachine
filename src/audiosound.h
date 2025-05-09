@@ -34,13 +34,15 @@ public:
     virtual void applyStaticFadeOutLinear(float fadeOutStartPercent);
     virtual void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor);
 
-private:
+protected:
     std::vector<float> rawData_;
     size_t numChannels_;
     size_t sampleRate_;
     size_t bitDepth_;
-    bool active_ = false;
     size_t length_ = 0;
+
+private:
+    bool active_ = false;
 };
 //==== End of class AudioSound ====
 
