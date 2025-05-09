@@ -1,0 +1,4 @@
+
+-- Date: Fri, 09/05/2025
+-- Adding numChannels, sampleRate parameters by default, in SoundGenerator functions.
+
