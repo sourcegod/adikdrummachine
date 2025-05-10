@@ -4,17 +4,17 @@
 
 namespace adikdrum {
 
-AudioSample::AudioSample(const std::string& fileName)
+AudioSample::AudioSample(const std::string& filePath)
     : AudioSound(std::vector<float>()), // Appel explicite au constructeur de AudioSound
       audioFile_(),
-      currentFileName_(fileName) {
-    if (!fileName.empty()) {
-        load(fileName);
+      filePath_(filePath) {
+    if (!filePath.empty()) {
+        load(filePath);
     }
 }
 
-bool AudioSample::load(const std::string& fileName) {
-    if (audioFile_.load(fileName)) {
+bool AudioSample::load(const std::string& filePath) {
+    if (audioFile_.load(filePath)) {
         std::optional<SoundPtr> sound = audioFile_.getSound();
         if (sound.has_value() && sound.value()) {
             rawData_ = sound.value()->getRawData();
@@ -23,22 +23,26 @@ bool AudioSample::load(const std::string& fileName) {
             bitDepth_ = sound.value()->getBitDepth();
             length_ = rawData_.size();
             endPos = length_;
-            currentFileName_ = fileName;
+            filePath_ = filePath;
+            std::cout  << "In AudioSample::load, filePath: " << filePath_ 
+                << ",\nnumChannels: " << numChannels_ << ", length: " << length_ << "\n";
+
             return true;
         } else {
-            std::cerr << "Error: Could not get AudioSound data from file: " << fileName << std::endl;
+            std::cerr << "Error: Could not get AudioSound data from file: " << filePath << std::endl;
             rawData_.clear();
             length_ = 0;
             endPos = 0;
             return false;
         }
     } else {
-        std::cerr << "Error loading audio file: " << fileName << std::endl;
+        std::cerr << "Error loading audio file: " << filePath << std::endl;
         rawData_.clear();
         length_ = 0;
         endPos = 0;
         return false;
     }
+    
 }
 
 } // namespace adikdrum

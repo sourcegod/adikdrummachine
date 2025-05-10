@@ -35,6 +35,9 @@ bool AudioFile::load(const std::string& filePath) {
         samples_.resize(framesRead); // Resize to the actual number of samples read
     }
 
+    std::cout << "In AudioFile::Load, filePath: " << filePath_ 
+        << ",\nnumChannels: " << sfInfo_.channels << ", numFrames: " << numFrames << ", framesRead: " << framesRead << "\n";
+
     return true;
 }
 

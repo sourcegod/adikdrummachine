@@ -32,7 +32,7 @@ const std::vector<std::string> SOUND_LIST = {
         "funky.wav",
         "latin.wav",
         "singing.wav",
-        // "rhodes.wav"
+        "rhodes.wav",
     };
 
 

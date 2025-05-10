@@ -216,12 +216,15 @@ void AdikDrum::loadSounds() {
         }
     }
 
+    /*
     float fadeOutStartPercentage = 0.3f;
     for (auto& sound : drumSounds_) {
         if (sound) {
             sound->applyStaticFadeOutLinear(fadeOutStartPercentage);
         }
     }
+    */
+
 
 }
 

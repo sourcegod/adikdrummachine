@@ -10,13 +10,13 @@ namespace adikdrum {
 
 class AudioSample : public AudioSound {
 public:
-    AudioSample(const std::string& fileName = "");
-    bool load(const std::string& fileName);
+    AudioSample(const std::string& filePath = "");
+    bool load(const std::string& filePath);
     // Pas besoin de redéfinir le destructeur si la classe dérivée n'alloue pas de ressources spécifiques
 
 private:
     AudioFile audioFile_;
-    std::string currentFileName_;
+    std::string filePath_;
 };
 
 } // namespace adikdrum

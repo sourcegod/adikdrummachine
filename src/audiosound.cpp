@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstring> // for std::memcpy
 #include <cmath>
+#include <iostream>
 
 namespace adikdrum {
 
@@ -34,6 +35,10 @@ size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
     size_t samplesToRead = numFrames * numChannels_;
     size_t samplesRemaining = endPos - curPos;
     size_t actualSamplesRead = std::min(samplesToRead, samplesRemaining);
+    /*
+    std::cout << "In ReadData, numChannels: " << numChannels_ << "\n";
+    std::cout << "In ReadData, samplesToRead: " << samplesToRead << ", samplesRemaiNing: " << samplesRemaining << ", actualSamplesRead: " << actualSamplesRead << "\n";
+    */
 
     if (actualSamplesRead > 0) {
         const float* sourceBegin = rawData_.data() + curPos;
