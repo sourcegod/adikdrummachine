@@ -89,9 +89,9 @@ void AdikCUIApp::run() {
             adikDrum_.changePan(0.1f);
         } else if (KEY_TO_SOUND_MAP.count(key)) {
             adikDrum_.playKey(key); // Gérer les autres touches pour jouer des sons
-        } else if (key == 'l') { // Touche 'l'
+        } else if (key == 'l' or key == '0') { // Touche 'l'
             adikDrum_.triggerLastSound(); // Déclenche la relecture du dernier son
-        } else if (key == 'm') { // Touche 'm'
+        } else if (key == 'm' or key == '.') { // Touche 'm'
             adikDrum_.playCurrentSound(); // Joue le son courant
         } else if (key == '\033') { // Code d'échappement
             read(STDIN_FILENO, &key, 1); // Lit '['
