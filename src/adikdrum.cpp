@@ -326,7 +326,7 @@ void AdikDrum::demo() {
     // Tester les sons
     msgText_ = "Demo en train de jouer";
     displayMessage(msgText_);
-    for (size_t i = 0; i < drumSounds_.size(); ++i) {
+    for (size_t i = 0; i < NUM_SOUNDS; ++i) {
         drumPlayer_.playSound(i);
         long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));

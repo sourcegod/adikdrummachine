@@ -170,7 +170,7 @@ void DrumPlayer::playMetronome() {
 
 void DrumPlayer::playPattern() {
     if (mixer_ && playing_) {
-        for (size_t i = 0; i < drumSounds_.size(); ++i) { //
+        for (size_t i = 0; i < pattern_.size(); ++i) { //
             if (pattern_[i][currentStep]) {
                 if (drumSounds_[i]) {
                     
