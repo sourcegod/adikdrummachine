@@ -16,14 +16,17 @@ AudioSound::AudioSound(std::vector<float> data, size_t numChannels, size_t sampl
     curPos = 0;
     endPos = length_;
 }
+//----------------------------------------
 
 AudioSound::~AudioSound() {
     // Rien de spécifique à faire ici pour l'instant
 }
+//----------------------------------------
 
 void AudioSound::setActive(bool active) {
     active_ = active;
 }
+//----------------------------------------
 
 float AudioSound::getNextSample() {
     if (curPos < endPos) {
@@ -31,6 +34,7 @@ float AudioSound::getNextSample() {
     }
     return 0.0f;
 }
+//----------------------------------------
 
 size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
     size_t samplesToRead = numFrames * numChannels_;
@@ -50,6 +54,7 @@ size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
 
     return actualSamplesRead / numChannels_;
 }
+//----------------------------------------
 
 void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
     if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f) {
@@ -61,6 +66,7 @@ void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
         rawData_[i] *= amplitude;
     }
 }
+//----------------------------------------
 
 void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor) {
     if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f || powerFactor <= 0.0f) {
@@ -73,5 +79,7 @@ void AudioSound::applyStaticFadeOutExp(float fadeOutStartPercent, float powerFac
         rawData_[i] *= amplitude;
     }
 }
+//----------------------------------------
+//==== End of class AudioSound ====
 
 } // namespace adikdrum
