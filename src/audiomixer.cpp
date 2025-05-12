@@ -286,22 +286,62 @@ void AudioMixer::fadeOutLinear(size_t channelIndex, std::vector<float>& bufData,
 }
 //----------------------------------------
 
+
+void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
+    for (size_t i = 0; i < channelList_.size(); ++i) {
+        auto& chan = channelList_[i];
+        if (chan.isActive() && !chan.muted && chan.sound) {
+            auto numSoundChannels = chan.sound->getNumChannels();
+            soundBuffer.assign(numFrames * numSoundChannels, 0.0f);
+
+            size_t framesRead = chan.sound->readData(soundBuffer, numFrames);
+            if (framesRead > 0) {
+                float volume = chan.volume;
+                float pan = chan.pan;
+                float speed = chan.speed;
+                size_t currentPos = chan.curPos;
+                size_t sourceIndex;
+
+                for (size_t j = 0; j < numFrames; ++j) {
+                    // Calcul de l'index source avec la vitesse
+                    sourceIndex = static_cast<size_t>(currentPos + j * speed);
+                    if (sourceIndex < chan.endPos) {
+                        float leftSample = 0.0f;
+                        float rightSample = 0.0f;
+
+                        if (numSoundChannels == 1) {
+                            leftSample = soundBuffer[sourceIndex] * volume * std::max(0.0f, 1.0f - pan);
+                            rightSample = soundBuffer[sourceIndex] * volume * std::max(0.0f, 1.0f + pan);
+                        } else if (numSoundChannels == 2) {
+                            leftSample = soundBuffer[sourceIndex * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                            rightSample = soundBuffer[sourceIndex * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
+                        }
+                        outputBuffer[j * outputNumChannels] += leftSample;
+                        outputBuffer[j * outputNumChannels + 1] += rightSample;
+                    }
+                }
+                chan.curPos = static_cast<size_t>(currentPos + numFrames * speed);
+            }
+        }
+    }
+}
+//----------------------------------------
+
+/*
 void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
     for (size_t i = 0; i < channelList_.size(); ++i) {
         auto& chan = channelList_[i];
         if (chan.isActive() && !chan.muted && chan.sound) {
             // soudBuffer must be initialized before passing to readData function
-            /* 
-            Note: soundBuffer size can be half smaller of outputBuffer size, for mono sound, 
-            but same size of outputBuffer for stereo sound, to avoid overflow, segmentation fault.
-            */
+            //
+            // Note: soundBuffer size can be half smaller of outputBuffer size, for mono sound, 
+            // but same size of outputBuffer for stereo sound, to avoid overflow, segmentation fault.
+            // 
 
             auto numSoundChannels = chan.sound->getNumChannels();
             soundBuffer.assign(numFrames * numSoundChannels, 0.0f);
-            /*
-            std::cout << "In mixSoundData, mixChannel: " << i << ", numFrames: " << numFrames << std::endl;
-            std::cout << "Sound numChannels: " << chan.sound->getNumChannels() << ", length: " << chan.sound->getLength() << "\n";
-            */
+            // std::cout << "In mixSoundData, mixChannel: " << i << ", numFrames: " << numFrames << std::endl;
+            // std::cout << "Sound numChannels: " << chan.sound->getNumChannels() << ", length: " << chan.sound->getLength() << "\n";
 
 
             if (chan.sound->readData(soundBuffer, numFrames) > 0) {
@@ -327,7 +367,17 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
     }
 }
 //----------------------------------------
+*/
 
+
+void AudioMixer::setSpeed(size_t channel, float speed) {
+    if (channel < channelList_.size()) {
+        channelList_[channel].speed = speed;
+        std::cout << "Vitesse du canal " << channel << " réglée à " << speed << std::endl;
+    } else {
+        std::cerr << "Erreur : Canal " << channel << " invalide pour régler la vitesse." << std::endl;
+    }
+}
 //==== End of class AudioMixer ====
 
 } // namespace adikdrum
