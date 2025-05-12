@@ -82,10 +82,13 @@ void DrumPlayer::playSound(size_t soundIndex) {
 //----------------------------------------
 
 void DrumPlayer::playLastSound() {
-    std::shared_ptr<AudioSound> lastSound = getSound(lastSoundIndex_);
+    SoundPtr lastSound = getSound(lastSoundIndex_);
     if (lastSound) {
-        const int channelIndex = 17;
-        mixer_->play(channelIndex, lastSound);
+        const int channelIndex = 31;
+        // Créer une *copie* du AudioSound en utilisant le constructeur de copie
+        SoundPtr soundToPlay = std::make_shared<AudioSound>(*lastSound); // Appel explicite au constructeur de copie
+        mixer_->play(channelIndex, soundToPlay); // Jouer la copie
+
     }
 }
 //----------------------------------------

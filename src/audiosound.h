@@ -14,7 +14,21 @@ public:
     size_t curPos = 0;
     size_t endPos = 0;
 
+    // Constructeur principal
     AudioSound(std::vector<float> data, size_t numChannels = 1, size_t sampleRate = 44100, size_t bitDepth = 16);
+
+    // Constructeur de copie *modifié* pour partager rawData_
+    AudioSound(const AudioSound& other)
+        : rawData_(other.rawData_), // Partage le vecteur, ne le copie pas
+          numChannels_(other.numChannels_),
+          sampleRate_(other.sampleRate_),
+          bitDepth_(other.bitDepth_),
+          length_(other.length_),
+          startPos(0), // Réinitialise les positions pour la nouvelle instance
+          curPos(0),
+          endPos(other.length_),
+          active_(false) {}
+
     virtual ~AudioSound();
 
     virtual bool isActive() const { return active_; }
