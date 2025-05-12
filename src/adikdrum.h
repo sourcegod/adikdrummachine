@@ -11,6 +11,8 @@
 #include <sstream>
 #include <map>
 
+namespace adikdrum {
+
 class AdikDrum {
 public:
     struct DrumMachineData {
@@ -77,5 +79,7 @@ private:
 };
 //==== End of class AdikDrum ====
 
+
+} // namespace adikdrum
 
 #endif // ADIKDRUM_H

@@ -40,6 +40,7 @@ void beep() {
 }
 //----------------------------------------
 
+namespace adikdrum {
 /*
 static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
                              unsigned long framesPerBuffer,
@@ -548,6 +549,8 @@ void AdikDrum::changeSpeed(float speed) {
 //----------------------------------------
 
 //==== End of class AdikDrum ====
+
+} // namespace adikdrum
 
 /*
 int main() {
