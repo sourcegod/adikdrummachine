@@ -514,6 +514,7 @@ void AdikDrum::changePan(float deltaPan) {
     displayMessage(msgText_);
 }
 //----------------------------------------
+
 void AdikDrum::playKey(char key) {
     auto it = KEY_TO_SOUND_MAP.find(key);
     if (it != KEY_TO_SOUND_MAP.end()) {
@@ -537,8 +538,12 @@ void AdikDrum::playCurrentSound() {
 }
 //----------------------------------------
 
-void AdikDrum::changeSpeed(size_t channel, float speed) {
-    mixer_.setSpeed(channel, speed);
+
+void AdikDrum::changeSpeed(float speed) {
+    int currentChannelIndex = cursorPos.second + 1;
+    mixer_.setSpeed(currentChannelIndex, std::clamp(mixer_.getChannelList()[currentChannelIndex].speed + speed, 0.25f, 4.0f));
+    std::string msgText = "Vitesse du canal " + std::to_string(currentChannelIndex) + " réglée à " + std::to_string(mixer_.getChannelList()[currentChannelIndex].speed);
+    displayMessage(msgText);
 }
 //----------------------------------------
 
