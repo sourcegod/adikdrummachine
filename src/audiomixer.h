@@ -18,7 +18,7 @@ struct ChannelInfo {
     size_t startPos; // Position de début de la lecture (sera 0)
     size_t curPos;   // Position de lecture actuelle
     size_t endPos;   // Position de fin de la lecture (taille du buffer)
-    float speed = 1.0f; // Ajout de la vitesse de lecture (1.0 = vitesse normale)
+    float speed = 0.1f; // Ajout de la vitesse de lecture (1.0 = vitesse normale)
 
     bool isPlaying() const { return active_ && sound && curPos < endPos; }
     bool isActive() const { return active_; }
@@ -72,6 +72,8 @@ public:
     ChannelInfo getChannelInfo(size_t channelIndex) { return channelList_[channelIndex]; }
     void mixSoundData(std::vector<float>& outputBuffer, size_t framesPerBuffer, size_t outputNumChannels);
     void setSpeed(size_t channel, float speed); // Nouvelle fonction pour régler la vitesse
+    size_t getNumChannels() const { return numChannels_; }
+
 private:
     std::vector<ChannelInfo> channelList_;
     float globalVolume_; // Variable pour le volume global

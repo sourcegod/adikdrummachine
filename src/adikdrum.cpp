@@ -227,7 +227,6 @@ void AdikDrum::loadSounds() {
 
 
 }
-//----------------------------------------
 
 /*
 void AdikDrum::genSounds() {
@@ -537,6 +536,12 @@ void AdikDrum::playCurrentSound() {
     // displayMessage(msgText_);
 }
 //----------------------------------------
+
+void AdikDrum::changeSpeed(size_t channel, float speed) {
+    mixer_.setSpeed(channel, speed);
+}
+//----------------------------------------
+
 //==== End of class AdikDrum ====
 
 /*

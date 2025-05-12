@@ -57,6 +57,7 @@ public:
     auto& getPattern() { return drumPlayer_.pattern_; }
     size_t getNumSounds() const { return numSounds_; }
     size_t getNumSteps() const { return numSteps_; }
+    void changeSpeed(size_t channel, float speed);
 
 private:
     AudioDriver audioDriver_;

@@ -36,14 +36,32 @@ float AudioSound::getNextSample() {
 }
 //----------------------------------------
 
+
+size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames, float speed) {
+    if (!active_) return 0;
+
+    size_t framesRead = 0;
+    size_t bufferIndex = 0;
+    while (framesRead < numFrames && curPos < endPos / numChannels_) {
+        size_t sourceIndex = static_cast<size_t>(curPos); // La position de lecture actuelle
+
+        for (size_t channel = 0; channel < numChannels_; ++channel) {
+            buffer[bufferIndex++] = rawData_[sourceIndex * numChannels_ + channel];
+        }
+        curPos += speed; // Avancer la position de lecture
+        framesRead++;
+    }
+    return framesRead;
+}
+//----------------------------------------
+
+/*
 size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
     size_t samplesToRead = numFrames * numChannels_;
     size_t samplesRemaining = endPos - curPos;
     size_t actualSamplesRead = std::min(samplesToRead, samplesRemaining);
-    /*
-    std::cout << "In ReadData, numChannels: " << numChannels_ << "\n";
-    std::cout << "In ReadData, samplesToRead: " << samplesToRead << ", samplesRemaiNing: " << samplesRemaining << ", actualSamplesRead: " << actualSamplesRead << "\n";
-    */
+    // std::cout << "In ReadData, numChannels: " << numChannels_ << "\n";
+    // std::cout << "In ReadData, samplesToRead: " << samplesToRead << ", samplesRemaiNing: " << samplesRemaining << ", actualSamplesRead: " << actualSamplesRead << "\n";
 
     if (actualSamplesRead > 0) {
         const float* sourceBegin = rawData_.data() + curPos;
@@ -55,6 +73,7 @@ size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {
     return actualSamplesRead / numChannels_;
 }
 //----------------------------------------
+*/
 
 void AudioSound::applyStaticFadeOutLinear(float fadeOutStartPercent) {
     if (fadeOutStartPercent < 0.0f || fadeOutStartPercent > 1.0f) {

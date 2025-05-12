@@ -26,6 +26,7 @@ const std::vector<std::string> SOUND_LIST = {
     "tr707/36_BassDrum1.wav",
     "tr707/37_RimShot.wav",
     "tr707/38_Snare1.wav",
+
     "tr707/39_HandClap.wav",
     "tr707/40_Snare2.wav",
     "tr707/41_LowTom.wav",
@@ -37,12 +38,16 @@ const std::vector<std::string> SOUND_LIST = {
     "tr707/47_Ride.wav",
     "tr707/48_Tamb.wav",
     "tr707/49_CowBell.wav",
+
+
     "a440.wav",
-    "funky.wav",
+     /*   "funky.wav",
     "drumloop.wav",
     "latin.wav",
     "singing.wav",
     "rhodes.wav",
+    */
+
 };
 
 // Autres constantes globales

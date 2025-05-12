@@ -42,13 +42,22 @@ public:
     virtual float getNextSample();
     void resetCurPos() { curPos = 0; }
     size_t getCurPos() const { return curPos; }
+    void setCurPos(size_t pos) { if (pos < endPos) curPos = pos; }
     size_t getNumChannels() const { return numChannels_; }
     size_t getSampleRate() const { return sampleRate_; }
     size_t getBitDepth() const { return bitDepth_; }
-    virtual size_t readData(std::vector<float>& bufData, size_t numFrames);
+    // virtual size_t readData(std::vector<float>& bufData, size_t numFrames);
+    virtual size_t readData(std::vector<float>& buffer, size_t numFrames, float speed);
     virtual bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) >= framesRemaining * numChannels_; }
     virtual void applyStaticFadeOutLinear(float fadeOutStartPercent);
     virtual void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor);
+
+    void setSpeed(float speed) {
+        speed_ = speed;
+    }
+
+    float  getSpeed() const { return speed_; }
+    bool isFinished() const { return !active_ || curPos >= endPos / numChannels_; }
 
 protected:
     std::vector<float> rawData_;
@@ -59,6 +68,7 @@ protected:
 
 private:
     bool active_ = false;
+    float speed_ =1.0f;
 };
 //==== End of class AudioSound ====
 
