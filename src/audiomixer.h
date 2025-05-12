@@ -5,7 +5,9 @@
 #include <cstddef>  // Pour size_t
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
-using namespace adikdrum;
+
+namespace adikdrum {
+
 struct ChannelInfo {
     std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
     bool active_;
@@ -16,6 +18,7 @@ struct ChannelInfo {
     size_t startPos; // Position de début de la lecture (sera 0)
     size_t curPos;   // Position de lecture actuelle
     size_t endPos;   // Position de fin de la lecture (taille du buffer)
+    float speed = 1.0f; // Ajout de la vitesse de lecture (1.0 = vitesse normale)
 
     bool isPlaying() const { return active_ && sound && curPos < endPos; }
     bool isActive() const { return active_; }
@@ -68,7 +71,7 @@ public:
     void fadeOutLinear(size_t channelIndex, std::vector<float>& bufData, unsigned long durationFrames, int outputNumChannels);
     ChannelInfo getChannelInfo(size_t channelIndex) { return channelList_[channelIndex]; }
     void mixSoundData(std::vector<float>& outputBuffer, size_t framesPerBuffer, size_t outputNumChannels);
-
+    void setSpeed(size_t channel, float speed); // Nouvelle fonction pour régler la vitesse
 private:
     std::vector<ChannelInfo> channelList_;
     float globalVolume_; // Variable pour le volume global
@@ -77,5 +80,7 @@ private:
     static const int metronomeChannel_ = 0;
 };
 //==== End of class AudioMixer ====
+
+} // namespace adikdrum
 
 #endif // AUDIOMIXER_H

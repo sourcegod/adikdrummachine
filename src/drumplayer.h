@@ -7,7 +7,7 @@
 #include "audiomixer.h" // Assurez-vous que l'inclusion est là
 #include <cmath>
 #include <algorithm> // pour std::clamp
-
+using namespace adikdrum;
 class DrumPlayer {
 public:
     DrumPlayer(int numSounds, int numSteps);

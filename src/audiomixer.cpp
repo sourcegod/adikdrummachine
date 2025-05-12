@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <memory> // Pour std::shared_ptr
 
+namespace adikdrum {
+
 AudioMixer::AudioMixer(size_t numChannels) 
   : channelList_(numChannels), // initialiser la taille du vecteur  
     globalVolume_(0.8f), // Initialiser le volume global à 0.8
@@ -325,4 +327,7 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
     }
 }
 //----------------------------------------
+
 //==== End of class AudioMixer ====
+
+} // namespace adikdrum

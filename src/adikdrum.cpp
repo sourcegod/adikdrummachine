@@ -227,6 +227,7 @@ void AdikDrum::loadSounds() {
 
 
 }
+//----------------------------------------
 
 /*
 void AdikDrum::genSounds() {
