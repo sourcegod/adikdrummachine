@@ -24,10 +24,12 @@ public:
           sampleRate_(other.sampleRate_),
           bitDepth_(other.bitDepth_),
           length_(other.length_),
-          startPos(0), // Réinitialise les positions pour la nouvelle instance
-          curPos(0),
-          endPos(other.length_),
-          active_(false) {}
+          active_(false) {
+    startPos = 0;
+    curPos = 0;
+    endPos = length_;
+
+}
 
     virtual ~AudioSound();
 
