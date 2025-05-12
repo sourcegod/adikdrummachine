@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <sstream>
 
+namespace adikdrum {
+
 // Fonction pour initialiser le terminal
 termios AdikCUIApp::initTermios(int echo) {
     termios oldt;
@@ -153,6 +155,7 @@ void AdikCUIApp::displayGrid(const std::vector<std::vector<bool>>& grid, std::pa
 //----------------------------------------
 //==== End of class AdikCUIApp ====
 
+} // namespace adikdrum
 
 int main() {
     AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant

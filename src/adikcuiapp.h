@@ -5,6 +5,8 @@
 #include "adikdrum.h" // Inclure AdikDrum pour pouvoir l'utiliser
 #include <termios.h>
 
+namespace adikdrum {
+
 class AdikCUIApp : public UIApp {
 public:
     AdikCUIApp(AdikDrum& adikDrum);
@@ -25,4 +27,5 @@ private:
 };
 //==== End of class AdikCUIApp ====
 
+} // namespace adikdrum
 #endif // ADIKCUIAPP_H
