@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+namespace adikdrum { // Ajout du namespace pour entourer les constantes
+
 // Constantes mathématiques
 const double PI = 3.14159265358979323846;
 
@@ -17,6 +19,7 @@ const std::map<char, int> KEY_TO_SOUND_MAP = {
     {'1', 16}, {'2', 17}, {'3', 18}, {'4', 19}, {'5', 20},
 };
 
+// Configuration des fichiers audio
 const std::string MEDIA_DIR = "./media";
 const std::vector<std::string> SOUND_LIST = {
     "tr707/35_BassDrum2.wav",
@@ -34,7 +37,6 @@ const std::vector<std::string> SOUND_LIST = {
     "tr707/47_Ride.wav",
     "tr707/48_Tamb.wav",
     "tr707/49_CowBell.wav",
-    
     "a440.wav",
     "funky.wav",
     "drumloop.wav",
@@ -43,7 +45,7 @@ const std::vector<std::string> SOUND_LIST = {
     "rhodes.wav",
 };
 
-// Autres constantes globales si nécessaire
+// Autres constantes globales
 const int NUM_SOUNDS = 16;
 const int NUM_STEPS = 16;
 const int INITIAL_BPM = 120;
@@ -52,4 +54,7 @@ const int SAMPLE_RATE = 44100;
 
 const float GLOBAL_GAIN = 0.2f;
 
+} // namespace adikdrum
+
 #endif // CONSTANTS_H
+
