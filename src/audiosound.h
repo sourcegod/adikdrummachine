@@ -7,7 +7,6 @@
 
 namespace adikdrum {
 
-
 class AudioSound {
 public:
     size_t startPos = 0;
@@ -24,6 +23,7 @@ public:
           sampleRate_(other.sampleRate_),
           bitDepth_(other.bitDepth_),
           length_(other.length_),
+          speed_(other.speed_),
           active_(false) {
     startPos = 0;
     curPos = 0;
@@ -65,10 +65,10 @@ protected:
     size_t sampleRate_;
     size_t bitDepth_;
     size_t length_ = 0;
+    float speed_ =1.0f;
 
 private:
     bool active_ = false;
-    float speed_ =1.0f;
 };
 //==== End of class AudioSound ====
 

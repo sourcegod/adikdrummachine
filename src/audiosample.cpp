@@ -29,6 +29,8 @@ bool AudioSample::load(const std::string& filePath) {
             bitDepth_ = tempSound.getBitDepth();
             length_ = tempSound.getLength();
             endPos = length_;
+            speed_ = tempSound.getSpeed();
+
             filePath_ = filePath;
             return true;
             /*
