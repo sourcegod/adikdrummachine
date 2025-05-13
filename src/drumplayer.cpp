@@ -59,7 +59,7 @@ void DrumPlayer::playSound0(int soundIndex) {
 */
 //----------------------------------------
 
-std::shared_ptr<AudioSound> DrumPlayer::getSound(size_t soundIndex) {
+SoundPtr DrumPlayer::getSound(size_t soundIndex) {
     if (soundIndex < drumSounds_.size()) {
         return drumSounds_[soundIndex];
     } else {

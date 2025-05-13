@@ -11,7 +11,7 @@ using namespace adikdrum;
 class DrumPlayer {
 public:
     DrumPlayer(int numSounds, int numSteps);
-    // DrumPlayer(int numSounds, int initialBpm, const std::vector<std::shared_ptr<AudioSound>>& sounds, int numSteps);
+    // DrumPlayer(int numSounds, int initialBpm, const std::vector<SoundPtr>& sounds, int numSteps);
     ~DrumPlayer();
 
     void playSound(size_t soundIndex);
@@ -45,9 +45,9 @@ public:
 
     int currentStep;
     double secondsPerStep;
-    std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Utilisation de shared_ptr
-    std::shared_ptr<AudioSound> soundClick1_; // Nouveau membre pour le son aigu du métronome
-    std::shared_ptr<AudioSound> soundClick2_; // Nouveau membre pour le son grave du métronome
+    std::vector<SoundPtr> drumSounds_; // Utilisation de shared_ptr
+    SoundPtr soundClick1_; // Nouveau membre pour le son aigu du métronome
+    SoundPtr soundClick2_; // Nouveau membre pour le son grave du métronome
 
     int clickStep;
     std::vector<std::vector<bool>> pattern_;
@@ -63,7 +63,7 @@ private:
     std::vector<bool> isMuted_; // true si le son est muté
     size_t lastSoundIndex_; // Nouveau membre privé
 
-    std::shared_ptr<AudioSound> getSound(size_t soundIndex); 
+    SoundPtr getSound(size_t soundIndex); 
 
 };
 //==== End of class DrumPlayer ====
