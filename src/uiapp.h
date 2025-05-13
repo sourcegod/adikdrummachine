@@ -5,6 +5,8 @@
 #include <vector>
 #include <utility>
 
+namespace adikdrum {
+
 class UIApp {
 public:
     virtual ~UIApp() = default;
@@ -16,5 +18,7 @@ public:
     virtual void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) = 0;
 };
 //==== End of class UIApp ====
+
+} // namespace adikdrum 
 
 #endif // UIAPP_H
