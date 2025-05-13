@@ -102,7 +102,7 @@ std::optional<std::vector<float>> AudioFile::getSamples() const {
     return std::nullopt;
 }
 
-std::optional<std::shared_ptr<AudioSound>> AudioFile::getSound() const {
+std::optional<SoundPtr> AudioFile::getSound() const {
     if (!samples_.empty()) {
         // Créer un shared_ptr vers un nouvel objet AudioSound
         auto sound = std::make_shared<AudioSound>(samples_, getNumChannels().value_or(1));
