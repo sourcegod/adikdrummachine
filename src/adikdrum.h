@@ -32,7 +32,7 @@ public:
     bool initApp();
     void closeApp();
     void loadSounds();
-    const std::vector<std::shared_ptr<AudioSound>>& getDrumSounds() const;
+    const std::vector<SoundPtr>& getDrumSounds() const;
     void demo();
     void loadPattern();
 
@@ -67,9 +67,9 @@ private:
     AudioMixer mixer_;
     size_t numSounds_;
     size_t numSteps_;
-    std::vector<std::shared_ptr<AudioSound>> drumSounds_; // Membre public pour stocker les sons
-    std::shared_ptr<AudioSound> soundClick1_;
-    std::shared_ptr<AudioSound> soundClick2_;
+    std::vector<SoundPtr> drumSounds_; // Membre public pour stocker les sons
+    SoundPtr soundClick1_;
+    SoundPtr soundClick2_;
     int initialBpm_;
     DrumPlayer drumPlayer_; // Note: il faut Déclarer drumPlayer_ APRÈS numSounds_ et numSteps_, pour l'ordre d'initialisation des membres
     std::string msgText_;

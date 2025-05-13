@@ -148,8 +148,8 @@ bool AdikDrum::initApp() {
     SoundFactory soundFactory(sampleRate, defaultDuration);
 
     // Générer les sons du métronome
-    std::shared_ptr<AudioSound> soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
-    std::shared_ptr<AudioSound> soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
+    SoundPtr soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
+    SoundPtr soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
 
     float fadeOutStartPercentage = 0.1f; // Appliquer le fondu à partir d'un pourcentage de la longueur
     soundClick1->applyStaticFadeOutLinear(fadeOutStartPercentage);
@@ -318,7 +318,7 @@ void AdikDrum::loadSounds() {
 //----------------------------------------
 */
 
-const std::vector<std::shared_ptr<AudioSound>>& AdikDrum::getDrumSounds() const {
+const std::vector<SoundPtr>& AdikDrum::getDrumSounds() const {
     return drumSounds_;
 }
 //----------------------------------------
