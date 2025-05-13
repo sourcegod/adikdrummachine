@@ -2,6 +2,7 @@
 #define AUDIODRIVER_H
 
 #include <portaudio.h>
+namespace adikdrum {
 
 class AudioDriver {
 public:
@@ -29,5 +30,7 @@ private:
 
 };
 //==== End of class AudioDriver ====
+
+} // namespace adikdrum
 
 #endif // AUDIODRIVER_H

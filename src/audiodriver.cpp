@@ -4,6 +4,7 @@
 #include <iostream>
 #include <portaudio.h>
 
+namespace adikdrum {
 
 AudioDriver::AudioDriver() : stream_(nullptr), lastError_(paNoError) {
     PaError err = Pa_Initialize();
@@ -173,3 +174,4 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
 //----------------------------------------
 //==== End of class AudioDriver ====
 
+} // namespace adikdrum

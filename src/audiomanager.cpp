@@ -1,7 +1,7 @@
 #include "audiomanager.h"
 #include <iostream>
 #include "audiodriver.h" // Assure-toi d'inclure ton AudioDriver
-
+namespace adikdrum {
 AudioManager::AudioManager() {
 }
 
@@ -42,3 +42,4 @@ void AudioManager::close() {
     std::cout << "Audio driver stopped and terminated." << std::endl;
 }
 
+} // namespace adikdrum
