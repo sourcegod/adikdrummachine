@@ -48,7 +48,7 @@ size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames, float 
         for (size_t channel = 0; channel < numChannels_; ++channel) {
             buffer[bufferIndex++] = rawData_[sourceIndex * numChannels_ + channel];
         }
-        curPos += speed; // Avancer la position de lecture
+        curPos += speed_; // Avancer la position de lecture
         framesRead++;
     }
     return framesRead;

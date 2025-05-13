@@ -64,7 +64,7 @@ void AudioMixer::play(size_t channel, std::shared_ptr<AudioSound> sound) {
             channelList_[channel].startPos = 0;
             channelList_[channel].curPos = 0;
             channelList_[channel].endPos = sound ? sound->getSize() : 0; // Gérer le cas où sound est nul
-            channelList_[channel].speed = 1.0f; // IMPORTANT : Initialiser la vitesse du canal
+            channelList_[channel].speed = sound ? sound->getSpeed() : 1.0f; // IMPORTANT : Initialiser la vitesse du canal
             if (sound) {
                 sound->resetCurPos();
                 sound->setActive(true);
