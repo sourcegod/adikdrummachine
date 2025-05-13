@@ -295,7 +295,7 @@ void AudioMixer::fadeOutLinear(size_t channelIndex, std::vector<float>& bufData,
                 auto numSoundChannels = chan.sound->getNumChannels();
                 soundBuffer.assign(numFrames * numSoundChannels, 0.0f);
 
-                size_t framesRead = chan.sound->readData(soundBuffer, numFrames, chan.speed); // Passer la vitesse à readData
+                size_t framesRead = chan.sound->readData(soundBuffer, numFrames); // Passer la vitesse à readData
                 if (framesRead > 0) {
                     float volume = chan.volume;
                     float pan = chan.pan;

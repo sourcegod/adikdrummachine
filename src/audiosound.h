@@ -47,7 +47,7 @@ public:
     size_t getSampleRate() const { return sampleRate_; }
     size_t getBitDepth() const { return bitDepth_; }
     // virtual size_t readData(std::vector<float>& bufData, size_t numFrames);
-    virtual size_t readData(std::vector<float>& buffer, size_t numFrames, float speed);
+    virtual size_t readData(std::vector<float>& buffer, size_t numFrames);
     virtual bool isFramesRemaining(size_t framesRemaining) const { return (endPos - curPos) >= framesRemaining * numChannels_; }
     virtual void applyStaticFadeOutLinear(float fadeOutStartPercent);
     virtual void applyStaticFadeOutExp(float fadeOutStartPercent, float powerFactor);

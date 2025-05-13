@@ -37,7 +37,7 @@ float AudioSound::getNextSample() {
 //----------------------------------------
 
 
-size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames, float speed) {
+size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames) {
     if (!active_) return 0;
 
     size_t framesRead = 0;
