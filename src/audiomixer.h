@@ -9,7 +9,7 @@
 namespace adikdrum {
 
 struct ChannelInfo {
-    std::shared_ptr<AudioSound> sound; // shared_ptr vers l'objet AudioSound
+    SoundPtr sound; // shared_ptr vers l'objet AudioSound
     bool active_;
     float volume;
     float pan; // Ajouter cette ligne
@@ -42,7 +42,7 @@ public:
 
     bool init(int sampleRate = 44100, int channels = 2, int bits = 16);
     void close();
-    void play(size_t channel, std::shared_ptr<AudioSound> sound); // Prend un shared_ptr
+    void play(size_t channel, SoundPtr sound); // Prend un shared_ptr
     void pause(size_t channel);
     void stop(size_t channel);
     float getVolume(size_t channel) const;
@@ -52,7 +52,7 @@ public:
 
     bool isChannelActive(size_t channel) const;
     void setChannelActive(size_t channel, bool active);
-    std::shared_ptr<AudioSound> getSound(size_t channel) const; // Retourne un shared_ptr
+    SoundPtr getSound(size_t channel) const; // Retourne un shared_ptr
     void reserveChannel(size_t channel, bool reserved); // Nouvelle fonction pour réserver un canal
     bool isChannelReserved(size_t channel) const; // Nouvelle fonction pour vérifier si un canal est réservé
     bool isChannelPlaying(size_t channel) const;

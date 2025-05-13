@@ -54,7 +54,7 @@ void AudioMixer::close() {
 }
 //----------------------------------------
 
-void AudioMixer::play(size_t channel, std::shared_ptr<AudioSound> sound) {
+void AudioMixer::play(size_t channel, SoundPtr sound) {
     // Note: channel est de type size_t, donc forcément >=0, donc, on n'a pas besoin de le tester.
     if (channel < channelList_.size()) {
         // Autoriser la lecture sur le canal du métronome même s'il est réservé
@@ -156,7 +156,7 @@ void AudioMixer::setChannelActive(size_t channel, bool active) {
 }
 //----------------------------------------
 
-std::shared_ptr<AudioSound> AudioMixer::getSound(size_t channel) const {
+SoundPtr AudioMixer::getSound(size_t channel) const {
     if (channel < channelList_.size()) {
         return channelList_[channel].sound; // Retourne le shared_ptr
     } else {
