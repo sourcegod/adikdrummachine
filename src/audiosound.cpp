@@ -36,7 +36,37 @@ float AudioSound::getNextSample() {
 }
 //----------------------------------------
 
+// with linear interpolation  for pitch
+size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames) {
+    if (!active_) return 0;
 
+    size_t framesRead = 0;
+    size_t bufferIndex = 0;
+    float currentSamplePos = static_cast<float>(curPos); // Use a float to track sample position
+    while (framesRead < numFrames && currentSamplePos < endPos / numChannels_) {
+        size_t sourceIndex = static_cast<size_t>(std::floor(currentSamplePos));
+        float sampleWeight = currentSamplePos - sourceIndex;
+
+        for (size_t channel = 0; channel < numChannels_; ++channel) {
+            float sample1 = rawData_[sourceIndex * numChannels_ + channel];
+            float sample2 = (sourceIndex + 1 < endPos / numChannels_)
+                              ? rawData_[(sourceIndex + 1) * numChannels_ + channel]
+                              : sample1; // Use last sample if out of bounds
+
+            // Linear interpolation
+            float interpolatedSample =
+                sample1 * (1 - sampleWeight) + sample2 * sampleWeight;
+            buffer[bufferIndex++] = interpolatedSample;
+        }
+        currentSamplePos += speed_; // Increment by the speed (can be fractional)
+        curPos = static_cast<size_t>(std::floor(currentSamplePos));
+        framesRead++;
+    }
+    return framesRead;
+}
+
+
+/*
 size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames) {
     if (!active_) return 0;
 
@@ -54,6 +84,7 @@ size_t AudioSound::readData(std::vector<float>& buffer, size_t numFrames) {
     return framesRead;
 }
 //----------------------------------------
+*/
 
 /*
 size_t AudioSound::readData(std::vector<float>& bufData, size_t numFrames) {

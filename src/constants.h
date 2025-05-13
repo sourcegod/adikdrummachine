@@ -39,15 +39,12 @@ const std::vector<std::string> SOUND_LIST = {
     "tr707/48_Tamb.wav",
     "tr707/49_CowBell.wav",
 
-
     "a440.wav",
-     /*   "funky.wav",
+    "funky.wav",
     "drumloop.wav",
     "latin.wav",
     "singing.wav",
     "rhodes.wav",
-    */
-
 };
 
 // Autres constantes globales

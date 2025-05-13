@@ -90,9 +90,9 @@ void AdikCUIApp::run() {
         } else if (key == ']') { // Touche ']'
             adikDrum_.changePan(0.1f);
         } else if (key == '{') { // Touche '{' : Diminuer la vitesse
-            adikDrum_.changeSpeed(-0.5f);
+            adikDrum_.changeSpeed(-0.25f);
         } else if (key == '}') { // Touche '}' : Augmenter la vitesse
-            adikDrum_.changeSpeed(0.5f);
+            adikDrum_.changeSpeed(0.25f);
 
         } else if (KEY_TO_SOUND_MAP.count(key)) {
             adikDrum_.playKey(key); // Gérer les autres touches pour jouer des sons

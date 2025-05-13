@@ -41,6 +41,7 @@ public:
     void togglePlay() { playing_ = ! playing_; }
     void toggleClick() { clicking_ = ! clicking_; }
     void playLastSound();
+    size_t getLastSoundIndex() const { return lastSoundIndex_; }
 
     int currentStep;
     double secondsPerStep;

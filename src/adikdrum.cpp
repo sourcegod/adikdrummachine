@@ -541,7 +541,7 @@ void AdikDrum::playCurrentSound() {
 
 
 void AdikDrum::changeSpeed(float speed) {
-    int currentChannelIndex = cursorPos.second + 1;
+    int currentChannelIndex =  drumPlayer_.getLastSoundIndex() + 1;
     mixer_.setSpeed(currentChannelIndex, std::clamp(mixer_.getChannelList()[currentChannelIndex].speed + speed, 0.25f, 4.0f));
     std::string msgText = "Vitesse du canal " + std::to_string(currentChannelIndex) + " réglée à " + std::to_string(mixer_.getChannelList()[currentChannelIndex].speed);
     displayMessage(msgText);
