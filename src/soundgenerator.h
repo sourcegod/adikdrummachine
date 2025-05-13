@@ -5,6 +5,8 @@
 #include <cmath>
 #include <random>
 
+namespace adikdrum {
+
 class SoundGenerator {
 public:
     std::vector<float> generateSilence(int length);
@@ -17,6 +19,8 @@ public:
     //
     // Tu peux ajouter d'autres déclarations de fonctions de génération d'ondes ici
 };
+
+} // namespace adikdrum
 
 #endif // SOUNDGENERATOR_H
 

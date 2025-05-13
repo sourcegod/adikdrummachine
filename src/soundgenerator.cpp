@@ -1,7 +1,7 @@
 #include "soundgenerator.h"
 #include <cmath>
 #include <random>
-
+namespace adikdrum {
 const float PI = 3.14159265358979323846f;
 
 // Fonction pour générer du silence
@@ -96,4 +96,4 @@ std::vector<float> SoundGenerator::generateWhiteNoise(int sampleRate, float dura
     return wave;
 }
 
-// Tu peux ajouter d'autres implémentations de fonctions de génération d'ondes ici
+} // namespace adikdrum
