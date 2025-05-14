@@ -73,6 +73,7 @@ public:
     void mixSoundData(std::vector<float>& outputBuffer, size_t framesPerBuffer, size_t outputNumChannels);
     void setSpeed(size_t channel, float speed); // Nouvelle fonction pour régler la vitesse
     size_t getNumChannels() const { return numChannels_; }
+    SoundPtr loadSound(const std::string& filePath);
 
 private:
     std::vector<ChannelInfo> channelList_;

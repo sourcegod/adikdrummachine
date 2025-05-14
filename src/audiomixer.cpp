@@ -1,5 +1,6 @@
 #include "audiomixer.h"
 #include "audiosound.h"
+#include "audiosample.h"
 #include <iostream>
 #include <cmath>
 #include <algorithm>
@@ -364,18 +365,25 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
 */
 
 
-    void AudioMixer::setSpeed(size_t channel, float speed) {
-        if (channel < channelList_.size()) {
-            channelList_[channel].speed = speed;
-            if (channelList_[channel].sound) {
-                channelList_[channel].sound->setSpeed(speed);
-            }
-            std::cout << "Vitesse du canal " << channel << " réglée à " << speed << std::endl;
-        } else {
-            std::cerr << "Erreur : Canal " << channel << " invalide pour régler la vitesse." << std::endl;
+void AudioMixer::setSpeed(size_t channel, float speed) {
+    if (channel < channelList_.size()) {
+        channelList_[channel].speed = speed;
+        if (channelList_[channel].sound) {
+            channelList_[channel].sound->setSpeed(speed);
         }
+        std::cout << "Vitesse du canal " << channel << " réglée à " << speed << std::endl;
+    } else {
+        std::cerr << "Erreur : Canal " << channel << " invalide pour régler la vitesse." << std::endl;
     }
+}
 //----------------------------------------
+
+SoundPtr AudioMixer::loadSound(const std::string& filePath) {
+    SoundPtr audioSample = std::make_shared<AudioSample>(filePath); // Charger le fichier
+    return audioSample;
+}
+//----------------------------------------
+
 
 //==== End of class AudioMixer ====
 
