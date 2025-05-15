@@ -9,6 +9,7 @@ std::vector<float> SoundGenerator::generateSilence(int length) {
     std::vector<float> wave(length, 0.0f);
     return wave;
 }
+//----------------------------------------
 
 // Fonction pour générer une onde sinusoïdale
 std::vector<float> SoundGenerator::generateSine(float frequency, int sampleRate, float durationSec, float amplitude, float attackTime, float releaseTime) {
@@ -26,6 +27,7 @@ std::vector<float> SoundGenerator::generateSine(float frequency, int sampleRate,
     }
     return wave;
 }
+//----------------------------------------
 
 std::vector<float> SoundGenerator::generateSquare(float frequency, int sampleRate, float durationSec, float amplitude) {
     int numSamples = static_cast<int>(durationSec * sampleRate);
@@ -36,6 +38,7 @@ std::vector<float> SoundGenerator::generateSquare(float frequency, int sampleRat
     }
     return wave;
 }
+//----------------------------------------
 
 // Fonction pour générer une onde en dents de scie
 std::vector<float> SoundGenerator::generateSawtooth(float frequency, int sampleRate, int durationMs) {
@@ -47,6 +50,7 @@ std::vector<float> SoundGenerator::generateSawtooth(float frequency, int sampleR
     }
     return wave;
 }
+//----------------------------------------
 
 
 // Fonction pour générer une onde triangulaire
@@ -64,6 +68,7 @@ std::vector<float> SoundGenerator::generateTriangle(float frequency, int sampleR
     }
     return wave;
 }
+//----------------------------------------
 
 // Fonction pour générer une onde cosinus
 std::vector<float> SoundGenerator::generateCosine(float frequency, int sampleRate, int durationMs) {
@@ -75,6 +80,7 @@ std::vector<float> SoundGenerator::generateCosine(float frequency, int sampleRat
     }
     return wave;
 }
+//----------------------------------------
 
 // Fonction pour générer du bruit blanc
 std::vector<float> SoundGenerator::generateWhiteNoise(int sampleRate, float durationSec, float amplitude, float attackTime, float releaseTime) {
@@ -95,5 +101,9 @@ std::vector<float> SoundGenerator::generateWhiteNoise(int sampleRate, float dura
     }
     return wave;
 }
+//----------------------------------------
+
+//==== End of class SoundGenerator ====
+
 
 } // namespace adikdrum

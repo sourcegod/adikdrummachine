@@ -20,6 +20,8 @@ public:
     // Tu peux ajouter d'autres déclarations de fonctions de génération d'ondes ici
 };
 
+//==== End of class SoundGenerator ====
+
 } // namespace adikdrum
 
 #endif // SOUNDGENERATOR_H
