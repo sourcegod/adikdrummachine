@@ -1,6 +1,8 @@
 #include "audiomixer.h"
 #include "audiosound.h"
 #include "audiosample.h"
+#include "soundfactory.h"
+
 #include <iostream>
 #include <cmath>
 #include <algorithm>

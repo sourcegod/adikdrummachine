@@ -1,11 +1,12 @@
 #ifndef AUDIOMIXER_H
 #define AUDIOMIXER_H
 
+#include "audiosound.h"
+#include "soundfactory.h"
+
 #include <vector>
 #include <cstddef>  // Pour size_t
 #include <memory> // Pour std::shared_ptr
-#include "audiosound.h"
-#include "soundfactory.h"
 
 namespace adikdrum {
 
