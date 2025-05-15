@@ -35,6 +35,8 @@ private:
     SoundGenerator generator_;
 };
 
+//==== End of class SoundFactory ====
+
 } // namespace adikdrum
 
 #endif // SOUNDFACTORY_H

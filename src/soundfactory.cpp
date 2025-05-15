@@ -11,8 +11,10 @@ SoundFactory::SoundFactory(int sampleRate, float defaultDuration) :
     sampleRate_(sampleRate),
     defaultDuration_(defaultDuration),
     generator_() {}
+//----------------------------------------
 
 SoundFactory::~SoundFactory() {}
+//----------------------------------------
 
 SoundPtr SoundFactory::applyEnvelopeToAudioSound(SoundPtr audioSound, float decayRate) {
     std::vector<float>& wave = audioSound->getRawData();
@@ -22,10 +24,12 @@ SoundPtr SoundFactory::applyEnvelopeToAudioSound(SoundPtr audioSound, float deca
     }
     return audioSound;
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::applyNoiseEnvelopeToAudioSound(SoundPtr audioSound, float decayRate) {
     return applyEnvelopeToAudioSound(audioSound, decayRate);
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::applySquareEnvelopeToAudioSound(SoundPtr audioSound, float duration, float decayRate) {
     (void)duration;
@@ -36,6 +40,7 @@ SoundPtr SoundFactory::applySquareEnvelopeToAudioSound(SoundPtr audioSound, floa
     }
     return audioSound;
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::createEnvelopeForAudioSound(float duration, float decayRate) {
     (void)duration;
@@ -47,6 +52,7 @@ SoundPtr SoundFactory::createEnvelopeForAudioSound(float duration, float decayRa
     }
     return std::make_shared<AudioSound>(envelope, 1, sampleRate_, 16); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 std::vector<float> SoundFactory::createEnvelope(int sr, float dur, float decayRate) {
     int numSamples = static_cast<int>(dur * sr);
@@ -57,6 +63,7 @@ std::vector<float> SoundFactory::createEnvelope(int sr, float dur, float decayRa
     }
     return envelope;
 }
+//----------------------------------------
 
 std::vector<float> SoundFactory::applyEnvelope(const std::vector<float>& wave, float decayRate) {
     std::vector<float> envelopedWave = wave;
@@ -66,23 +73,27 @@ std::vector<float> SoundFactory::applyEnvelope(const std::vector<float>& wave, f
     }
     return envelopedWave;
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateKick() {
     float frequency = 60.0f;
     std::vector<float> wave = generator_.generateSine(frequency, sampleRate_, defaultDuration_);
     return applyEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1, sampleRate_, 16), 10.0f); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateKick2() {
     float frequency = 45.0f;
     std::vector<float> wave = generator_.generateSine(frequency, sampleRate_, defaultDuration_, 0.8f);
     return applyEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1, sampleRate_, 16), 12.0f); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateSnare() {
     std::vector<float> wave = generator_.generateWhiteNoise(sampleRate_, defaultDuration_, 0.5f);
     return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1, sampleRate_, 16), 20.0f); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateSnare2() {
     float highFreq = 440.0f * 2;
@@ -95,29 +106,34 @@ SoundPtr SoundFactory::generateSnare2() {
     }
     return std::make_shared<AudioSound>(result, 1, sampleRate_, 16); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateHiHat(float durationScale) {
     float duration = defaultDuration_ * durationScale;
     std::vector<float> wave = generator_.generateSquare(440.0f * 4, sampleRate_, duration, 0.2f);
     return applySquareEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1, sampleRate_, 16), duration, 100.0f); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateCymbal(float durationScale) {
     float duration = defaultDuration_ * durationScale;
     std::vector<float> wave = generator_.generateWhiteNoise(sampleRate_, duration, 0.8f);
     return applyNoiseEnvelopeToAudioSound(std::make_shared<AudioSound>(wave, 1, sampleRate_, 16), 0.7f); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateTestTone(float frequency, float duration) {
     std::vector<float> wave = generator_.generateSine(frequency, sampleRate_, duration, 0.4f);
     return std::make_shared<AudioSound>(wave, 1, sampleRate_, 16); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::generateBuzzer(float frequency, float duration) {
     float durationSec = duration / 1000.0f;
     std::vector<float> wave = generator_.generateSine(frequency, sampleRate_, durationSec, 0.2f, 0.005f, 0.005f);
     return std::make_shared<AudioSound>(wave, 1, sampleRate_, 16); // Utilisation du constructeur de AudioSound et SoundPtr
 }
+//----------------------------------------
 
 SoundPtr SoundFactory::tone(const std::string& type, float frequency, float length) {
     if (type == "sine") {
@@ -136,5 +152,8 @@ SoundPtr SoundFactory::tone(const std::string& type, float frequency, float leng
         throw std::invalid_argument("Type de son non valide : " + type);
     }
 }
+//----------------------------------------
+
+//==== End of class SoundFactory ====
 
 } // namespace adikdrum
