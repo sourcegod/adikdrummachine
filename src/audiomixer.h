@@ -76,7 +76,7 @@ public:
     void setSpeed(size_t channel, float speed); // Nouvelle fonction pour régler la vitesse
     size_t getNumChannels() const { return numChannels_; }
     SoundPtr loadSound(const std::string& filePath);
-    SoundPtr genTone(const std::string& type, float freq, float length);
+    SoundPtr genTone(const std::string& type ="sine", float freq =440.0f, float length =0.1);
 
 private:
     std::vector<ChannelInfo> channelList_;

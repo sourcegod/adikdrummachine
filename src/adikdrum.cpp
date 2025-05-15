@@ -11,7 +11,6 @@
 
 #include "adikcuiapp.h" // Inclure l'en-tête de ConsoleUIApp
 #include "audiodriver.h" // Inclure le header de AudioDriver
-#include "soundfactory.h" // Inclure le header de SoundFactory
 #include "drumplayer.h"
 #include "audiomixer.h"
 #include "constants.h"
@@ -143,30 +142,28 @@ bool AdikDrum::initApp() {
     const int numChannelsMixer = 32; // Clarifier le nom pour le mixer
     const int sampleRate = 44100;
     const int framesPerBuffer = 256; // Nouvelle variable pour la taille du buffer
-    const double defaultDuration = 0.1;
-    SoundFactory soundFactory(sampleRate, defaultDuration);
+    mixer_ = AudioMixer(numChannelsMixer);
 
     // Générer les sons du métronome
-    SoundPtr soundClick1 = soundFactory.generateBuzzer(880.0, 50); // Son aigu
-    SoundPtr soundClick2 = soundFactory.generateBuzzer(440.0, 50); // Son grave
+    SoundPtr soundClick1 = mixer_.genTone("buzzer", 880.0, 50); // Son aigu
+    SoundPtr soundClick2 = mixer_.genTone("buzzer", 440.0, 50); // Son aigu
 
     float fadeOutStartPercentage = 0.1f; // Appliquer le fondu à partir d'un pourcentage de la longueur
     soundClick1->applyStaticFadeOutLinear(fadeOutStartPercentage);
     soundClick2->applyStaticFadeOutLinear(fadeOutStartPercentage);
  
     // global structure for now
-    mixer_ = AudioMixer(numChannelsMixer);
     drumData_.player = &drumPlayer_;
     drumData_.mixer = &mixer_;
     drumData_.sampleRate = sampleRate;
     drumPlayer_.setMixer(mixer_); // Assigner le mixer à player
     loadSounds(); // charger les sons
+    // genTones();
     drumPlayer_.drumSounds_ = this->getDrumSounds();
 
     // Assigner les sons du métronome à DrumPlayer
     drumPlayer_.soundClick1_ = soundClick1;
     drumPlayer_.soundClick2_ = soundClick2;
-    // drumPlayer_.pattern_ = pattern; // Assign the global pattern to the player
 
     const int numOutputChannels = 2; // Définir explicitement le nombre de canaux de sortie
     if (!audioDriver_.init(numOutputChannels, sampleRate, framesPerBuffer, &drumData_)) {
@@ -229,29 +226,27 @@ void AdikDrum::loadSounds() {
 }
 //----------------------------------------
 
-/*
-void AdikDrum::genSounds() {
-    const int sampleRate = 44100;
+
+void AdikDrum::genTones() {
     const double defaultDuration = 0.1;
-    SoundFactory soundFactory(sampleRate, defaultDuration);
     drumSounds_.clear(); // S'assurer que le vecteur est vide avant de charger
 
-    drumSounds_.push_back(soundFactory.generateKick());
-    drumSounds_.push_back(soundFactory.generateSnare());
-    drumSounds_.push_back(soundFactory.generateHiHat(0.25));
-    drumSounds_.push_back(soundFactory.generateKick2());
-    drumSounds_.push_back(soundFactory.generateSnare2());
-    drumSounds_.push_back(soundFactory.generateCymbal(3.0));
-    drumSounds_.push_back(soundFactory.generateTestTone(440.0, defaultDuration));
-    drumSounds_.push_back(soundFactory.generateTestTone(550.0, defaultDuration));
-    drumSounds_.push_back(soundFactory.generateTestTone(220.0, defaultDuration)); // Exemple pour RimShot
-    drumSounds_.push_back(soundFactory.generateTestTone(330.0, defaultDuration)); // Exemple pour HandClap
-    drumSounds_.push_back(soundFactory.generateHiHat(0.5)); // Exemple pour HiHatOpen
-    drumSounds_.push_back(soundFactory.generateTestTone(110.0, defaultDuration)); // Exemple pour LowTom
-    drumSounds_.push_back(soundFactory.generateTestTone(165.0, defaultDuration)); // Exemple pour MidTom
-    drumSounds_.push_back(soundFactory.generateTestTone(275.0, defaultDuration)); // Exemple pour HiTom
-    drumSounds_.push_back(soundFactory.generateTestTone(660.0, 0.1)); // Exemple pour CowBell
-    drumSounds_.push_back(soundFactory.generateTestTone(440.0, 0.3)); // Exemple pour Tambourine
+    drumSounds_.push_back(mixer_.genTone("kick"));
+    drumSounds_.push_back(mixer_.genTone("snare"));
+    drumSounds_.push_back(mixer_.genTone("hihat", 0.25));
+    drumSounds_.push_back(mixer_.genTone("kick2"));
+    drumSounds_.push_back(mixer_.genTone("snare2"));
+    drumSounds_.push_back(mixer_.genTone("cymbal", 3.0));
+    drumSounds_.push_back(mixer_.genTone("sine", 440.0));
+    drumSounds_.push_back(mixer_.genTone("sine", 550.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("sine", 220.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("sine", 330.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("hihat", 0.5));
+    drumSounds_.push_back(mixer_.genTone("sine", 110.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("sine", 165.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("sine", 165.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("sine", 175.0, defaultDuration));
+    drumSounds_.push_back(mixer_.genTone("sine", 440.0, 0.3));
     
     float fadeOutStartPercentage = 0.3f; // Appliquer le fondu à partir d'un pourcentage de la longueur
     // float expFadeOutStartPercentage = 0.8f; // Commencer le fondu à 60% pour les clics
@@ -270,7 +265,7 @@ void AdikDrum::genSounds() {
 
 }
 //----------------------------------------
-*/
+
 
 const std::vector<SoundPtr>& AdikDrum::getDrumSounds() const {
     return drumSounds_;
