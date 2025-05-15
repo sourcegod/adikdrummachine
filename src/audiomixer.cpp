@@ -11,7 +11,8 @@ namespace adikdrum {
 AudioMixer::AudioMixer(size_t numChannels) 
   : channelList_(numChannels), // initialiser la taille du vecteur  
     globalVolume_(0.8f), // Initialiser le volume global à 0.8
-    numChannels_(numChannels) {
+    numChannels_(numChannels), 
+    soundFactory_(44100, 0.3) {
 
     soundBuffer = {};
     if (numChannels > channelList_.size()) {
@@ -30,6 +31,7 @@ AudioMixer::AudioMixer(size_t numChannels)
     if (metronomeChannel_ >= 0 && metronomeChannel_ < channelList_.size()) {
         channelList_[metronomeChannel_].reserved = true;
     }
+    // auto soundFactory_ = soundFactory_(44100, 0.3);
 
 }
 //----------------------------------------
@@ -379,8 +381,12 @@ void AudioMixer::setSpeed(size_t channel, float speed) {
 //----------------------------------------
 
 SoundPtr AudioMixer::loadSound(const std::string& filePath) {
-    SoundPtr audioSample = std::make_shared<AudioSample>(filePath); // Charger le fichier
-    return audioSample;
+    return std::make_shared<AudioSample>(filePath); // Charger le fichier
+}
+//----------------------------------------
+
+SoundPtr AudioMixer::genTone(const std::string& type, float freq, float length) {
+    return soundFactory_.tone(type, freq, length);
 }
 //----------------------------------------
 

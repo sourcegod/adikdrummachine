@@ -5,6 +5,7 @@
 #include <cstddef>  // Pour size_t
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
+#include "soundfactory.h"
 
 namespace adikdrum {
 
@@ -74,12 +75,13 @@ public:
     void setSpeed(size_t channel, float speed); // Nouvelle fonction pour régler la vitesse
     size_t getNumChannels() const { return numChannels_; }
     SoundPtr loadSound(const std::string& filePath);
+    SoundPtr genTone(const std::string& type, float freq, float length);
 
 private:
     std::vector<ChannelInfo> channelList_;
     float globalVolume_; // Variable pour le volume global
     size_t numChannels_;
-
+    SoundFactory soundFactory_;
     static const int metronomeChannel_ = 0;
 };
 //==== End of class AudioMixer ====
