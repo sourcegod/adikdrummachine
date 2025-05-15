@@ -150,9 +150,25 @@ SoundPtr SoundFactory::tone(const std::string& type, float frequency, float leng
         return std::make_shared<AudioSound>(generator_.generateWhiteNoise(sampleRate_, length, 1.0f)); // Amplitude par défaut de 1.0
     } else if (type == "silence") {
         return std::make_shared<AudioSound>(generator_.generateSilence(length));
+
+    } else if (type == "kick") {
+        return generateKick();
+    } else if (type == "kick2") {
+        return generateKick2();
+    } else if (type == "snare") {
+        return generateSnare();
+    } else if (type == "snare2") {
+        return generateSnare2();
+    } else if (type == "hihat") {
+        return generateHiHat(length / defaultDuration_); // Use length
+    } else if (type == "cymbal") {
+        return generateCymbal(length / defaultDuration_); // Use length
+    } else if (type == "buzzer") {
+        return generateBuzzer(frequency, length);
     } else {
         throw std::invalid_argument("Type de son non valide : " + type);
     }
+
 }
 //----------------------------------------
 
