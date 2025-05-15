@@ -227,16 +227,17 @@ void AdikDrum::loadSounds() {
 
 
 }
+//----------------------------------------
 
 /*
-void AdikDrum::loadSounds() {
+void AdikDrum::genSounds() {
     const int sampleRate = 44100;
     const double defaultDuration = 0.1;
     SoundFactory soundFactory(sampleRate, defaultDuration);
     drumSounds_.clear(); // S'assurer que le vecteur est vide avant de charger
 
-     drumSounds_.push_back(soundFactory.generateKick());
-     drumSounds_.push_back(soundFactory.generateSnare());
+    drumSounds_.push_back(soundFactory.generateKick());
+    drumSounds_.push_back(soundFactory.generateSnare());
     drumSounds_.push_back(soundFactory.generateHiHat(0.25));
     drumSounds_.push_back(soundFactory.generateKick2());
     drumSounds_.push_back(soundFactory.generateSnare2());
