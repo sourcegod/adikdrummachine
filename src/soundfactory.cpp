@@ -146,6 +146,8 @@ SoundPtr SoundFactory::tone(const std::string& type, float frequency, float leng
         return std::make_shared<AudioSound>(generator_.generateSawtooth(frequency, sampleRate_, length));
     } else if (type == "triangle") {
         return std::make_shared<AudioSound>(generator_.generateTriangle(frequency, sampleRate_, length));
+    } else if (type == "whitenoise") { // Ajout pour le bruit blanc
+        return std::make_shared<AudioSound>(generator_.generateWhiteNoise(sampleRate_, length, 1.0f)); // Amplitude par défaut de 1.0
     } else if (type == "silence") {
         return std::make_shared<AudioSound>(generator_.generateSilence(length));
     } else {
