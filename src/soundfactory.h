@@ -28,7 +28,7 @@ public:
     SoundPtr generateCymbal(float durationFactor);
     SoundPtr generateTestTone(float frequency = 440.0f, float duration = 0.5f);
     SoundPtr generateBuzzer(float frequency, float duration);
-    SoundPtr tone(const std::string& type, float frequency, float length);
+    SoundPtr tone(const std::string& type, float frequency, float duration);
 private:
     int sampleRate_;
     float defaultDuration_;

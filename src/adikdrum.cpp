@@ -158,7 +158,7 @@ bool AdikDrum::initApp() {
     drumData_.sampleRate = sampleRate;
     drumPlayer_.setMixer(mixer_); // Assigner le mixer à player
     loadSounds(); // charger les sons
-    // genTones();
+    genTones();
     drumPlayer_.drumSounds_ = this->getDrumSounds();
 
     // Assigner les sons du métronome à DrumPlayer
@@ -236,7 +236,7 @@ void AdikDrum::genTones() {
     drumSounds_.push_back(mixer_.genTone("hihat", 0.25));
     drumSounds_.push_back(mixer_.genTone("kick2"));
     drumSounds_.push_back(mixer_.genTone("snare2"));
-    drumSounds_.push_back(mixer_.genTone("cymbal", 3.0));
+    drumSounds_.push_back(mixer_.genTone("cymbal", 440.0, 3.0));
     drumSounds_.push_back(mixer_.genTone("sine", 440.0));
     drumSounds_.push_back(mixer_.genTone("sine", 550.0, defaultDuration));
     drumSounds_.push_back(mixer_.genTone("sine", 220.0, defaultDuration));

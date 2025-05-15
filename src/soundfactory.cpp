@@ -135,21 +135,21 @@ SoundPtr SoundFactory::generateBuzzer(float frequency, float duration) {
 }
 //----------------------------------------
 
-SoundPtr SoundFactory::tone(const std::string& type, float frequency, float length) {
+SoundPtr SoundFactory::tone(const std::string& type, float frequency, float duration) {
     if (type == "sine") {
-        return std::make_shared<AudioSound>(generator_.generateSine(frequency, sampleRate_, length));
+        return std::make_shared<AudioSound>(generator_.generateSine(frequency, sampleRate_, duration));
     } else if (type == "cosine") {
-        return std::make_shared<AudioSound>(generator_.generateCosine(frequency, sampleRate_, length));
+        return std::make_shared<AudioSound>(generator_.generateCosine(frequency, sampleRate_, duration));
     } else if (type == "square") {
-        return std::make_shared<AudioSound>(generator_.generateSquare(frequency, sampleRate_, length));
+        return std::make_shared<AudioSound>(generator_.generateSquare(frequency, sampleRate_, duration));
     } else if (type == "sawtooth") {
-        return std::make_shared<AudioSound>(generator_.generateSawtooth(frequency, sampleRate_, length));
+        return std::make_shared<AudioSound>(generator_.generateSawtooth(frequency, sampleRate_, duration));
     } else if (type == "triangle") {
-        return std::make_shared<AudioSound>(generator_.generateTriangle(frequency, sampleRate_, length));
+        return std::make_shared<AudioSound>(generator_.generateTriangle(frequency, sampleRate_, duration));
     } else if (type == "whitenoise") { // Ajout pour le bruit blanc
-        return std::make_shared<AudioSound>(generator_.generateWhiteNoise(sampleRate_, length, 1.0f)); // Amplitude par défaut de 1.0
+        return std::make_shared<AudioSound>(generator_.generateWhiteNoise(sampleRate_, duration, 1.0f)); // Amplitude par défaut de 1.0
     } else if (type == "silence") {
-        return std::make_shared<AudioSound>(generator_.generateSilence(length));
+        return std::make_shared<AudioSound>(generator_.generateSilence(duration));
 
     } else if (type == "kick") {
         return generateKick();
@@ -160,11 +160,11 @@ SoundPtr SoundFactory::tone(const std::string& type, float frequency, float leng
     } else if (type == "snare2") {
         return generateSnare2();
     } else if (type == "hihat") {
-        return generateHiHat(length / defaultDuration_); // Use length
+        return generateHiHat(duration); // Use duration
     } else if (type == "cymbal") {
-        return generateCymbal(length / defaultDuration_); // Use length
+        return generateCymbal(duration); // Use duration
     } else if (type == "buzzer") {
-        return generateBuzzer(frequency, length);
+        return generateBuzzer(frequency, duration);
     } else {
         throw std::invalid_argument("Type de son non valide : " + type);
     }
