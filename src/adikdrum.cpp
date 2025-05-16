@@ -158,7 +158,7 @@ bool AdikDrum::initApp() {
     drumData_.sampleRate = sampleRate;
     drumPlayer_.setMixer(mixer_); // Assigner le mixer à player
     loadSounds(); // charger les sons
-    genTones();
+    // genTones();
     drumPlayer_.drumSounds_ = this->getDrumSounds();
 
     // Assigner les sons du métronome à DrumPlayer
