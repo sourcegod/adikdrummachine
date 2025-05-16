@@ -82,6 +82,7 @@ private:
     std::vector<ChannelInfo> channelList_;
     float globalVolume_; // Variable pour le volume global
     size_t numChannels_;
+    size_t sampleRate_ =44100;
     SoundFactory soundFactory_;
     static const int metronomeChannel_ = 0;
 };

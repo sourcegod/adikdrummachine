@@ -2,6 +2,7 @@
 #include "audiosound.h"
 #include "audiosample.h"
 #include "soundfactory.h"
+#include "simpledelay.h" // Inclut l'en-tête de la classe SimpleDelay
 
 #include <iostream>
 #include <cmath>
@@ -293,40 +294,77 @@ void AudioMixer::fadeOutLinear(size_t channelIndex, std::vector<float>& bufData,
 }
 //----------------------------------------
 
-    void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
-        for (size_t i = 0; i < channelList_.size(); ++i) {
-            auto& chan = channelList_[i];
-            if (chan.isActive() && !chan.muted && chan.sound) {
-                auto numSoundChannels = chan.sound->getNumChannels();
-                soundBuffer.assign(numFrames * numSoundChannels, 0.0f);
+void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
+    // Crée un vecteur de SimpleDelay, un pour chaque canal d'entrée.
+    std::vector<SimpleDelay> delays;
 
-                size_t framesRead = chan.sound->readData(soundBuffer, numFrames); // Passer la vitesse à readData
-                if (framesRead > 0) {
-                    float volume = chan.volume;
-                    float pan = chan.pan;
+    // Prépare le vecteur de délais.  Il est important de le faire *avant* la boucle principale.
+    for (size_t i = 0; i < channelList_.size(); ++i) {
+        // Initialise chaque délai avec une taille de buffer appropriée et la fréquence d'échantillonnage.
+        //  10000 est un exemple, ajustez-le si nécessaire.  Vous voudrez peut-être
+        //  le rendre configurable.
+        delays.emplace_back(10000, sampleRate_); // Utilisez la sampleRate_ du mixer, c'est crucial!
 
-                    for (size_t j = 0; j < numFrames; ++j) {
-                        float leftSample = 0.0f;
-                        float rightSample = 0.0f;
+        // Définissez les paramètres du délai ici, ou mieux, rendez-les configurables par canal.
+        delays[i].setDelayTime(100.0f); // Valeurs par défaut, à rendre configurable.
+        delays[i].setFeedback(0.3f);
+        delays[i].setGain(0.5f);
+        delays[i].setIsEnabled(true); // Active le délai pour ce canal.
+    }
 
-                        if (numSoundChannels == 1) {
-                            leftSample = soundBuffer[j] * volume * std::max(0.0f, 1.0f - pan);
-                            rightSample = soundBuffer[j] * volume * std::max(0.0f, 1.0f + pan);
-                        } else if (numSoundChannels == 2) {
-                            leftSample = soundBuffer[j * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
-                            rightSample = soundBuffer[j * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
-                        }
-                        outputBuffer[j * outputNumChannels] += leftSample;
-                        outputBuffer[j * outputNumChannels + 1] += rightSample;
+    for (size_t i = 0; i < channelList_.size(); ++i) {
+        auto& chan = channelList_[i];
+        if (chan.isActive() && !chan.muted && chan.sound) {
+            auto numSoundChannels = chan.sound->getNumChannels();
+            soundBuffer.assign(numFrames * numSoundChannels, 0.0f);
+
+            size_t framesRead = chan.sound->readData(soundBuffer, numFrames); // Passer la vitesse à readData
+            if (framesRead > 0) {
+                float volume = chan.volume;
+                float pan = chan.pan;
+
+                for (size_t j = 0; j < numFrames; ++j) {
+                    float val = 0.0f;
+                    float leftSample = 0.0f;
+                    float rightSample = 0.0f;
+
+                    /*
+                    if (numSoundChannels == 1) {
+                        // Applique le délai *avant* de calculer le panoramique et le volume.
+                        val = volume * std::max(0.0f, 1.0f - pan);
+                        // leftSample = delays[i].process(soundBuffer[j]) * val; 
+                        val = volume * std::max(0.0f, 1.0f + pan);
+                        // rightSample = delays[i].process(soundBuffer[j]) * val; 
+                    } else if (numSoundChannels == 2) {
+                         // Applique le délai à chaque canal du son stéréo.
+                        leftSample = delays[i].process(soundBuffer[j * numSoundChannels]) * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = delays[i].process(soundBuffer[j * numSoundChannels + 1]) * volume * std::max(0.0f, 1.0f + pan);
                     }
+                    */
+
+                    // /*
+                    if (numSoundChannels == 1) {
+                        leftSample = soundBuffer[j] * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = soundBuffer[j] * volume * std::max(0.0f, 1.0f + pan);
+                    } else if (numSoundChannels == 2) {
+                        leftSample = soundBuffer[j * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
+                        rightSample = soundBuffer[j * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
+                    }
+                    // */
+
+                    outputBuffer[j * outputNumChannels] += leftSample;
+                    outputBuffer[j * outputNumChannels + 1] += rightSample;
                 }
             }
         }
     }
+}
 
 //----------------------------------------
 
 /*
+// Deprecated function
+// Mixing without speed
 void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
     for (size_t i = 0; i < channelList_.size(); ++i) {
         auto& chan = channelList_[i];
