@@ -323,26 +323,13 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
                 float volume = chan.volume;
                 float pan = chan.pan;
 
+                // Applique le délai *à tout le buffer du son*
+                delays[i].process(soundBuffer, framesRead, numSoundChannels); // Appel modifié
+
                 for (size_t j = 0; j < numFrames; ++j) {
-                    float val = 0.0f;
                     float leftSample = 0.0f;
                     float rightSample = 0.0f;
 
-                    /*
-                    if (numSoundChannels == 1) {
-                        // Applique le délai *avant* de calculer le panoramique et le volume.
-                        val = volume * std::max(0.0f, 1.0f - pan);
-                        // leftSample = delays[i].process(soundBuffer[j]) * val; 
-                        val = volume * std::max(0.0f, 1.0f + pan);
-                        // rightSample = delays[i].process(soundBuffer[j]) * val; 
-                    } else if (numSoundChannels == 2) {
-                         // Applique le délai à chaque canal du son stéréo.
-                        leftSample = delays[i].process(soundBuffer[j * numSoundChannels]) * volume * std::max(0.0f, 1.0f - pan);
-                        rightSample = delays[i].process(soundBuffer[j * numSoundChannels + 1]) * volume * std::max(0.0f, 1.0f + pan);
-                    }
-                    */
-
-                    // /*
                     if (numSoundChannels == 1) {
                         leftSample = soundBuffer[j] * volume * std::max(0.0f, 1.0f - pan);
                         rightSample = soundBuffer[j] * volume * std::max(0.0f, 1.0f + pan);
@@ -350,7 +337,6 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
                         leftSample = soundBuffer[j * numSoundChannels] * volume * std::max(0.0f, 1.0f - pan);
                         rightSample = soundBuffer[j * numSoundChannels + 1] * volume * std::max(0.0f, 1.0f + pan);
                     }
-                    // */
 
                     outputBuffer[j * outputNumChannels] += leftSample;
                     outputBuffer[j * outputNumChannels + 1] += rightSample;
