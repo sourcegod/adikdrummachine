@@ -228,20 +228,21 @@ void AdikDrum::loadSounds() {
 
 
 void AdikDrum::genTones() {
-    const double defaultDuration = 0.1;
+    const float defaultFrequency = 440.0;
+    const float defaultDuration = 0.1;
     drumSounds_.clear(); // S'assurer que le vecteur est vide avant de charger
 
     drumSounds_.push_back(mixer_.genTone("kick"));
     drumSounds_.push_back(mixer_.genTone("snare"));
-    drumSounds_.push_back(mixer_.genTone("hihat", 0.25));
+    drumSounds_.push_back(mixer_.genTone("hihat", defaultFrequency, 0.25));
     drumSounds_.push_back(mixer_.genTone("kick2"));
     drumSounds_.push_back(mixer_.genTone("snare2"));
-    drumSounds_.push_back(mixer_.genTone("cymbal", 440.0, 3.0));
+    drumSounds_.push_back(mixer_.genTone("cymbal", defaultFrequency, 3.0));
     drumSounds_.push_back(mixer_.genTone("sine", 440.0));
     drumSounds_.push_back(mixer_.genTone("sine", 550.0, defaultDuration));
     drumSounds_.push_back(mixer_.genTone("sine", 220.0, defaultDuration));
     drumSounds_.push_back(mixer_.genTone("sine", 330.0, defaultDuration));
-    drumSounds_.push_back(mixer_.genTone("hihat", 0.5));
+    drumSounds_.push_back(mixer_.genTone("hihat", defaultFrequency, 0.5));
     drumSounds_.push_back(mixer_.genTone("sine", 110.0, defaultDuration));
     drumSounds_.push_back(mixer_.genTone("sine", 165.0, defaultDuration));
     drumSounds_.push_back(mixer_.genTone("sine", 165.0, defaultDuration));
