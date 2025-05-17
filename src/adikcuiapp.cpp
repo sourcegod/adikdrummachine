@@ -71,7 +71,7 @@ void AdikCUIApp::run() {
             adikDrum_.demo();
         } else if (key == 16) { // Ctrl+p
             adikDrum_.loadPattern();
-        } else if (key == 'v') { // Touche 'v'
+        } else if (key == 'v' or key == '0') { // Touche 'v'
             adikDrum_.stopAllSounds();
         } else if (key == 'x') { // Touche 'x'
             adikDrum_.toggleMute();
@@ -98,9 +98,9 @@ void AdikCUIApp::run() {
             adikDrum_.playKey(key); // Gérer les autres touches pour jouer des sons
         } else if (key == 'D') { // Touche 'D'
             adikDrum_.toggleDelay();
-        } else if (key == 'l' or key == '0') { // Touche 'l'
+        } else if (key == 'l' or key == '.') { // Touche 'l'
             adikDrum_.triggerLastSound(); // Déclenche la relecture du dernier son
-        } else if (key == 'm' or key == '.') { // Touche 'm'
+        } else if (key == 'm') { // Touche 'm'
             adikDrum_.playCurrentSound(); // Joue le son courant
         } else if (key == '\033') { // Code d'échappement
             read(STDIN_FILENO, &key, 1); // Lit '['
