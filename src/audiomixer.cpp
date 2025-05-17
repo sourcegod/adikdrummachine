@@ -415,7 +415,7 @@ SoundPtr AudioMixer::genTone(const std::string& type, float freq, float length) 
 }
 //----------------------------------------
 
-bool AudioMixer::getDelayActive(size_t channel) {
+bool AudioMixer::isDelayActive(size_t channel) {
     if (channel < channelList_.size()) {
         return delays_[channel].isActive();
     } else {

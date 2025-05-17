@@ -78,7 +78,7 @@ public:
     size_t getNumChannels() const { return numChannels_; }
     SoundPtr loadSound(const std::string& filePath);
     SoundPtr genTone(const std::string& type ="sine", float freq =440.0f, float length =0.1);
-    bool getDelayActive(size_t channel);
+    bool isDelayActive(size_t channel);
     void setDelayActive(size_t channel, bool active);
 
 private:

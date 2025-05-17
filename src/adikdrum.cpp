@@ -500,7 +500,14 @@ void AdikDrum::changeSpeed(float speed) {
 
 void AdikDrum::toggleDelay() {
     int currentChannelIndex =  drumPlayer_.getLastSoundIndex() + 1;
-    // mixer_.activeDelay(currentChannelIndex, active);
+    bool active = mixer_.isDelayActive(currentChannelIndex);
+    mixer_.setDelayActive(currentChannelIndex, !active);
+    /*
+    msgText_ = "Son " + std::to_string(currentSoundIndex) +
+               " (canal " + std::to_string(currentSoundIndex + 1) +
+               ") est maintenant " + (currentMuted ? "démuté" : "muté") + ".";
+    */
+
     std::string msgText = "Délai Activé sur le canal " + std::to_string(currentChannelIndex); 
     displayMessage(msgText);
 }
