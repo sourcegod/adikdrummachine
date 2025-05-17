@@ -12,10 +12,10 @@ public:
     void setDelayTime(float delayTimeSec);
     void setFeedback(float feedback);
     void setGain(float gain);
-    void setIsEnabled(bool isEnabled);
+    void setActive(bool active);
 
     // Fonction process modifiée pour traiter un buffer:
-    void process(std::vector<float>& buffer, size_t numFrames, int numChannels);
+    void processData(std::vector<float>& bufData, size_t numFrames, int numChannels);
 
 private:
     std::vector<float> delayBuffer_;
@@ -25,8 +25,9 @@ private:
     float delayTimeSec_;
     float feedback_;
     float gain_;
-    bool isEnabled_;
+    bool active_;
 };
+//==== End of class SimpleDelay ====
 
 #endif // SIMPLEDELAY_H
 
