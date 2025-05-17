@@ -36,6 +36,23 @@ AudioMixer::AudioMixer(size_t numChannels)
     }
     // auto soundFactory_ = soundFactory_(44100, 0.3);
 
+    // Crée un vecteur de SimpleDelay, un pour chaque canal d'entrée.
+    auto delayTime = 0.500f; // in seconds
+    auto bufferSize = delayTime * sampleRate_;
+
+
+    // Prépare le vecteur de délais.  Il est important de le faire *avant* la boucle principale.
+    for (size_t i = 0; i < channelList_.size(); ++i) {
+        delays_.emplace_back(bufferSize, sampleRate_); // Utilisez la sampleRate_ du mixer, c'est crucial!
+
+        // Définissez les paramètres du délai ici, ou mieux, rendez-les configurables par canal.
+        delays_[i].setDelayTime(delayTime); // Valeurs par défaut, à rendre configurable.
+        delays_[i].setFeedback(0.5f);
+        delays_[i].setGain(0.5f);
+        delays_[i].setIsEnabled(true); // Active le délai pour ce canal.
+    }
+
+
 }
 //----------------------------------------
 
@@ -295,23 +312,6 @@ void AudioMixer::fadeOutLinear(size_t channelIndex, std::vector<float>& bufData,
 //----------------------------------------
 
 void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames, size_t outputNumChannels) {
-    // Crée un vecteur de SimpleDelay, un pour chaque canal d'entrée.
-    std::vector<SimpleDelay> delays;
-
-    // Prépare le vecteur de délais.  Il est important de le faire *avant* la boucle principale.
-    for (size_t i = 0; i < channelList_.size(); ++i) {
-        // Initialise chaque délai avec une taille de buffer appropriée et la fréquence d'échantillonnage.
-        //  10000 est un exemple, ajustez-le si nécessaire.  Vous voudrez peut-être
-        //  le rendre configurable.
-        delays.emplace_back(10000, sampleRate_); // Utilisez la sampleRate_ du mixer, c'est crucial!
-
-        // Définissez les paramètres du délai ici, ou mieux, rendez-les configurables par canal.
-        delays[i].setDelayTime(100.0f); // Valeurs par défaut, à rendre configurable.
-        delays[i].setFeedback(0.3f);
-        delays[i].setGain(0.5f);
-        delays[i].setIsEnabled(true); // Active le délai pour ce canal.
-    }
-
     for (size_t i = 0; i < channelList_.size(); ++i) {
         auto& chan = channelList_[i];
         if (chan.isActive() && !chan.muted && chan.sound) {
@@ -324,7 +324,7 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
                 float pan = chan.pan;
 
                 // Applique le délai *à tout le buffer du son*
-                delays[i].process(soundBuffer, framesRead, numSoundChannels); // Appel modifié
+                delays_[i].process(soundBuffer, framesRead, numSoundChannels); // Appel modifié
 
                 for (size_t j = 0; j < numFrames; ++j) {
                     float leftSample = 0.0f;

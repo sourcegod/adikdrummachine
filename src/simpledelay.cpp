@@ -2,17 +2,21 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <iostream>
 
 SimpleDelay::SimpleDelay(size_t bufferSize, float sampleRate)
-    : bufferSize_(bufferSize), sampleRate_(sampleRate), writeIndex_(0),
-      delayTimeMs_(0.0f), feedback_(0.0f), gain_(1.0f), isEnabled_(false) {
+    : bufferSize_(bufferSize), sampleRate_(sampleRate), 
+    writeIndex_(0), delayTimeSec_(0.0f), 
+    feedback_(0.0f), gain_(1.0f), 
+    isEnabled_(false) {
     delayBuffer_.assign(bufferSize_, 0.0f);
+    // std::cout << "voici bufferSize: " << bufferSize_ << "\n";
 }
 
 SimpleDelay::~SimpleDelay() {}
 
-void SimpleDelay::setDelayTime(float delayTimeMs) {
-    delayTimeMs_ = std::max(0.0f, delayTimeMs); // Assure une valeur positive
+void SimpleDelay::setDelayTime(float delayTimeSec) {
+    delayTimeSec_ = std::max(0.0f, delayTimeSec); // Assure une valeur positive
 }
 
 void SimpleDelay::setFeedback(float feedback) {
@@ -33,10 +37,10 @@ void SimpleDelay::process(std::vector<float>& buffer, size_t numFrames, int numC
         return; // Ne fait rien si le délai est désactivé
     }
 
-    float delayInSamples = delayTimeMs_ * sampleRate_ / 1000.0f;
-    if (delayInSamples < 1)
-        return;
-
+    float delayInSamples = delayTimeSec_ * sampleRate_;
+    if (delayInSamples < 1) return;
+    // std::cout << "voici bufferSize: " << bufferSize_ << "\n";
+    // std::cout << "delayInSamples: " << delayInSamples << "\n";
     for (size_t i = 0; i < numFrames; ++i) {
         for (int channel = 0; channel < numChannels; ++channel) {
             size_t sampleIndex = i * numChannels + channel;
@@ -44,11 +48,17 @@ void SimpleDelay::process(std::vector<float>& buffer, size_t numFrames, int numC
 
             // Applique le délai à l'échantillon
             float delayedSample = delayBuffer_[readIndex];
-            delayBuffer_[writeIndex_] = buffer[sampleIndex] + delayedSample * feedback_;
-            buffer[sampleIndex] = buffer[sampleIndex] + delayedSample * gain_; // Ajoute le délai à l'original
 
+
+            delayBuffer_[writeIndex_] = buffer[sampleIndex] + delayedSample * feedback_;
+            
+            // Ajoute le délai à l'original
+            buffer[sampleIndex] += delayedSample * gain_; 
+
+            // Mise à jour de l'index d'écriture
             writeIndex_ = (writeIndex_ + 1) % bufferSize_;
         }
+
     }
 }
 

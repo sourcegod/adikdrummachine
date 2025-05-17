@@ -9,7 +9,7 @@ public:
     SimpleDelay(size_t bufferSize, float sampleRate);
     ~SimpleDelay();
 
-    void setDelayTime(float delayTimeMs);
+    void setDelayTime(float delayTimeSec);
     void setFeedback(float feedback);
     void setGain(float gain);
     void setIsEnabled(bool isEnabled);
@@ -20,11 +20,11 @@ public:
 private:
     std::vector<float> delayBuffer_;
     size_t bufferSize_;
+    float sampleRate_;
     size_t writeIndex_;
-    float delayTimeMs_;
+    float delayTimeSec_;
     float feedback_;
     float gain_;
-    float sampleRate_;
     bool isEnabled_;
 };
 

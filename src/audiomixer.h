@@ -3,6 +3,7 @@
 
 #include "audiosound.h"
 #include "soundfactory.h"
+#include "simpledelay.h"
 
 #include <vector>
 #include <cstddef>  // Pour size_t
@@ -84,6 +85,7 @@ private:
     size_t numChannels_;
     size_t sampleRate_ =44100;
     SoundFactory soundFactory_;
+    std::vector<SimpleDelay> delays_;
     static const int metronomeChannel_ = 0;
 };
 //==== End of class AudioMixer ====
