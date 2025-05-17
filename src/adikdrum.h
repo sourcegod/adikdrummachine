@@ -61,6 +61,7 @@ public:
     size_t getNumSteps() const { return numSteps_; }
     void changeSpeed(float speed);
     void genTones();
+    void toggleDelay();
 
 private:
     AudioDriver audioDriver_;

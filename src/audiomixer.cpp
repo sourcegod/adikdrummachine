@@ -47,7 +47,7 @@ AudioMixer::AudioMixer(size_t numChannels)
         delays_[i].setDelayTime(delayTime); // Valeurs par défaut, à rendre configurable.
         delays_[i].setFeedback(0.5f);
         delays_[i].setGain(0.5f);
-        delays_[i].setActive(true); // Active le délai pour ce canal.
+        // delays_[i].setActive(true); // Active le délai pour ce canal.
     }
 
 }
@@ -414,6 +414,27 @@ SoundPtr AudioMixer::genTone(const std::string& type, float freq, float length) 
     return soundFactory_.tone(type, freq, length);
 }
 //----------------------------------------
+
+bool AudioMixer::getDelayActive(size_t channel) {
+    if (channel < channelList_.size()) {
+        return delays_[channel].isActive();
+    } else {
+        std::cerr << "Erreur : Canal " << channel << " invalide pour régler le délai" << std::endl;
+    }
+    return false;
+}
+//----------------------------------------
+
+
+void AudioMixer::setDelayActive(size_t channel, bool active) {
+    if (channel < channelList_.size()) {
+        delays_[channel].setActive(active);
+    } else {
+        std::cerr << "Erreur : Canal " << channel << " invalide pour régler le délai" << std::endl;
+    }
+}
+//----------------------------------------
+
 
 
 //==== End of class AudioMixer ====

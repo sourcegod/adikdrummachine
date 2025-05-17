@@ -498,6 +498,15 @@ void AdikDrum::changeSpeed(float speed) {
 }
 //----------------------------------------
 
+void AdikDrum::toggleDelay() {
+    int currentChannelIndex =  drumPlayer_.getLastSoundIndex() + 1;
+    // mixer_.activeDelay(currentChannelIndex, active);
+    std::string msgText = "Délai Activé sur le canal " + std::to_string(currentChannelIndex); 
+    displayMessage(msgText);
+}
+//----------------------------------------
+
+
 //==== End of class AdikDrum ====
 
 } // namespace adikdrum
