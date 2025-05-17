@@ -12,6 +12,7 @@ public:
     void setDelayTime(float delayTimeSec);
     void setFeedback(float feedback);
     void setGain(float gain);
+    bool isActive() { return active_; }
     void setActive(bool active);
 
     // Fonction process modifiée pour traiter un buffer:

@@ -39,8 +39,6 @@ void SimpleDelay::setActive(bool active) {
 
 // Fonction process modifiée pour traiter un buffer:
 void SimpleDelay::processData(std::vector<float>& bufData, size_t numFrames, int numChannels) {
-    if (!active_) return; // Ne fait rien si le délai est désactivé
-
     float delayInSamples = delayTimeSec_ * sampleRate_;
     if (delayInSamples < 1) return;
     // std::cout << "voici bufferSize: " << bufferSize_ << "\n";

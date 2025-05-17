@@ -321,7 +321,9 @@ void AudioMixer::mixSoundData(std::vector<float>& outputBuffer, size_t numFrames
                 float pan = chan.pan;
 
                 // Applique le délai *à tout le buffer du son*
-                delays_[i].processData(soundBuffer, framesRead, numSoundChannels); // Appel modifié
+                if (delays_[i].isActive()) {
+                    delays_[i].processData(soundBuffer, framesRead, numSoundChannels); // Appel modifié
+                }
 
                 for (size_t j = 0; j < numFrames; ++j) {
                     float leftSample = 0.0f;
