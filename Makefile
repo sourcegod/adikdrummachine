@@ -1,34 +1,38 @@
-# Makefile for adikdrum Machine
+# Makefile pour adikdrum Machine
 # Date: Sat, 12/04/2025
 # Author: CoolbrothUer
 CC = g++
 CFLAGS = -std=c++2a -Wall -Wextra -pedantic
 
 # Bibliothèques externes
-ADIKCUI_LIBS = -lportaudio -lsndfile
-ADIKTUI_LIBS = -lportaudio -lsndfile -lncurses
+PORTAUDIO_LIB = -lportaudio
+SNDFILE_LIB = -lsndfile
+NCURSES_LIB = -lncurses
+
+ADIKCUI_LIBS = $(PORTAUDIO_LIB) $(SNDFILE_LIB)
+ADIKTUI_LIBS = $(PORTAUDIO_LIB) $(SNDFILE_LIB) $(NCURSES_LIB)
 
 # Répertoires
 SRCS_DIR = src
 BUILD_DIR = build
 
-# Tous les fichiers sources
-ALL_SRCS = $(wildcard $(SRCS_DIR)/*.cpp)
+# Fichiers sources communs
+COMMON_SRCS = $(filter-out $(SRCS_DIR)/adiktui.cpp $(SRCS_DIR)/adikcuiapp.cpp, $(shell find $(SRCS_DIR) -name '*.cpp'))
 
 # --- Configuration pour adikcui ---
-ADIKCUI_SRCS = $(filter-out $(SRCS_DIR)/adiktui.cpp, $(ALL_SRCS)) # Exclut adiktui.cpp
+ADIKCUI_SRCS = $(COMMON_SRCS) $(SRCS_DIR)/adikcuiapp.cpp
 ADIKCUI_OBJS = $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(ADIKCUI_SRCS))
-ADIKCUI_EXEC = $(BUILD_DIR)/adikcui
+ADIKCUI_EXEC_NAME = adikcui
+ADIKCUI_EXEC = $(BUILD_DIR)/$(ADIKCUI_EXEC_NAME)
 
 # --- Configuration pour adiktui ---
-# ADIKTUI_SRCS = $(SRCS_DIR)/adiktui.cpp # SEULEMENT adiktui.cpp, qui contient main() pour la version ncurses.
-ADIKTUI_SRCS = $(filter-out $(SRCS_DIR)/adikcuiapp.cpp, $(ALL_SRCS)) # Exclutadikcuiapp.cpp
+ADIKTUI_SRCS = $(COMMON_SRCS) $(SRCS_DIR)/adiktui.cpp
 ADIKTUI_OBJS = $(patsubst $(SRCS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(ADIKTUI_SRCS))
-ADIKTUI_EXEC = $(BUILD_DIR)/adiktui
+ADIKTUI_EXEC_NAME = adiktui
+ADIKTUI_EXEC = $(BUILD_DIR)/$(ADIKTUI_EXEC_NAME)
 
 # Définir la cible principale
 all: $(ADIKCUI_EXEC) $(ADIKTUI_EXEC)
-# all: $(ADIKTUI_EXEC)
 
 # Règle générique pour compiler les .cpp en .o
 $(BUILD_DIR)/%.o: $(SRCS_DIR)/%.cpp
@@ -39,13 +43,13 @@ $(BUILD_DIR)/%.o: $(SRCS_DIR)/%.cpp
 # Règle pour linker adikcui
 $(ADIKCUI_EXEC): $(ADIKCUI_OBJS)
 	@mkdir -p $(BUILD_DIR)
-	@echo "Linking $(ADIKCUI_EXEC)"
+	@echo "Linking $(ADIKCUI_EXEC_NAME)"
 	$(CC) $(CFLAGS) $(ADIKCUI_OBJS) $(ADIKCUI_LIBS) -o $(ADIKCUI_EXEC)
 
 # Règle pour linker adiktui
 $(ADIKTUI_EXEC): $(ADIKTUI_OBJS)
 	@mkdir -p $(BUILD_DIR)
-	@echo "Linking $(ADIKTUI_EXEC)"
+	@echo "Linking $(ADIKTUI_EXEC_NAME)"
 	$(CC) $(CFLAGS) $(ADIKTUI_OBJS) $(ADIKTUI_LIBS) -o $(ADIKTUI_EXEC)
 
 # Règle de nettoyage
@@ -54,3 +58,4 @@ clean:
 	@echo "Cleaning build directory"
 
 .PHONY: clean all
+
