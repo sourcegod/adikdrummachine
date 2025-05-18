@@ -2,6 +2,8 @@
 #define ADIKTUI_H
 
 #include "uiapp.h"
+#include "adikdrum.h"
+
 #include <ncurses.h>
 #include <string>
 #include <vector>
@@ -11,7 +13,7 @@ namespace adikdrum {
 
 class AdikTUI : public UIApp {
 public:
-    AdikTUI();
+    AdikTUI(AdikDrum& adikDrum); 
     virtual ~AdikTUI();
 
     virtual bool init() override;
@@ -21,6 +23,7 @@ public:
     virtual void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) override;
 
 private:
+    AdikDrum& adikDrum_;
     int screenWidth_;
     int screenHeight_;
     WINDOW* messageWindow_;

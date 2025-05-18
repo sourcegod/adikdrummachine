@@ -7,14 +7,19 @@
  * */
 
 #include "adiktui.h"
+#include "adikdrum.h"
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
 
 namespace adikdrum {
 
-AdikTUI::AdikTUI() : screenWidth_(0), screenHeight_(0), messageWindow_(nullptr), gridWindow_(nullptr) {
+AdikTUI::AdikTUI(AdikDrum& adikDrum) 
+        : adikDrum_(adikDrum),
+        screenWidth_(0), screenHeight_(0), messageWindow_(nullptr), gridWindow_(nullptr) {
 }
+//----------------------------------------
 
 AdikTUI::~AdikTUI() {
     close();
@@ -168,7 +173,28 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 }
 
 } // namespace adikdrum
+
 // /*
+int main() {
+    AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
+    AdikTUI textUI(adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
+    adikDrumApp.uiApp_ = &textUI; // Assigner l'UIApp à AdikDrum
+    if (!adikDrumApp.initApp()) {
+        return false; // Changer le code de retour en cas d'erreur
+    }
+
+    if (textUI.init()) {
+        textUI.run();
+        textUI.close();
+    }
+    adikDrumApp.closeApp();
+
+    return 0;
+}
+//----------------------------------------
+// */
+
+/*
 int main() {
     adikdrum::AdikTUI ui;
     if (!ui.init()) {
@@ -179,5 +205,5 @@ int main() {
     ui.close();
     return 0;
 }
-// */
+*/
 
