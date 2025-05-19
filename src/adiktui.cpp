@@ -8,6 +8,7 @@
 
 #include "adiktui.h"
 #include "adikdrum.h"
+#include "constants.h"
 
 #include <iostream>
 #include <iomanip>
@@ -86,6 +87,103 @@ void AdikTUI::destroyWindows() {
 //----------------------------------------
 
 void AdikTUI::run() {
+    std::string msg = "Le clavier est initialisé.";
+    displayMessage(msg);
+    auto& pattern = adikDrum_.getPattern();
+    int numSounds = adikDrum_.getNumSounds();
+    int numSteps = adikDrum_.getNumSteps();
+    displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps);
+
+    int ch;
+    while ((ch = getch()) != 'Q') {
+        // beep();
+        switch (ch) {
+            case '\n': // Enter
+                adikDrum_.selectStep();
+                break;
+            case 127: // Backspace
+                adikDrum_.unselectStep();
+                break;
+            case ' ': // Space
+                adikDrum_.playPause();
+                break;
+            case 'c':
+                adikDrum_.toggleClick();
+                break;
+            case 'p':
+                adikDrum_.demo();
+                break;
+            case 16: // Ctrl+p
+                adikDrum_.loadPattern();
+                break;
+            case 'v': // 'v'
+            case '0': // '0'
+                adikDrum_.stopAllSounds();
+                break;
+             case 'x':
+                adikDrum_.toggleMute();
+                break;
+            case 'X':
+                adikDrum_.resetMute();
+                break;
+            case '+':
+                adikDrum_.changeVolume(0.1f);
+                break;
+            case '-':
+                adikDrum_.changeVolume(-0.1f);
+                break;
+            case '(':
+                adikDrum_.changeBpm(-5.0f);
+                break;
+            case ')':
+                adikDrum_.changeBpm(5.0f);
+                break;
+            case '[':
+                adikDrum_.changePan(-0.1f);
+                break;
+            case ']':
+                adikDrum_.changePan(0.1f);
+                break;
+            case '{':
+                 adikDrum_.changeSpeed(-0.25f);
+                 break;
+            case '}':
+                adikDrum_.changeSpeed(0.25f);
+                break;
+            case 'D':
+                adikDrum_.toggleDelay();
+                break;
+            case 'l':  // 'l'
+            case '.':  // '.'
+                adikDrum_.triggerLastSound();
+                break;
+            case 'm':
+                adikDrum_.playCurrentSound();
+                break;
+            case KEY_UP:
+                adikDrum_.moveCursorUp();
+                break;
+            case KEY_DOWN:
+                adikDrum_.moveCursorDown();
+                break;
+            case KEY_LEFT:
+                adikDrum_.moveCursorLeft();
+                break;
+            case KEY_RIGHT:
+                adikDrum_.moveCursorRight();
+                break;
+            default:
+                if (KEY_TO_SOUND_MAP.count(ch)) {
+                    adikDrum_.playKey(ch);
+                }
+                break;
+        }
+        displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps); // Update grid after each input
+    }
+}
+
+/*
+void AdikTUI::run() {
     int ch;
     while ((ch = getch()) != 'q') { // 'q' pour quitter
         switch (ch) {
@@ -111,6 +209,7 @@ void AdikTUI::run() {
     }
 }
 //----------------------------------------
+*/
 
 void AdikTUI::close() {
     destroyWindows();
@@ -121,16 +220,16 @@ void AdikTUI::close() {
 void AdikTUI::displayMessage(const std::string& message) {
     if (messageWindow_ == nullptr) return;
 
-    // werase(messageWindow_); // Effacer la fenêtre
+    werase(messageWindow_); // Effacer la fenêtre
     wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
-    wclrtoeol(messageWindow_); // Efface du curseur jusqu'à la fin de la ligne.
+    // wclrtoeol(messageWindow_); // Efface du curseur jusqu'à la fin de la ligne.
     box(messageWindow_, 0, 0);
     mvwprintw(messageWindow_, 1, 0, message.c_str()); // Afficher le message
-    wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
+    // wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
      wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
 
-     napms(500); // pause de 500ms  
-     beep();
+     // napms(500); // pause de 500ms  
+     // beep();
 
 }
 //----------------------------------------
