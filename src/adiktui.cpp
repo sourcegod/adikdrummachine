@@ -24,6 +24,7 @@ AdikTUI::AdikTUI(AdikDrum& adikDrum)
 AdikTUI::~AdikTUI() {
     close();
 }
+//----------------------------------------
 
 bool AdikTUI::init() {
     // Initialiser ncurses
@@ -41,6 +42,7 @@ bool AdikTUI::init() {
 
     return true;
 }
+//----------------------------------------
 
 void AdikTUI::createWindows() {
      // Calculer les dimensions des fenêtres. Laisser de l'espace pour les bordures.
@@ -69,6 +71,7 @@ void AdikTUI::createWindows() {
     box(gridWindow_, 0, 0);
     wrefresh(gridWindow_);
 }
+//----------------------------------------
 
 void AdikTUI::destroyWindows() {
     if (messageWindow_) {
@@ -80,11 +83,15 @@ void AdikTUI::destroyWindows() {
         gridWindow_ = nullptr;
     }
 }
+//----------------------------------------
 
 void AdikTUI::run() {
     int ch;
     while ((ch = getch()) != 'q') { // 'q' pour quitter
         switch (ch) {
+            case char('p'):
+            adikDrum_.demo();
+            break;
             case KEY_UP:
                 displayMessage("Flèche haut pressée");
                 break;
@@ -103,20 +110,30 @@ void AdikTUI::run() {
         }
     }
 }
+//----------------------------------------
 
 void AdikTUI::close() {
     destroyWindows();
     endwin(); // Nettoyer ncurses
 }
+//----------------------------------------
 
 void AdikTUI::displayMessage(const std::string& message) {
     if (messageWindow_ == nullptr) return;
 
-    werase(messageWindow_); // Effacer la fenêtre
+    // werase(messageWindow_); // Effacer la fenêtre
+    wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
+    wclrtoeol(messageWindow_); // Efface du curseur jusqu'à la fin de la ligne.
     box(messageWindow_, 0, 0);
-    mvwprintw(messageWindow_, 1, 1, message.c_str()); // Afficher le message
-    wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
+    mvwprintw(messageWindow_, 1, 0, message.c_str()); // Afficher le message
+    wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
+     wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
+
+     napms(500); // pause de 500ms  
+     beep();
+
 }
+//----------------------------------------
 
 void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
     if (gridWindow_ == nullptr) return;
@@ -171,10 +188,10 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 
     wrefresh(gridWindow_);
 }
+//----------------------------------------
 
 } // namespace adikdrum
 
-// /*
 int main() {
     AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
     AdikTUI textUI(adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
@@ -192,7 +209,6 @@ int main() {
     return 0;
 }
 //----------------------------------------
-// */
 
 /*
 int main() {
