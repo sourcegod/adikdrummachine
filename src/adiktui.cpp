@@ -105,6 +105,7 @@ void AdikTUI::run() {
                 adikDrum_.unselectStep();
                 break;
             case ' ': // Space
+            case '0': // '0'
                 adikDrum_.playPause();
                 break;
             case 'c':
@@ -117,7 +118,7 @@ void AdikTUI::run() {
                 adikDrum_.loadPattern();
                 break;
             case 'v': // 'v'
-            case '0': // '0'
+            case '.': // '.'
                 adikDrum_.stopAllSounds();
                 break;
              case 'x':
@@ -154,7 +155,7 @@ void AdikTUI::run() {
                 adikDrum_.toggleDelay();
                 break;
             case 'l':  // 'l'
-            case '.':  // '.'
+            case '9':  // '.'
                 adikDrum_.triggerLastSound();
                 break;
             case 'm':
@@ -175,6 +176,8 @@ void AdikTUI::run() {
             default:
                 if (KEY_TO_SOUND_MAP.count(ch)) {
                     adikDrum_.playKey(ch);
+                } else if (KEYPAD_TO_SOUND_MAP.count(ch)) {
+                    adikDrum_.playKeyPad(ch);
                 }
                 break;
         }
@@ -225,8 +228,8 @@ void AdikTUI::displayMessage(const std::string& message) {
     // wclrtoeol(messageWindow_); // Efface du curseur jusqu'à la fin de la ligne.
     box(messageWindow_, 0, 0);
     mvwprintw(messageWindow_, 1, 0, message.c_str()); // Afficher le message
-    // wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
-     wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
+    wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
+    wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
 
      // napms(500); // pause de 500ms  
      // beep();
@@ -235,6 +238,7 @@ void AdikTUI::displayMessage(const std::string& message) {
 //----------------------------------------
 
 void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
+    return;
     if (gridWindow_ == nullptr) return;
 
     werase(gridWindow_);

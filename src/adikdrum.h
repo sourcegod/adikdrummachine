@@ -54,6 +54,7 @@ public:
     void changeBpm(float deltaBpm);
     void changePan(float deltaPan);
     void playKey(char key);        
+    void playKeyPad(char key);
     void triggerLastSound();
     void playCurrentSound();
     auto& getPattern() { return drumPlayer_.pattern_; }

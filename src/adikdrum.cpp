@@ -473,6 +473,17 @@ void AdikDrum::playKey(char key) {
         drumPlayer_.playSound(soundIndex);
     }
 }
+//----------------------------------------
+
+void AdikDrum::playKeyPad(char key) {
+    auto it = KEYPAD_TO_SOUND_MAP.find(key);
+    if (it != KEYPAD_TO_SOUND_MAP.end()) {
+        int soundIndex = it->second;
+        drumPlayer_.playSound(soundIndex);
+    }
+}
+//----------------------------------------
+
 
 void AdikDrum::triggerLastSound() {
     drumPlayer_.playLastSound();
