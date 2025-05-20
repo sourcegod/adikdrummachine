@@ -303,8 +303,8 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 } // namespace adikdrum
 
 int main() {
-    AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
-    AdikTUI textUI(adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
+    adikdrum::AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
+    adikdrum::AdikTUI textUI(adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
     adikDrumApp.uiApp_ = &textUI; // Assigner l'UIApp à AdikDrum
     if (!adikDrumApp.initApp()) {
         return false; // Changer le code de retour en cas d'erreur

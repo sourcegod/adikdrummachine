@@ -1,12 +1,14 @@
 #include "drumplayer.h"
 #include "audiosound.h"
 #include "audiomixer.h"
+#include "adikpattern.h"
 
 #include <cmath>
 #include <vector>
 #include <iostream>
 #include <memory>
 #include <algorithm> // pour std::clamp
+namespace adikdrum {
 
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     : currentStep(0),
@@ -25,6 +27,9 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
 {
     setBpm(bpm_);
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
+    // Création d'un objet AdikPattern avec 2 barres
+    AdikPattern curPattern(2);
+
 
 }
 //----------------------------------------
@@ -241,3 +246,4 @@ void DrumPlayer::resetMute() {
 //----------------------------------------
 //==== End of class DrumPlayer ====
 
+} // namespace adikdrum

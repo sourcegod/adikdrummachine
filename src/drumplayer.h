@@ -5,9 +5,12 @@
 #include <memory> // Pour std::shared_ptr
 #include "audiosound.h"
 #include "audiomixer.h" // Assurez-vous que l'inclusion est là
+#include "adikpattern.h"
+
 #include <cmath>
 #include <algorithm> // pour std::clamp
-using namespace adikdrum;
+
+namespace adikdrum {
 class DrumPlayer {
 public:
     DrumPlayer(int numSounds, int numSteps);
@@ -67,5 +70,7 @@ private:
 
 };
 //==== End of class DrumPlayer ====
+
+} // namespace adikdrum
 
 #endif // DRUMPLAYER_H
