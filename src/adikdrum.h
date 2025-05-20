@@ -63,6 +63,7 @@ public:
     void changeSpeed(float speed);
     void genTones();
     void toggleDelay();
+    void changeShiftPad(size_t deltaShiftPad);
 
 private:
     AudioDriver audioDriver_;
@@ -76,8 +77,8 @@ private:
     int initialBpm_;
     DrumPlayer drumPlayer_; // Note: il faut Déclarer drumPlayer_ APRÈS numSounds_ et numSteps_, pour l'ordre d'initialisation des membres
     std::string msgText_;
-
     DrumMachineData drumData_;
+    size_t shiftPadIndex_ =0;
 
 };
 //==== End of class AdikDrum ====

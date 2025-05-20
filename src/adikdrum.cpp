@@ -469,7 +469,7 @@ void AdikDrum::changePan(float deltaPan) {
 void AdikDrum::playKey(char key) {
     auto it = KEY_TO_SOUND_MAP.find(key);
     if (it != KEY_TO_SOUND_MAP.end()) {
-        int soundIndex = it->second;
+        int soundIndex = it->second + shiftPadIndex_;
         drumPlayer_.playSound(soundIndex);
     }
 }
@@ -478,7 +478,7 @@ void AdikDrum::playKey(char key) {
 void AdikDrum::playKeyPad(char key) {
     auto it = KEYPAD_TO_SOUND_MAP.find(key);
     if (it != KEYPAD_TO_SOUND_MAP.end()) {
-        int soundIndex = it->second;
+        int soundIndex = it->second + shiftPadIndex_;
         drumPlayer_.playSound(soundIndex);
     }
 }
@@ -519,6 +519,16 @@ void AdikDrum::toggleDelay() {
     displayMessage(msgText_);
 }
 //----------------------------------------
+
+void AdikDrum::changeShiftPad(size_t deltaShiftPad) {
+    // Note: converti le résultat en int pour que le compilateur ne converti pas un nombre négatif en un grand nombre unsigned, du fait que le type est size_t
+    int tempVal = shiftPadIndex_ + deltaShiftPad;
+    shiftPadIndex_ = std::clamp(tempVal, 0, 32);
+    msgText_ = "Shift Pad: " + std::to_string(shiftPadIndex_) + "/32";
+    displayMessage(msgText_);
+}
+//----------------------------------------
+
 
 
 //==== End of class AdikDrum ====

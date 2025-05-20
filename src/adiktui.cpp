@@ -161,6 +161,13 @@ void AdikTUI::run() {
             case 'm':
                 adikDrum_.playCurrentSound();
                 break;
+            case '/': // '/'
+                adikDrum_.changeShiftPad(-8);
+                break;
+            case '*': // '*'
+                adikDrum_.changeShiftPad(8);
+                break;
+
             case KEY_UP:
                 adikDrum_.moveCursorUp();
                 break;
