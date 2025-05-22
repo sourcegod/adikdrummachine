@@ -1,6 +1,7 @@
 #include "adikpattern.h"
 #include <algorithm> // Pour std::clamp
 #include <random>    // Pour la génération aléatoire
+namespace adikdrum {
 
 // Constructeur par défaut
 AdikPattern::AdikPattern()
@@ -14,6 +15,7 @@ AdikPattern::AdikPattern()
         }
     }
 }
+//----------------------------------------
 
 // Constructeur avec initialisation du nombre de barres
 AdikPattern::AdikPattern(size_t numBarres)
@@ -28,6 +30,7 @@ AdikPattern::AdikPattern(size_t numBarres)
         }
     }
 }
+//----------------------------------------
 
 // Fonction pour définir le nombre de barres
 void AdikPattern::setBar(size_t numBarres) {
@@ -45,11 +48,13 @@ void AdikPattern::setBar(size_t numBarres) {
         }
     }
 }
+//----------------------------------------
 
 // Fonction pour obtenir le nombre de barres
 size_t AdikPattern::getBar() const {
     return numBarres_;
 }
+//----------------------------------------
 
 // Fonction pour définir la longueur (nombre de pas) d'une barre spécifique
 void AdikPattern::setBarLength(size_t barIndex, size_t length) {
@@ -68,6 +73,7 @@ void AdikPattern::setBarLength(size_t barIndex, size_t length) {
         patData_[barIndex][j].resize(length, false); // Redimensionne chaque son de la barre à la longueur spécifiée
     }
 }
+//----------------------------------------
 
 // Fonction pour obtenir la longueur (nombre de pas) d'une barre spécifique
 size_t AdikPattern::getBarLength(size_t barIndex) const {
@@ -80,6 +86,7 @@ size_t AdikPattern::getBarLength(size_t barIndex) const {
     }
     return patData_[barIndex][0].size(); // Suppose que tous les sons d'une barre ont la même longueur
 }
+//----------------------------------------
 
 // Fonction pour accéder au pattern 2D d'une barre spécifique
 std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) {
@@ -91,6 +98,7 @@ std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) {
     }
     return patData_[barIndex];
 }
+//----------------------------------------
 
 // Fonction pour accéder au pattern 2D d'une barre spécifique (version const)
 const std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) const {
@@ -107,6 +115,7 @@ const std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex
     }
     return patData_[barIndex];
 }
+//----------------------------------------
 
 // Fonction pour afficher le pattern de batterie
 void AdikPattern::displayPattern() const {
@@ -134,11 +143,13 @@ void AdikPattern::displayPattern() const {
         }
     }
 }
+//----------------------------------------
 
 void AdikPattern::setCurrentBar(size_t newBarIndex) {
     // Clamp la nouvelle valeur entre 0 et numBarres_ - 1
     currentBar_ = std::clamp(newBarIndex, static_cast<size_t>(0), numBarres_ > 0 ? numBarres_ - 1 : 0);
 }
+//----------------------------------------
 
 void AdikPattern::genData() {
     std::random_device rd;
@@ -164,4 +175,7 @@ void AdikPattern::genData() {
         }
     }
 }
+//----------------------------------------
+//==== End of class AdikPattern ====
 
+} // namespace adikdrum

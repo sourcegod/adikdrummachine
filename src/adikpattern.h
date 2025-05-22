@@ -5,7 +5,8 @@
 #include <vector>
 #include <string>
 
-// Déclaration de la classe AdikPattern
+namespace adikdrum {
+
 class AdikPattern {
 public:
     // Constructeur par défaut
@@ -50,5 +51,7 @@ private:
     size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
     std::vector<std::vector<std::vector<bool>>> patData_; // Structure pour stocker le pattern de batterie [barre][son][pas]
 };
+//==== End of class AdikPattern ====
 
+} // namespace adikdrum
 #endif // ADIKPATTERN_H
