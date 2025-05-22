@@ -1,5 +1,6 @@
 #include "adikpattern.h"
 #include <algorithm> // Pour std::clamp
+#include <random>    // Pour la génération aléatoire
 
 // Constructeur par défaut
 AdikPattern::AdikPattern()
@@ -137,5 +138,30 @@ void AdikPattern::displayPattern() const {
 void AdikPattern::setCurrentBar(size_t newBarIndex) {
     // Clamp la nouvelle valeur entre 0 et numBarres_ - 1
     currentBar_ = std::clamp(newBarIndex, static_cast<size_t>(0), numBarres_ > 0 ? numBarres_ - 1 : 0);
+}
+
+void AdikPattern::genData() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 1);
+
+    // Parcourir les trois dimensions du pattern : [barre][son][pas]
+    for (size_t barIdx = 0; barIdx < patData_.size(); ++barIdx) {
+        // Assurez-vous que la dimension des sons est correctement redimensionnée
+        if (patData_[barIdx].empty()) {
+            patData_[barIdx].resize(numSoundsPerBar_);
+        }
+
+        for (size_t soundIdx = 0; soundIdx < patData_[barIdx].size(); ++soundIdx) {
+            // Assurez-vous que la dimension des pas est correctement redimensionnée
+            if (patData_[barIdx][soundIdx].empty()) {
+                patData_[barIdx][soundIdx].resize(getBarLength(barIdx), false);
+            }
+
+            for (size_t stepIdx = 0; stepIdx < patData_[barIdx][soundIdx].size(); ++stepIdx) {
+                patData_[barIdx][soundIdx][stepIdx] = (distrib(gen) == 1);
+            }
+        }
+    }
 }
 

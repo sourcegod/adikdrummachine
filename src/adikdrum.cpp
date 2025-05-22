@@ -291,6 +291,35 @@ void AdikDrum::demo() {
 void AdikDrum::loadPattern() {
     msgText_ = "Chargement d'un pattern de démonstration...";
     displayMessage(msgText_);
+    
+    // Récupère le pattern courant
+    auto curPattern = drumPlayer_.curPattern_;
+
+    // Vérifie si le pattern est valide avant de générer des données
+    if (curPattern) {
+        // Génère les données du pattern directement dans l'objet AdikPattern
+        curPattern->genData();
+    } else {
+        std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer." << std::endl;
+        msgText_ = "Erreur: Impossible de charger le pattern de démonstration.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    msgText_ = "Pattern de démonstration chargé.";
+    displayMessage(msgText_);
+    drumPlayer_.resetMute();
+
+    // Affiche la première barre du pattern (index 0) par défaut.
+    // Vous pourriez vouloir afficher la barre courante si vous en avez une.
+    displayGrid(curPattern->getPatternBar(0), cursorPos);
+}
+//----------------------------------------
+
+/*
+void AdikDrum::loadPattern() {
+    msgText_ = "Chargement d'un pattern de démonstration...";
+    displayMessage(msgText_);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(0, 1);
@@ -315,13 +344,12 @@ void AdikDrum::loadPattern() {
             // Assurez-vous que la dimension des pas est correctement redimensionnée
             // (cela devrait être fait dans le constructeur ou setBarLength de AdikPattern)
             
-            /*
-            if (patData[barIdx][soundIdx].empty()) {
+            
+            // if (patData[barIdx][soundIdx].empty()) {
                 // Ici, nous utilisons getBarLength pour obtenir la taille attendue des pas
                 // pour cette barre, en supposant que tous les sons dans une barre ont la même longueur.
-                patData[barIdx][soundIdx].resize(curPattern->getBarLength(barIdx), false);
-            }
-            */
+            //     patData[barIdx][soundIdx].resize(curPattern->getBarLength(barIdx), false);
+            // }
 
 
             for (size_t stepIdx = 0; stepIdx < patData[barIdx][soundIdx].size(); ++stepIdx) {
@@ -340,6 +368,7 @@ void AdikDrum::loadPattern() {
     displayGrid(curPattern->getPatternBar(0), cursorPos);
 }
 //----------------------------------------
+*/
 
 /*
 void AdikDrum::loadPattern() {
