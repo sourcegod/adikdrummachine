@@ -17,6 +17,21 @@ public:
     // DrumPlayer(int numSounds, int initialBpm, const std::vector<SoundPtr>& sounds, int numSteps);
     ~DrumPlayer();
 
+    int currentStep;
+    double secondsPerStep;
+    std::vector<SoundPtr> drumSounds_; // Utilisation de shared_ptr
+    SoundPtr soundClick1_; // Nouveau membre pour le son aigu du métronome
+    SoundPtr soundClick2_; // Nouveau membre pour le son grave du métronome
+
+    int clickStep;
+    std::vector<std::vector<bool>> pattern_;
+    int numSteps_;
+    int sampleRate_;
+    std::shared_ptr<AdikPattern> curPattern_; // CHANGEMENT ICI : c'est maintenant un pointeur intelligent
+    std::vector<std::vector<std::vector<bool>>> patData_;
+    size_t currentBar_;  // Supposons que ces membres existent et sont gérés
+
+
     void playSound(size_t soundIndex);
     void stopAllSounds();
     void playMetronome();
@@ -45,17 +60,6 @@ public:
     void toggleClick() { clicking_ = ! clicking_; }
     void playLastSound();
     size_t getLastSoundIndex() const { return lastSoundIndex_; }
-
-    int currentStep;
-    double secondsPerStep;
-    std::vector<SoundPtr> drumSounds_; // Utilisation de shared_ptr
-    SoundPtr soundClick1_; // Nouveau membre pour le son aigu du métronome
-    SoundPtr soundClick2_; // Nouveau membre pour le son grave du métronome
-
-    int clickStep;
-    std::vector<std::vector<bool>> pattern_;
-    int numSteps_;
-    int sampleRate_;
 
 private:
     bool playing_;

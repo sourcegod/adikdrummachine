@@ -20,24 +20,32 @@ public:
     // Fonction pour obtenir le nombre de barres
     size_t getBar() const;
 
-    // Fonction pour définir la longueur d'une barre spécifique
+    // Fonction pour définir la longueur (nombre de pas) d'une barre spécifique
     void setBarLength(size_t barIndex, size_t length);
 
-    // Fonction pour obtenir la longueur d'une barre spécifique
+    // Fonction pour obtenir la longueur (nombre de pas) d'une barre spécifique
     size_t getBarLength(size_t barIndex) const;
 
-    // Fonction pour accéder au pattern d'une barre spécifique
-    std::vector<bool>& getPatternBar(size_t barIndex);
+    // Fonction pour accéder au pattern 2D d'une barre spécifique (numSounds x numSteps)
+    std::vector<std::vector<bool>>& getPatternBar(size_t barIndex);
 
-     // Fonction pour accéder au pattern d'une barre spécifique (version const)
-    const std::vector<bool>& getPatternBar(size_t barIndex) const;
+     // Fonction pour accéder au pattern 2D d'une barre spécifique (version const)
+    const std::vector<std::vector<bool>>& getPatternBar(size_t barIndex) const;
 
     // Fonction pour afficher le pattern de batterie
     void displayPattern() const;
 
+    // Fonction pour obtenir le nombre de sons par barre (fixe)
+    size_t getNumSoundsPerBar() const { return numSoundsPerBar_; }
+    std::vector<std::vector<std::vector<bool>>>& getPatData() { return patData_; }
+    size_t getCurrentBar() { return currentBar_; }
+
 private:
     size_t numBarres_; // Nombre de barres dans le pattern
-    std::vector<std::vector<bool>> pattern_; // Structure pour stocker le pattern de batterie
+    size_t currentBar_;
+    size_t currentStep_;
+    size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
+    std::vector<std::vector<std::vector<bool>>> patData_; // Structure pour stocker le pattern de batterie [barre][son][pas]
 };
 
 #endif // ADIKPATTERN_H

@@ -1,11 +1,28 @@
 #include "adikpattern.h"
 
 // Constructeur par défaut
-AdikPattern::AdikPattern() : numBarres_(0) {}
+AdikPattern::AdikPattern()
+    : numBarres_(1), numSoundsPerBar_(16) { // Initialisation par défaut : 1 barre, 16 sons
+    patData_.resize(numBarres_);
+    for (size_t i = 0; i < numBarres_; ++i) {
+        patData_[i].resize(numSoundsPerBar_);
+        for (size_t j = 0; j < numSoundsPerBar_; ++j) {
+            patData_[i][j].assign(16, false); // Par défaut 16 pas par son
+        }
+    }
+}
 
 // Constructeur avec initialisation du nombre de barres
-AdikPattern::AdikPattern(size_t numBarres) : numBarres_(numBarres) {
-    pattern_.resize(numBarres);
+AdikPattern::AdikPattern(size_t numBarres)
+    : numBarres_(numBarres), numSoundsPerBar_(16) { // Initialisation par défaut : 16 sons
+    if (numBarres_ == 0) numBarres_ = 1; // Assure au moins 1 barre
+    patData_.resize(numBarres_);
+    for (size_t i = 0; i < numBarres_; ++i) {
+        patData_[i].resize(numSoundsPerBar_);
+        for (size_t j = 0; j < numSoundsPerBar_; ++j) {
+            patData_[i][j].assign(16, false); // Par défaut 16 pas par son
+        }
+    }
 }
 
 // Fonction pour définir le nombre de barres
@@ -13,8 +30,16 @@ void AdikPattern::setBar(size_t numBarres) {
     if (numBarres == 0) {
         numBarres = 1; // Correction : nombre minimal de barres est 1
     }
+    size_t oldNumBarres = numBarres_;
     numBarres_ = numBarres;
-    pattern_.resize(numBarres); // Redimensionne le vecteur pattern_
+    patData_.resize(numBarres_); // Redimensionne le vecteur patData_
+    // Initialise les barres nouvellement ajoutées
+    for (size_t i = oldNumBarres; i < numBarres_; ++i) {
+        patData_[i].resize(numSoundsPerBar_);
+        for (size_t j = 0; j < numSoundsPerBar_; ++j) {
+            patData_[i][j].assign(16, false); // Par défaut 16 pas pour les nouveaux sons dans les nouvelles barres
+        }
+    }
 }
 
 // Fonction pour obtenir le nombre de barres
@@ -22,116 +47,87 @@ size_t AdikPattern::getBar() const {
     return numBarres_;
 }
 
-// Fonction pour définir la longueur d'une barre spécifique
+// Fonction pour définir la longueur (nombre de pas) d'une barre spécifique
 void AdikPattern::setBarLength(size_t barIndex, size_t length) {
-    if (barIndex >= numBarres_) {
-        barIndex = numBarres_ - 1; // Correction : ajuste l'index au maximum valide
+    if (numBarres_ == 0) { // Gère le cas où aucune barre n'existe encore
+        setBar(1); // Crée au moins une barre
+        barIndex = 0;
+    } else if (barIndex >= numBarres_) {
+        barIndex = numBarres_ - 1; // Ajuste l'index au maximum valide
     }
-    if (numBarres_ > 0)
-    {
-        pattern_[barIndex].resize(length, false); // Redimensionne la barre à la longueur spécifiée
+
+    if (patData_[barIndex].empty()) { // S'assure que numSoundsPerBar_ est configuré pour cette barre
+        patData_[barIndex].resize(numSoundsPerBar_);
+    }
+
+    for (size_t j = 0; j < numSoundsPerBar_; ++j) {
+        patData_[barIndex][j].resize(length, false); // Redimensionne chaque son de la barre à la longueur spécifiée
     }
 }
 
-// Fonction pour obtenir la longueur d'une barre spécifique
+// Fonction pour obtenir la longueur (nombre de pas) d'une barre spécifique
 size_t AdikPattern::getBarLength(size_t barIndex) const {
+    if (numBarres_ == 0) return 0;
     if (barIndex >= numBarres_) {
-        barIndex = numBarres_ - 1; // Correction : ajuste l'index au maximum valide
+        barIndex = numBarres_ - 1; // Ajuste l'index au maximum valide
     }
-    if (numBarres_ > 0)
-    {
-       return pattern_[barIndex].size();
+    if (patData_[barIndex].empty() || patData_[barIndex][0].empty()) {
+        return 0; // Retourne 0 si la barre ou le premier son est vide
     }
-    else
-    {
-        return 0;
-    }
+    return patData_[barIndex][0].size(); // Suppose que tous les sons d'une barre ont la même longueur
 }
 
-// Fonction pour accéder au pattern d'une barre spécifique
-std::vector<bool>& AdikPattern::getPatternBar(size_t barIndex) {
-    if (barIndex >= numBarres_) {
-         barIndex = numBarres_ - 1; // Correction : ajuste l'index au maximum valide
+// Fonction pour accéder au pattern 2D d'une barre spécifique
+std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) {
+    if (numBarres_ == 0) {
+        setBar(1); // Crée au moins une barre si aucune n'existe
+        barIndex = 0;
+    } else if (barIndex >= numBarres_) {
+        barIndex = numBarres_ - 1; // Ajuste l'index au maximum valide
     }
-    return pattern_[barIndex];
+    return patData_[barIndex];
 }
 
-// Fonction pour accéder au pattern d'une barre spécifique (version const)
-const std::vector<bool>& AdikPattern::getPatternBar(size_t barIndex) const{
-    if (barIndex >= numBarres_) {
-         barIndex = numBarres_ - 1; // Correction : ajuste l'index au maximum valide
+// Fonction pour accéder au pattern 2D d'une barre spécifique (version const)
+const std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) const {
+    if (numBarres_ == 0) {
+        // Dans une fonction const, on ne peut pas modifier l'état (appeler setBar).
+        // Il faudrait gérer ce cas en retournant une référence à un pattern vide statique
+        // ou en lançant une exception si la conception le permet.
+        // Pour l'instant, nous allons simplement ajuster l'index et supposer un accès valide.
+        if (barIndex >= numBarres_) {
+            barIndex = numBarres_ - 1;
+        }
+    } else if (barIndex >= numBarres_) {
+        barIndex = numBarres_ - 1;
     }
-    return pattern_[barIndex];
+    return patData_[barIndex];
 }
 
 // Fonction pour afficher le pattern de batterie
 void AdikPattern::displayPattern() const {
-    if (pattern_.empty()) {
+    if (patData_.empty()) {
         std::cout << "Le pattern de batterie est vide." << std::endl;
         return;
     }
 
-    for (size_t i = 0; i < numBarres_; ++i) {
-        std::cout << "Barre " << i + 1 << ": ";
-        if (pattern_[i].empty())
-        {
-            std::cout << "[Barre Vide]" << std::endl;
+    for (size_t i = 0; i < numBarres_; ++i) { // Itère sur les barres
+        std::cout << "Barre " << i + 1 << ":" << std::endl;
+        if (patData_[i].empty()) {
+            std::cout << "  [Barre Vide]" << std::endl;
             continue;
         }
-        for (bool note : pattern_[i]) {
-            std::cout << (note ? "1 " : "0 ");
+        for (size_t j = 0; j < numSoundsPerBar_; ++j) { // Itère sur les sons
+            std::cout << "  Son " << j + 1 << ": ";
+            if (patData_[i][j].empty()) {
+                std::cout << "[Son Vide]" << std::endl;
+                continue;
+            }
+            for (bool note : patData_[i][j]) { // Itère sur les pas
+                std::cout << (note ? "1 " : "0 ");
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 }
-
-/*
-// Fonction main pour tester la classe AdikPattern
-int main() {
-    try {
-        // Création d'un objet AdikPattern avec 2 barres
-        AdikPattern AdikPattern(2);
-
-        // Définition de la longueur des barres
-        AdikPattern.setBarLength(0, 8); // La première barre a 8 pas
-        AdikPattern.setBarLength(1, 16); // La deuxième barre a 16 pas
-
-        // Accès et modification du pattern de la première barre
-        std::vector<bool>& bar1Pattern = AdikPattern.getPatternBar(0);
-        bar1Pattern[0] = true; // Place une note au premier pas
-        bar1Pattern[3] = true; // Place une note au quatrième pas
-        bar1Pattern[7] = true;
-
-        // Accès et modification du pattern de la deuxième barre
-        std::vector<bool>& bar2Pattern = AdikPattern.getPatternBar(1);
-        bar2Pattern[0] = true;
-        bar2Pattern[4] = true;
-        bar2Pattern[8] = true;
-        bar2Pattern[12] = true;
-
-        // Affichage du pattern
-        AdikPattern.displayPattern();
-
-        // Test de la fonction setBar pour modifier le nombre de barres
-        AdikPattern.setBar(4); // Change le nombre de barres à 4
-        std::cout << "Nombre de barres après modification : " << AdikPattern.getBar() << std::endl;
-
-        // Affichage du pattern après modification du nombre de barres
-        AdikPattern.displayPattern(); // Affiche le pattern (les barres 3 et 4 seront vides pour l'instant)
-
-       // Définition de la longueur des nouvelles barres.
-        AdikPattern.setBarLength(2, 8);
-        AdikPattern.setBarLength(3, 8);
-
-        // Affichage du pattern après avoir défini la longueur des nouvelles barres
-        AdikPattern.displayPattern();
-
-    } catch (const std::exception& e) {
-        std::cerr << "Erreur: " << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-*/
 

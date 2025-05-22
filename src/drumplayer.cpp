@@ -13,9 +13,10 @@ namespace adikdrum {
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     : currentStep(0),
       clickStep(0),
-      pattern_(numSounds, std::vector<bool>(numSteps, false)),
+      // pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
       sampleRate_(44100),
+      // curPattern_(4),
       playing_(false),
       clicking_(false),
       bpm_(100),
@@ -28,8 +29,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     setBpm(bpm_);
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
     // Création d'un objet AdikPattern avec 2 barres
-    AdikPattern curPattern(2);
-
+    curPattern_ = std::make_shared<AdikPattern>(4);
+    // patData_ = curPattern_->getPattern();
 
 }
 //----------------------------------------
@@ -175,19 +176,40 @@ void DrumPlayer::playMetronome() {
     }
 }
 //----------------------------------------
-
 void DrumPlayer::playPattern() {
+    if (mixer_ && playing_) {
+        // Vérifie si curPattern est valide
+        if (curPattern_) {
+            // Utilise la méthode de AdikPattern pour obtenir l'index de la barre actuelle
+            currentBar_ = curPattern_->getCurrentBar();
+
+            // Pour chaque son dans la barre actuelle
+            for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
+                // Si la note est active à l'étape actuelle
+                if (curPattern_->getPatData()[currentBar_][i][currentStep]) {
+                    if (drumSounds_[i]) {
+                        // Jouer le son
+                        mixer_->play(i + 1, drumSounds_[i]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+void DrumPlayer::playPattern0() {
     if (mixer_ && playing_) {
         for (size_t i = 0; i < pattern_.size(); ++i) { //
             if (pattern_[i][currentStep]) {
                 if (drumSounds_[i]) {
                     
-                    /* 
+                     
                     // On ne cherche plus un canal libre  pour jouer, chaque canal à son index de son
-                    if (!mixer_->isChannelActive(i + 1)) { // Utiliser les canaux 1 à NUM_SOUNDS
-                        mixer_->play(i + 1, drumSounds_[i]);
-                    }
-                    */
+                    // if (!mixer_->isChannelActive(i + 1)) { // Utiliser les canaux 1 à NUM_SOUNDS
+                    //    mixer_->play(i + 1, drumSounds_[i]);
+                    // }
+                    // 
                     
                     mixer_->play(i + 1, drumSounds_[i]);
                 }
@@ -196,6 +218,7 @@ void DrumPlayer::playPattern() {
     }
 }
 //----------------------------------------
+*/
 
 void DrumPlayer::setBpm(double newBpm) {
     if (newBpm >=5 &&  newBpm <= 800) {

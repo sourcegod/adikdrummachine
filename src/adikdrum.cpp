@@ -294,6 +294,53 @@ void AdikDrum::loadPattern() {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(0, 1);
+    auto curPattern = drumPlayer_.curPattern_;
+    auto& patData = curPattern->getPatData();
+
+    // Parcourir les trois dimensions du pattern : [barre][son][pas]
+    // drumPlayer_.patData_ est un std::vector<std::vector<std::vector<bool>>>
+    for (size_t barIdx = 0; barIdx < patData.size(); ++barIdx) {
+        // Assurez-vous que la dimension des sons est correctement redimensionnée
+        // (cela devrait être fait dans le constructeur ou setBar de AdikPattern)
+        if (patData[barIdx].empty()) {
+            // Cela ne devrait pas arriver si AdikPattern est bien initialisé,
+            // mais c'est une vérification de sécurité.
+            patData[barIdx].resize(curPattern->getNumSoundsPerBar());
+        }
+
+        for (size_t soundIdx = 0; soundIdx < patData[barIdx].size(); ++soundIdx) {
+            // Assurez-vous que la dimension des pas est correctement redimensionnée
+            // (cela devrait être fait dans le constructeur ou setBarLength de AdikPattern)
+            if (patData[barIdx][soundIdx].empty()) {
+                // Ici, nous utilisons getBarLength pour obtenir la taille attendue des pas
+                // pour cette barre, en supposant que tous les sons dans une barre ont la même longueur.
+                patData[barIdx][soundIdx].resize(curPattern->getBarLength(barIdx), false);
+            }
+
+            for (size_t stepIdx = 0; stepIdx < patData[barIdx][soundIdx].size(); ++stepIdx) {
+                patData[barIdx][soundIdx][stepIdx] = (distrib(gen) == 1);
+            }
+        }
+    }
+
+    msgText_ = "Pattern de démonstration chargé.";
+    displayMessage(msgText_);
+    drumPlayer_.resetMute();
+
+    // Affiche la première barre du pattern (index 0) par défaut.
+    // Vous pourriez vouloir afficher la barre courante si vous en avez une.
+    // getPatternBar(0) retourne le std::vector<std::vector<bool>> pour la première barre.
+    displayGrid(curPattern->getPatternBar(0), cursorPos);
+}
+//----------------------------------------
+
+/*
+void AdikDrum::loadPattern() {
+    msgText_ = "Chargement d'un pattern de démonstration...";
+    displayMessage(msgText_);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 1);
 
     for (size_t i = 0; i < drumPlayer_.pattern_.size(); ++i) {
         for (int j = 0; j < drumPlayer_.numSteps_; ++j) {
@@ -306,6 +353,7 @@ void AdikDrum::loadPattern() {
     displayGrid(drumPlayer_.pattern_, cursorPos);
 }
 //----------------------------------------
+*/
 
 void AdikDrum::displayMessage(const std::string& message) {
     if (uiApp_) {
