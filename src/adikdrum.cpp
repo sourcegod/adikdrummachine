@@ -296,6 +296,9 @@ void AdikDrum::loadPattern() {
     std::uniform_int_distribution<> distrib(0, 1);
     auto curPattern = drumPlayer_.curPattern_;
     auto& patData = curPattern->getPatData();
+    auto numSounds = curPattern->getNumSoundsPerBar();
+    auto numBars = patData.size();
+    std::cout << "Numsounds: " << numSounds << ", numBars: " << numBars << "\n";
 
     // Parcourir les trois dimensions du pattern : [barre][son][pas]
     // drumPlayer_.patData_ est un std::vector<std::vector<std::vector<bool>>>
@@ -311,11 +314,15 @@ void AdikDrum::loadPattern() {
         for (size_t soundIdx = 0; soundIdx < patData[barIdx].size(); ++soundIdx) {
             // Assurez-vous que la dimension des pas est correctement redimensionnée
             // (cela devrait être fait dans le constructeur ou setBarLength de AdikPattern)
+            
+            /*
             if (patData[barIdx][soundIdx].empty()) {
                 // Ici, nous utilisons getBarLength pour obtenir la taille attendue des pas
                 // pour cette barre, en supposant que tous les sons dans une barre ont la même longueur.
                 patData[barIdx][soundIdx].resize(curPattern->getBarLength(barIdx), false);
             }
+            */
+
 
             for (size_t stepIdx = 0; stepIdx < patData[barIdx][soundIdx].size(); ++stepIdx) {
                 patData[barIdx][soundIdx][stepIdx] = (distrib(gen) == 1);

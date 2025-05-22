@@ -1,8 +1,10 @@
 #include "adikpattern.h"
+#include <algorithm> // Pour std::clamp
 
 // Constructeur par défaut
 AdikPattern::AdikPattern()
     : numBarres_(1), numSoundsPerBar_(16) { // Initialisation par défaut : 1 barre, 16 sons
+    currentBar_ =0;
     patData_.resize(numBarres_);
     for (size_t i = 0; i < numBarres_; ++i) {
         patData_[i].resize(numSoundsPerBar_);
@@ -16,6 +18,7 @@ AdikPattern::AdikPattern()
 AdikPattern::AdikPattern(size_t numBarres)
     : numBarres_(numBarres), numSoundsPerBar_(16) { // Initialisation par défaut : 16 sons
     if (numBarres_ == 0) numBarres_ = 1; // Assure au moins 1 barre
+    currentBar_ =0;
     patData_.resize(numBarres_);
     for (size_t i = 0; i < numBarres_; ++i) {
         patData_[i].resize(numSoundsPerBar_);
@@ -129,5 +132,10 @@ void AdikPattern::displayPattern() const {
             std::cout << std::endl;
         }
     }
+}
+
+void AdikPattern::setCurrentBar(size_t newBarIndex) {
+    // Clamp la nouvelle valeur entre 0 et numBarres_ - 1
+    currentBar_ = std::clamp(newBarIndex, static_cast<size_t>(0), numBarres_ > 0 ? numBarres_ - 1 : 0);
 }
 

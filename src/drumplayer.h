@@ -30,6 +30,7 @@ public:
     std::shared_ptr<AdikPattern> curPattern_; // CHANGEMENT ICI : c'est maintenant un pointeur intelligent
     std::vector<std::vector<std::vector<bool>>> patData_;
     size_t currentBar_;  // Supposons que ces membres existent et sont gérés
+    size_t stepCount_ =0;
 
 
     void playSound(size_t soundIndex);

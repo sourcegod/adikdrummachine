@@ -38,7 +38,9 @@ public:
     // Fonction pour obtenir le nombre de sons par barre (fixe)
     size_t getNumSoundsPerBar() const { return numSoundsPerBar_; }
     std::vector<std::vector<std::vector<bool>>>& getPatData() { return patData_; }
-    size_t getCurrentBar() { return currentBar_; }
+    const std::vector<std::vector<std::vector<bool>>>& getPatData() const { return patData_; }
+    size_t getCurrentBar() const { return currentBar_; }
+    void setCurrentBar(size_t newBarIndex);
 
 private:
     size_t numBarres_; // Nombre de barres dans le pattern

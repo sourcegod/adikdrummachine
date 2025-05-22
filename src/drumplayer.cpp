@@ -30,7 +30,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
     // Création d'un objet AdikPattern avec 2 barres
     curPattern_ = std::make_shared<AdikPattern>(4);
-    // patData_ = curPattern_->getPattern();
+    patData_ = curPattern_->getPatData();
 
 }
 //----------------------------------------
@@ -176,14 +176,72 @@ void DrumPlayer::playMetronome() {
     }
 }
 //----------------------------------------
+
+void DrumPlayer::playPattern() {
+    if (mixer_ && playing_) {
+        // Vérifie si curPattern_ est valide
+        if (curPattern_) {
+            // Récupère l'index de la barre courante depuis l'objet AdikPattern
+            size_t curBar = curPattern_->getCurrentBar();
+            // Récupère le nombre total de barres
+            size_t numTotalBars = curPattern_->getBar();
+            // Récupère le nombre de pas dans la barre actuelle
+            size_t numSteps = curPattern_->getBarLength(curBar);
+
+            // Affiche la barre courante (pour le débogage, peut être supprimé)
+            std::cout << "currentBar: " << curBar 
+                << ", stepCount_: " << stepCount_ 
+                << ", numSteps: " << numSteps << " \n";
+
+            // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
+            for (size_t i = 0; i < curPattern_->getPatData()[curBar].size(); ++i) {
+                // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
+                if (stepCount_ < curPattern_->getPatData()[curBar][i].size() && // Vérification de la limite de currentStep
+                    curPattern_->getPatData()[curBar][i][currentStep]) {
+                    if (drumSounds_[i]) {
+                        // Jouer le son sur le canal correspondant (i + 1)
+                        mixer_->play(i + 1, drumSounds_[i]);
+                    }
+                }
+            }
+
+            // Incrémente le pas courant
+            stepCount_++;
+            std::cout << "voici curStep après incré: " << stepCount_ << "\n";
+
+            // Si le pas courant dépasse la longueur de la barre actuelle
+            if (stepCount_ >= numSteps) {
+                std::cout << "\a" << "\n";
+                stepCount_ =0; // Réinitialise le pas à 0
+                size_t nextBarIndex = curBar + 1; // Passe à la barre suivante
+
+                std::cout << "voici nextBarIndex: " << nextBarIndex << "\n";
+                // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
+                if (nextBarIndex >= numTotalBars) {
+                    nextBarIndex = 0; // Boucle vers la première barre
+                }
+                // Met à jour la barre courante dans l'objet AdikPattern
+                curPattern_->setCurrentBar(nextBarIndex);
+            }
+        } else {
+            // Gérer le cas où curPattern_ n'est pas initialisé (par exemple, afficher un message d'erreur)
+            std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer::playPattern." << std::endl;
+        }
+    }
+}
+
+
+/*
 void DrumPlayer::playPattern() {
     if (mixer_ && playing_) {
         // Vérifie si curPattern est valide
         if (curPattern_) {
             // Utilise la méthode de AdikPattern pour obtenir l'index de la barre actuelle
             currentBar_ = curPattern_->getCurrentBar();
+            std::cout << "currentBar: " << currentBar_ << "\n";
 
             // Pour chaque son dans la barre actuelle
+            // std::cout << "\a" << std::flush;
             for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
                 // Si la note est active à l'étape actuelle
                 if (curPattern_->getPatData()[currentBar_][i][currentStep]) {
@@ -196,6 +254,8 @@ void DrumPlayer::playPattern() {
         }
     }
 }
+//----------------------------------------
+*/
 
 /*
 void DrumPlayer::playPattern0() {
