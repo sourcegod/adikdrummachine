@@ -42,6 +42,10 @@ public:
     const std::vector<std::vector<std::vector<bool>>>& getPatData() const { return patData_; }
     size_t getCurrentBar() const { return currentBar_; }
     void setCurrentBar(size_t newBarIndex);
+    size_t getCurrentStep() const { return currentStep_; }
+    void setCurrentStep(size_t newStepIndex);
+
+    void setPosition(size_t bar=0, size_t step=0);
     void genData();
 
 private:

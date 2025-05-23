@@ -151,6 +151,18 @@ void AdikPattern::setCurrentBar(size_t newBarIndex) {
 }
 //----------------------------------------
 
+void AdikPattern::setCurrentStep(size_t newStepIndex) {
+    // Clamp la nouvelle valeur entre 0 et la longueur de la barre courante - 1
+    currentStep_ = std::clamp(newStepIndex, static_cast<size_t>(0), getBarLength(currentBar_) > 0 ? getBarLength(currentBar_) - 1 : 0);
+}
+//----------------------------------------
+
+void AdikPattern::setPosition(size_t bar, size_t step) {
+    setCurrentBar(bar); // Cela va aussi ajuster currentStep_ si nécessaire
+    setCurrentStep(step); // Puis ajuster le pas spécifiquement
+}
+//----------------------------------------
+
 void AdikPattern::genData() {
     std::random_device rd;
     std::mt19937 gen(rd());
