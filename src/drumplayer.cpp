@@ -192,7 +192,8 @@ void DrumPlayer::playPattern() {
             // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
             for (size_t i = 0; i < curPattern_->getPatData()[curBar].size(); ++i) {
                 // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
-                if (stepCount_ < curPattern_->getPatData()[curBar][i].size() && // Vérification de la limite de currentStep
+                // if (stepCount_ < curPattern_->getPatData()[curBar][i].size() && // Vérification de la limite de currentStep
+                if (currentStep < curPattern_->getPatData()[curBar][i].size() && // Vérification de la limite de currentStep
                     curPattern_->getPatData()[curBar][i][currentStep]) {
                     if (drumSounds_[i]) {
                         // Jouer le son sur le canal correspondant (i + 1)
@@ -202,11 +203,14 @@ void DrumPlayer::playPattern() {
             }
 
             // Incrémente le pas courant
-            stepCount_++;
+            // stepCount_++;
+            currentStep++;
 
             // Si le pas courant dépasse la longueur de la barre actuelle
-            if (stepCount_ >= numSteps) {
-                stepCount_ =0; // Réinitialise le pas à 0
+            // if (stepCount_ >= numSteps) {
+            if (currentStep >= numSteps) {
+                // stepCount_ =0; // Réinitialise le pas à 0
+                currentStep =0;
                 size_t nextBarIndex = curBar + 1; // Passe à la barre suivante
 
                 // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
