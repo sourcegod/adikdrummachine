@@ -182,19 +182,18 @@ void DrumPlayer::playPattern() {
         // Vérifie si curPattern_ est valide
         if (curPattern_) {
             // Récupère l'index de la barre courante depuis l'objet AdikPattern
-            size_t curBar = curPattern_->getCurrentBar();
+            currentBar_ = curPattern_->getCurrentBar();
             // Récupère le nombre total de barres
-            size_t numTotalBars = curPattern_->getBar();
+            numTotalBars_ = curPattern_->getBar();
             // Récupère le nombre de pas dans la barre actuelle
-            size_t numSteps = curPattern_->getBarLength(curBar);
+            numSteps_ = curPattern_->getBarLength(currentBar_);
 
             // Affiche la barre courante (pour le débogage, peut être supprimé)
             // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
-            for (size_t i = 0; i < curPattern_->getPatData()[curBar].size(); ++i) {
+            for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
                 // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
-                // if (stepCount_ < curPattern_->getPatData()[curBar][i].size() && // Vérification de la limite de currentStep
-                if (currentStep < curPattern_->getPatData()[curBar][i].size() && // Vérification de la limite de currentStep
-                    curPattern_->getPatData()[curBar][i][currentStep]) {
+                if (currentStep < curPattern_->getPatData()[currentBar_][i].size() && // Vérification de la limite de currentStep
+                    curPattern_->getPatData()[currentBar_][i][currentStep]) {
                     if (drumSounds_[i]) {
                         // Jouer le son sur le canal correspondant (i + 1)
                         mixer_->play(i + 1, drumSounds_[i]);
@@ -203,18 +202,15 @@ void DrumPlayer::playPattern() {
             }
 
             // Incrémente le pas courant
-            // stepCount_++;
             currentStep++;
 
             // Si le pas courant dépasse la longueur de la barre actuelle
-            // if (stepCount_ >= numSteps) {
-            if (currentStep >= numSteps) {
-                // stepCount_ =0; // Réinitialise le pas à 0
+            if (currentStep >= numSteps_) {
                 currentStep =0;
-                size_t nextBarIndex = curBar + 1; // Passe à la barre suivante
+                size_t nextBarIndex = currentBar_ + 1; // Passe à la barre suivante
 
                 // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
-                if (nextBarIndex >= numTotalBars) {
+                if (nextBarIndex >= numTotalBars_) {
                     nextBarIndex = 0; // Boucle vers la première barre
                 }
                 // Met à jour la barre courante dans l'objet AdikPattern
