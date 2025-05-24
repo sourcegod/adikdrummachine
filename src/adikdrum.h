@@ -59,7 +59,7 @@ public:
     void playCurrentSound();
     auto& getPattern() { return drumPlayer_.pattern_; }
     auto& getCurPattern() { return drumPlayer_.curPattern_; }
-    auto& getPlayer() { return drumPlayer_; }
+    auto& getDrumPlayer() { return drumPlayer_; }
     size_t getNumSounds() const { return numSounds_; }
     size_t getNumSteps() const { return numSteps_; }
     void changeSpeed(float speed);

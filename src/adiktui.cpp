@@ -89,9 +89,14 @@ void AdikTUI::destroyWindows() {
 void AdikTUI::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
-    auto& pattern = adikDrum_.getPattern();
-    int numSounds = adikDrum_.getNumSounds();
-    int numSteps = adikDrum_.getNumSteps();
+
+    // Récupérer le pattern courant depuis drumPlayer_ (via AdikDrum)
+    // Assurez-vous que curPattern_ est valide avant d'appeler getPatternBar
+    auto curPattern = adikDrum_.getDrumPlayer().curPattern_;
+    const auto& pattern = curPattern ? curPattern->getPatternBar(curPattern->getCurrentBar()) : std::vector<std::vector<bool>>();
+
+    auto numSounds = adikDrum_.getNumSounds();
+    auto numSteps = adikDrum_.getNumSteps();
     displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps);
 
     int key;
@@ -208,6 +213,7 @@ void AdikTUI::run() {
     } // End of while loop
 
 }
+//----------------------------------------
 
 /*
 void AdikTUI::run() {
