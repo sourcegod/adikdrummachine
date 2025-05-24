@@ -16,7 +16,6 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       // pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
       sampleRate_(44100),
-      // curPattern_(4),
       playing_(false),
       clicking_(false),
       bpm_(100),
@@ -29,7 +28,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     setBpm(bpm_);
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
     // Création d'un objet AdikPattern avec 2 barres
-    curPattern_ = std::make_shared<AdikPattern>(4);
+    curPattern_ = std::make_shared<AdikPattern>(2);
     patData_ = curPattern_->getPatData();
 
 }
