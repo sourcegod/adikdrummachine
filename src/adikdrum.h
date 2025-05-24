@@ -67,6 +67,8 @@ public:
     void toggleDelay();
     void changeShiftPad(size_t deltaShiftPad);
     void changeBar(int delta);
+    void gotoStart();
+    void gotoEnd();
 
 private:
     AudioDriver audioDriver_;

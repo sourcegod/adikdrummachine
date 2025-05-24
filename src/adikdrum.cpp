@@ -553,7 +553,6 @@ void AdikDrum::changeBar(int delta) {
     int barInt = static_cast<int>(curBar) + delta;
     // Note: cannot convert int to size_t,  cause the int will be maximum int value.
     size_t barIndex = std::clamp(barInt, 0, static_cast<int>(numBars -1));
-    // std::cout << "voici newBarIndex: " << newBarIndex << ", NewBarInt: " << newBarInt  << " \n";
 
     // Set the new position, keeping the current step
     drumPlayer_.curPattern_->setPosition(barIndex, 0);
@@ -563,6 +562,42 @@ void AdikDrum::changeBar(int delta) {
 
     // Update the displayed grid to the new bar
     displayGrid(drumPlayer_.curPattern_->getPatternBar(barIndex), cursorPos);
+}
+//----------------------------------------
+
+void AdikDrum::gotoStart() {
+    const auto& curPattern = drumPlayer_.curPattern_;
+    if (!curPattern) {
+        msgText_ = "Erreur: Aucun pattern chargé pour aller au début.";
+        displayMessage(msgText_);
+        return;
+    }
+    curPattern->setPosition(0, 0);
+    auto curBar = curPattern->getCurrentBar();
+    auto numBars = curPattern->getBar();
+
+    msgText_ = "Première mesure: " + std::to_string(curBar +1) + "/" + std::to_string(numBars);
+    displayMessage(msgText_);
+    displayGrid(drumPlayer_.curPattern_->getPatternBar(0), cursorPos);
+}
+//----------------------------------------
+
+void AdikDrum::gotoEnd() {
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour aller à la fin.";
+        displayMessage(msgText_);
+        return;
+    }
+    size_t numBars = drumPlayer_.curPattern_->getBar();
+    if (numBars > 0) {
+        drumPlayer_.curPattern_->setPosition(numBars - 1, drumPlayer_.curPattern_->getCurrentStep());
+        msgText_ = "Dernière mesure: " + std::to_string(numBars) + "/" + std::to_string(numBars);
+        displayMessage(msgText_);
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(numBars - 1), cursorPos);
+    } else {
+        msgText_ = "Aucune mesure à laquelle aller.";
+        displayMessage(msgText_);
+    }
 }
 //----------------------------------------
 

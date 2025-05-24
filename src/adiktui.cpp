@@ -172,6 +172,12 @@ void AdikTUI::run() {
             case '*': // '*'
                 adikDrum_.changeShiftPad(8);
                 break;
+            case '<': // Go to start of pattern
+                adikDrum_.gotoStart();
+                break;
+            case '>': // Go to end of pattern
+                adikDrum_.gotoEnd();
+                break;
 
             case KEY_UP:
                 adikDrum_.moveCursorUp();
