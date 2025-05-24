@@ -238,6 +238,9 @@ void AdikTUI::displayMessage(const std::string& message) {
     if (messageWindow_ == nullptr) return;
 
     werase(messageWindow_); // Effacer la fenêtre
+    // Note: For more accessibility with the Screen Reader, you must erase the screen, Refresh the screen and pause for 50 ms, and after, print the right message 
+    wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
+     napms(50); // pause de 500ms  
     wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
     // wclrtoeol(messageWindow_); // Efface du curseur jusqu'à la fin de la ligne.
     box(messageWindow_, 0, 0);
