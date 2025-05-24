@@ -64,6 +64,7 @@ public:
     void genTones();
     void toggleDelay();
     void changeShiftPad(size_t deltaShiftPad);
+    void changeBar(int delta);
 
 private:
     AudioDriver audioDriver_;

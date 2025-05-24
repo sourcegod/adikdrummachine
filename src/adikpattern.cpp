@@ -147,7 +147,7 @@ void AdikPattern::displayPattern() const {
 
 void AdikPattern::setCurrentBar(size_t newBarIndex) {
     // Clamp la nouvelle valeur entre 0 et numBarres_ - 1
-    currentBar_ = std::clamp(newBarIndex, static_cast<size_t>(0), numBarres_ > 0 ? numBarres_ - 1 : 0);
+    currentBar_ = std::clamp(newBarIndex, static_cast<size_t>(0), numBarres_ -1);
 }
 //----------------------------------------
 
@@ -188,6 +188,7 @@ void AdikPattern::genData() {
     }
 }
 //----------------------------------------
+
 //==== End of class AdikPattern ====
 
 } // namespace adikdrum

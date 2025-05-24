@@ -538,6 +538,33 @@ void AdikDrum::changeShiftPad(size_t deltaShiftPad) {
 }
 //----------------------------------------
 
+void AdikDrum::changeBar(int delta) {
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour changer de mesure.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    size_t curBar = drumPlayer_.curPattern_->getCurrentBar();
+    size_t numBars = drumPlayer_.curPattern_->getBar(); // Get total number of bars
+
+    // Calculate new bar index, ensuring it stays within bounds
+    // Need to cast currentBar to int for arithmetic with delta, then back to size_t for clamp
+    int barInt = static_cast<int>(curBar) + delta;
+    // Note: cannot convert int to size_t,  cause the int will be maximum int value.
+    size_t barIndex = std::clamp(barInt, 0, static_cast<int>(numBars -1));
+    // std::cout << "voici newBarIndex: " << newBarIndex << ", NewBarInt: " << newBarInt  << " \n";
+
+    // Set the new position, keeping the current step
+    drumPlayer_.curPattern_->setPosition(barIndex, 0);
+
+    msgText_ = "Mesure changée à : " + std::to_string(barIndex + 1) + "/" + std::to_string(numBars);
+    displayMessage(msgText_);
+
+    // Update the displayed grid to the new bar
+    displayGrid(drumPlayer_.curPattern_->getPatternBar(barIndex), cursorPos);
+}
+//----------------------------------------
 
 
 //==== End of class AdikDrum ====

@@ -94,10 +94,10 @@ void AdikTUI::run() {
     int numSteps = adikDrum_.getNumSteps();
     displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps);
 
-    int ch;
-    while ((ch = getch()) != 'Q') {
+    int key;
+    while ((key = getch()) != 'Q') {
         // beep();
-        switch (ch) {
+        switch (key) {
             case '\n': // Enter
                 adikDrum_.selectStep();
                 break;
@@ -180,11 +180,18 @@ void AdikTUI::run() {
             case KEY_RIGHT:
                 adikDrum_.moveCursorRight();
                 break;
+
+            case KEY_PPAGE: // PageUp pour mesure précédente
+                adikDrum_.changeBar(-1);
+                break;
+            case KEY_NPAGE: // PageDown pour mesure suivante
+                adikDrum_.changeBar(1);
+                break;
             default:
-                if (KEY_TO_SOUND_MAP.count(ch)) {
-                    adikDrum_.playKey(ch);
-                } else if (KEYPAD_TO_SOUND_MAP.count(ch)) {
-                    adikDrum_.playKeyPad(ch);
+                if (KEY_TO_SOUND_MAP.count(key)) {
+                    adikDrum_.playKey(key);
+                } else if (KEYPAD_TO_SOUND_MAP.count(key)) {
+                    adikDrum_.playKeyPad(key);
                 }
                 break;
         }
