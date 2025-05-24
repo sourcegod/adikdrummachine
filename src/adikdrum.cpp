@@ -601,6 +601,10 @@ void AdikDrum::gotoEnd() {
 }
 //----------------------------------------
 
+void AdikDrum::setUIApp(UIApp* uiApp) {
+    uiApp_ = uiApp;
+}
+//----------------------------------------
 
 //==== End of class AdikDrum ====
 

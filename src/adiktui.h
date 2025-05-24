@@ -13,7 +13,10 @@ namespace adikdrum {
 
 class AdikTUI : public UIApp {
 public:
-    AdikTUI(AdikDrum& adikDrum); 
+
+    // Le constructeur prend maintenant un pointeur vers AdikDrum
+    AdikTUI(AdikDrum* adikDrum);
+    // AdikTUI(AdikDrum& adikDrum); 
     virtual ~AdikTUI();
 
     virtual bool init() override;
@@ -23,7 +26,8 @@ public:
     virtual void displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) override;
 
 private:
-    AdikDrum& adikDrum_;
+    AdikDrum* adikDrum_; // Pointeur vers l'instance de AdikDrum
+    // AdikDrum& adikDrum_;
     int screenWidth_;
     int screenHeight_;
     WINDOW* messageWindow_;

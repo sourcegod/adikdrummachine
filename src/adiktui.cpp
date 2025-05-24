@@ -16,9 +16,19 @@
 
 namespace adikdrum {
 
+AdikTUI::AdikTUI(AdikDrum* adikDrum) 
+    : screenWidth_(0), 
+    screenHeight_(0), 
+    messageWindow_(nullptr), 
+    gridWindow_(nullptr), 
+    adikDrum_(adikDrum) {
+
+/*
 AdikTUI::AdikTUI(AdikDrum& adikDrum) 
         : adikDrum_(adikDrum),
         screenWidth_(0), screenHeight_(0), messageWindow_(nullptr), gridWindow_(nullptr) {
+*/
+
 }
 //----------------------------------------
 
@@ -86,6 +96,141 @@ void AdikTUI::destroyWindows() {
 }
 //----------------------------------------
 
+void AdikTUI::run() {
+    std::string msg = "Le clavier est initialisé.";
+    displayMessage(msg);
+
+    // Assurez-vous que adikDrum_ est valide avant d'y accéder
+    if (!adikDrum_) {
+        displayMessage("Erreur: AdikDrum n'est pas initialisé.");
+        return;
+    }
+
+    // Récupérer le pattern courant depuis drumPlayer_ (via AdikDrum)
+    // Assurez-vous que curPattern_ est valide avant d'appeler getPatternBar
+    auto curPattern = adikDrum_->getDrumPlayer().curPattern_;
+    const auto& pattern = curPattern ? curPattern->getPatternBar(curPattern->getCurrentBar()) : std::vector<std::vector<bool>>();
+
+    auto numSounds = adikDrum_->getNumSounds();
+    auto numSteps = adikDrum_->getNumSteps();
+    displayGrid(pattern, adikDrum_->cursorPos, numSounds, numSteps);
+
+    int key; // Changed to int to properly handle ncurses special keys
+    while ((key = getch()) != 'Q') { // 'Q' pour quitter
+        switch (key) {
+            case '\n': // Entrée
+                adikDrum_->selectStep();
+                break;
+            case 127: // Backspace
+                adikDrum_->unselectStep();
+                break;
+            case ' ': // Espace
+            case '0': // '0'
+                adikDrum_->playPause();
+                break;
+            case 'c': // Metronome
+                adikDrum_->toggleClick();
+                break;
+            case 'p': // Demo
+                adikDrum_->demo();
+                break;
+            case 16: // Ctrl+p (assumant que 16 est le code ASCII pour Ctrl+p)
+                adikDrum_->loadPattern();
+                break;
+            case 'v': // Stop all sounds
+            case '.': // '.'
+                adikDrum_->stopAllSounds();
+                break;
+            case 'x': // Mute current sound
+                adikDrum_->toggleMute();
+                break;
+            case 'X': // Reset all mute
+                adikDrum_->resetMute();
+                break;
+            case '+': // Increase volume
+                adikDrum_->changeVolume(0.1f);
+                break;
+            case '-': // Decrease volume
+                adikDrum_->changeVolume(-0.1f);
+                break;
+            case '(': // Decrease BPM
+                adikDrum_->changeBpm(-5.0f);
+                break;
+            case ')': // Increase BPM
+                adikDrum_->changeBpm(5.0f);
+                break;
+            case '[': // Pan left
+                adikDrum_->changePan(-0.1f);
+                break;
+            case ']': // Pan right
+                adikDrum_->changePan(0.1f);
+                break;
+            case '{': // Decrease speed
+                adikDrum_->changeSpeed(-0.25f);
+                break;
+            case '}': // Increase speed
+                adikDrum_->changeSpeed(0.25f);
+                break;
+            case 'D': // Toggle Delay
+                adikDrum_->toggleDelay();
+                break;
+            case 'l': // 'l'
+            case '9': // '9' (as per user's updated run function)
+                adikDrum_->triggerLastSound();
+                break;
+            case 'm': // 'm'
+                adikDrum_->playCurrentSound();
+                break;
+            case '/': // '/'
+                adikDrum_->changeShiftPad(-8);
+                break;
+            case '*': // '*'
+                adikDrum_->changeShiftPad(8);
+                break;
+            case '<': // Go to start of pattern
+                adikDrum_->gotoStart();
+                break;
+            case '>': // Go to end of pattern
+                adikDrum_->gotoEnd();
+                break;
+            case KEY_UP:
+                adikDrum_->moveCursorUp();
+                break;
+            case KEY_DOWN:
+                adikDrum_->moveCursorDown();
+                break;
+            case KEY_LEFT:
+                adikDrum_->moveCursorLeft();
+                break;
+            case KEY_RIGHT:
+                adikDrum_->moveCursorRight();
+                break;
+            case KEY_PPAGE: // PageUp pour mesure précédente
+                adikDrum_->changeBar(-1);
+                break;
+            case KEY_NPAGE: // PageDown pour mesure suivante
+                adikDrum_->changeBar(1);
+                break;
+            default:
+                // Vérifier si la touche correspond à un son
+                // Note: KEY_TO_SOUND_MAP est dans constants.h
+                auto it = KEY_TO_SOUND_MAP.find(key);
+                if (it != KEY_TO_SOUND_MAP.end()) {
+                    adikDrum_->playKey(key);
+                } else if (KEYPAD_TO_SOUND_MAP.count(key)) { // Check for keypad keys
+                    adikDrum_->playKeyPad(key);
+                } else {
+                    displayMessage(std::string("Touche pressée : ") + (char)key);
+                }
+                break;
+        }
+        // Re-get the pattern after potential changes by AdikDrum functions
+        const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();
+        displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
+    }
+}
+
+/*
 void AdikTUI::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
@@ -220,35 +365,8 @@ void AdikTUI::run() {
 
 }
 //----------------------------------------
-
-/*
-void AdikTUI::run() {
-    int ch;
-    while ((ch = getch()) != 'q') { // 'q' pour quitter
-        switch (ch) {
-            case char('p'):
-            adikDrum_.demo();
-            break;
-            case KEY_UP:
-                displayMessage("Flèche haut pressée");
-                break;
-            case KEY_DOWN:
-                displayMessage("Flèche bas pressée");
-                break;
-            case KEY_LEFT:
-                displayMessage("Flèche gauche pressée");
-                break;
-            case KEY_RIGHT:
-                displayMessage("Flèche droite pressée");
-                break;
-            default:
-                displayMessage(std::string("Touche pressée : ") + (char)ch);
-                break;
-        }
-    }
-}
-//----------------------------------------
 */
+
 
 void AdikTUI::close() {
     destroyWindows();
@@ -336,7 +454,35 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 
 int main() {
     adikdrum::AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
-    adikdrum::AdikTUI textUI(adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
+    adikdrum::AdikTUI ui(&adikDrumApp); // Créer AdikTUI et passer une référence à AdikDrum
+    adikDrumApp.setUIApp(&ui); // Assigner l'UIApp à AdikDrum via la nouvelle méthode
+
+    if (!adikDrumApp.initApp()) {
+        // Gérer l'erreur d'initialisation de l'application
+        std::cerr << "Erreur: L'initialisation de l'application a échoué." << std::endl;
+        return 1; // Retourner un code d'erreur
+    }
+
+    if (ui.init()) {
+        ui.run();
+        ui.close(); // Fermer correctement l'interface utilisateur
+    }
+    else
+    {
+       std::cerr << "Erreur: L'initialisation de l'interface utilisateur a échoué." << std::endl;
+       adikDrumApp.closeApp();
+       return 1;
+    }
+
+    adikDrumApp.closeApp(); // Fermer correctement l'application AdikDrum
+
+    return 0; // Retourner un code de succès
+}
+
+/*
+int main() {
+    adikdrum::AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
+    adikdrum::AdikTUI textUI(&adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
     adikDrumApp.uiApp_ = &textUI; // Assigner l'UIApp à AdikDrum
     if (!adikDrumApp.initApp()) {
         return false; // Changer le code de retour en cas d'erreur
@@ -351,6 +497,7 @@ int main() {
     return 0;
 }
 //----------------------------------------
+*/
 
 /*
 int main() {

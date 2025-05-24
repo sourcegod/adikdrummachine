@@ -69,6 +69,7 @@ public:
     void changeBar(int delta);
     void gotoStart();
     void gotoEnd();
+    void setUIApp(UIApp* uiApp);
 
 private:
     AudioDriver audioDriver_;
