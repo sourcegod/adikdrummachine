@@ -121,7 +121,7 @@ void AdikTUI::run() {
             case '.': // '.'
                 adikDrum_.stopAllSounds();
                 break;
-             case 'x':
+            case 'x':
                 adikDrum_.toggleMute();
                 break;
             case 'X':
@@ -192,11 +192,21 @@ void AdikTUI::run() {
                     adikDrum_.playKey(key);
                 } else if (KEYPAD_TO_SOUND_MAP.count(key)) {
                     adikDrum_.playKeyPad(key);
+                } else {
+                    displayMessage(std::string("Touche pressée : ") + (char)key);
                 }
                 break;
-        }
-        displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps); // Update grid after each input
-    }
+
+        } // End of switch
+
+        // Re-get the pattern after potential changes by AdikDrum functions
+        const auto& curPattern = adikDrum_.getCurPattern();
+        const auto& updatedPattern = curPattern ? curPattern->getPatternBar(curPattern->getCurrentBar()) : std::vector<std::vector<bool>>();
+        displayGrid(updatedPattern, adikDrum_.cursorPos, numSounds, numSteps);
+        // displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps); // Update grid after each input
+
+    } // End of while loop
+
 }
 
 /*
@@ -240,7 +250,7 @@ void AdikTUI::displayMessage(const std::string& message) {
     werase(messageWindow_); // Effacer la fenêtre
     // Note: For more accessibility with the Screen Reader, you must erase the screen, Refresh the screen and pause for 50 ms, and after, print the right message 
     wrefresh(messageWindow_);       // Rafraîchir la fenêtre pour afficher les modifications
-     napms(50); // pause de 500ms  
+     napms(50); // Pause de 50ms  
     wmove(messageWindow_, 1, 0); // Déplace le curseur au  début de la ligne
     // wclrtoeol(messageWindow_); // Efface du curseur jusqu'à la fin de la ligne.
     box(messageWindow_, 0, 0);
