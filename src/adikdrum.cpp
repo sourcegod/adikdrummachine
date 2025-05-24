@@ -39,60 +39,6 @@ void beep() {
 //----------------------------------------
 
 namespace adikdrum {
-/*
-static int drumMachineCallback(const void* inputBuffer, void* outputBuffer,
-                             unsigned long framesPerBuffer,
-                             const PaStreamCallbackTimeInfo* timeInfo,
-                             PaStreamCallbackFlags statusFlags,
-                             void* userData) {
-    // Note: Casting parameters in void here, to avoid compiler warnings: inused parameter.
-     (void)inputBuffer;
-     (void)timeInfo;
-     (void)statusFlags;
-    AdikDrum::DrumMachineData* data = static_cast<AdikDrum::DrumMachineData*>(userData);
-    if (data && data->mixer) {
-        float* out = static_cast<float*>(outputBuffer);
-        static unsigned long frameCounter = 0;
-        unsigned long samplesPerStep = static_cast<unsigned long>(data->sampleRate * data->player->secondsPerStep);
-        const int outputNumChannels = 2; // Assumons stéréo pour l'instant
-        std::vector<float> bufData(framesPerBuffer * outputNumChannels, 0.0f);
-
-        if (frameCounter >= samplesPerStep) {
-            frameCounter = 0;
-            if (data->player->isPlaying()) {
-                data->player->clickStep = data->player->currentStep;
-                if (data->player->isClicking() && data->player->clickStep % 4 == 0) {
-                  data->player->playMetronome();
-                }
-                data->player->playPattern();
-                data->player->currentStep = (data->player->currentStep + 1) % data->player->getNumSteps();
-            } else if (data->player->isClicking()) {
-                if (data->player->clickStep % 4 == 0) {
-                    data->player->playMetronome();
-                }
-                data->player->clickStep = (data->player->clickStep + 1) % data->player->getNumSteps();
-            }
-        }
-
-        // Mixer les sons en utilisant la fonction dédiée
-        data->mixer->mixSoundData(bufData, framesPerBuffer, outputNumChannels);
-
-        // Copie du buffer de mixage vers le buffer de sortie PortAudio
-        for (unsigned long i = 0; i < framesPerBuffer * outputNumChannels; ++i) {
-          // Note: il est recommandé de convertir la sortie en static_cast float, pour éviter des comportements inattendus de convertion de types implicites.  
-          out[i] = static_cast<float>(data->player->hardClip(bufData[i] * data->mixer->getGlobalVolume() * GLOBAL_GAIN));
-        
-        }
-
-        if (data->player->isPlaying() || data->player->isClicking()) {
-            frameCounter += framesPerBuffer;
-        }
-        return paContinue;
-    }
-    return paContinue;
-}
-//----------------------------------------
-*/
 
 AdikDrum::AdikDrum(UIApp* uiApp)
     : uiApp_(uiApp),

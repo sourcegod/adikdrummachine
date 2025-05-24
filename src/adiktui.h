@@ -13,10 +13,8 @@ namespace adikdrum {
 
 class AdikTUI : public UIApp {
 public:
-
     // Le constructeur prend maintenant un pointeur vers AdikDrum
     AdikTUI(AdikDrum* adikDrum);
-    // AdikTUI(AdikDrum& adikDrum); 
     virtual ~AdikTUI();
 
     virtual bool init() override;
@@ -27,7 +25,6 @@ public:
 
 private:
     AdikDrum* adikDrum_; // Pointeur vers l'instance de AdikDrum
-    // AdikDrum& adikDrum_;
     int screenWidth_;
     int screenHeight_;
     WINDOW* messageWindow_;

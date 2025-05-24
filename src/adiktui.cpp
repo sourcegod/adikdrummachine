@@ -17,18 +17,11 @@
 namespace adikdrum {
 
 AdikTUI::AdikTUI(AdikDrum* adikDrum) 
-    : screenWidth_(0), 
+    : adikDrum_(adikDrum),
+    screenWidth_(0), 
     screenHeight_(0), 
     messageWindow_(nullptr), 
-    gridWindow_(nullptr), 
-    adikDrum_(adikDrum) {
-
-/*
-AdikTUI::AdikTUI(AdikDrum& adikDrum) 
-        : adikDrum_(adikDrum),
-        screenWidth_(0), screenHeight_(0), messageWindow_(nullptr), gridWindow_(nullptr) {
-*/
-
+    gridWindow_(nullptr) {
 }
 //----------------------------------------
 
@@ -478,26 +471,6 @@ int main() {
 
     return 0; // Retourner un code de succès
 }
-
-/*
-int main() {
-    adikdrum::AdikDrum adikDrumApp(nullptr); // Créer AdikDrum sans UIApp pour l'instant
-    adikdrum::AdikTUI textUI(&adikDrumApp); // Créer AdikTUIApp en passant une référence à AdikDrum
-    adikDrumApp.uiApp_ = &textUI; // Assigner l'UIApp à AdikDrum
-    if (!adikDrumApp.initApp()) {
-        return false; // Changer le code de retour en cas d'erreur
-    }
-
-    if (textUI.init()) {
-        textUI.run();
-        textUI.close();
-    }
-    adikDrumApp.closeApp();
-
-    return 0;
-}
-//----------------------------------------
-*/
 
 /*
 int main() {
