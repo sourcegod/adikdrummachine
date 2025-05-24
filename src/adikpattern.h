@@ -13,10 +13,10 @@ public:
     AdikPattern();
 
     // Constructeur avec initialisation du nombre de barres
-    AdikPattern(size_t numBarres);
+    AdikPattern(size_t numBars);
 
     // Fonction pour définir le nombre de barres
-    void setBar(size_t numBarres);
+    void setBar(size_t numBars);
 
     // Fonction pour obtenir le nombre de barres
     size_t getBar() const;
@@ -49,7 +49,7 @@ public:
     void genData();
 
 private:
-    size_t numBarres_; // Nombre de barres dans le pattern
+    size_t numBars_; // Nombre de barres dans le pattern
     size_t currentBar_;
     size_t currentStep_;
     size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
