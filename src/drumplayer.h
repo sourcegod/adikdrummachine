@@ -60,6 +60,9 @@ public:
     void togglePlay() { playing_ = ! playing_; }
     void toggleClick() { clicking_ = ! clicking_; }
     void playLastSound();
+    void startPlay();
+    void stopPlay();
+
     size_t getLastSoundIndex() const { return lastSoundIndex_; }
 
     // Partie Enregistrement

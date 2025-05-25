@@ -99,6 +99,17 @@ void DrumPlayer::playLastSound() {
 }
 //----------------------------------------
 
+void DrumPlayer::startPlay() {
+    playing_ = true;
+}
+//----------------------------------------
+
+void DrumPlayer::stopPlay() {
+    playing_ = false;
+    stopRecord(); // Important : Arrête l'enregistrement quand la lecture est arrêtée
+}
+//----------------------------------------
+
 void DrumPlayer::stopAllSounds() {
     auto& chanList = mixer_->getChannelList();  
     for (auto& chan : chanList) {
