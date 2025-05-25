@@ -363,13 +363,29 @@ void AdikDrum::moveCursorLeft() {
 }
 //----------------------------------------
 
+void AdikDrum::playPause() {
+    if (drumPlayer_.isPlaying()) { // Si la lecture est en cours
+        drumPlayer_.stopPlay(); // Arrête la lecture (ce qui arrêtera aussi l'enregistrement)
+        msgText_ = "Lecture: PAUSE. Enregistrement INACTIF.";
+    } else { // Si la lecture est en pause
+        drumPlayer_.startPlay(); // Démarre la lecture
+        msgText_ = "Lecture: EN COURS.";
+    }
+    displayMessage(msgText_);
+    // Optionnel : Vous pourriez vouloir rafraîchir la grille ici si l'état de lecture
+    // affecte son affichage (par exemple, si le curseur de lecture s'arrête).
+    // displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
+}
+//----------------------------------------
 
+/*
 void AdikDrum::playPause() {
     drumPlayer_.togglePlay();
     msgText_ = std::string("Play: ") + (drumPlayer_.isPlaying() ? "ON" : "OFF");
     displayMessage(msgText_);
 }
 //----------------------------------------
+*/
 
 void AdikDrum::toggleClick() {
     drumPlayer_.toggleClick();
