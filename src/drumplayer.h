@@ -65,6 +65,8 @@ public:
     // Partie Enregistrement
     void toggleRecord();
     bool isRecording() const;
+    void startRecord();
+    void stopRecord();
     void recordStep(size_t soundIndex);
 
 

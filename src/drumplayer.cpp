@@ -175,6 +175,8 @@ void DrumPlayer::playMetronome() {
         }
         beatCounter_ = (beatCounter_ + 1) % 4;
     }
+    // clickStep_ = (clickStep_ + 1) % 16;
+
 }
 //----------------------------------------
 
@@ -304,6 +306,23 @@ void DrumPlayer::toggleRecord() {
 
 bool DrumPlayer::isRecording() const {
     return recording_;
+}
+//----------------------------------------
+
+void DrumPlayer::startRecord() {
+    recording_ = true;
+    startClick(); // Démarre le métronome
+    playing_ = true; // Démarre la lecture du pattern
+    // Vous pouvez également ajouter ici une logique pour réinitialiser le pattern
+    // si vous voulez que l'enregistrement commence sur un pattern vide.
+    // curPattern_->clearData(); // Exemple: si vous voulez effacer le pattern
+}
+//----------------------------------------
+
+void DrumPlayer::stopRecord() {
+    recording_ = false;
+    stopClick(); // Arrête le métronome
+    // La lecture (playing_) continue comme demandé
 }
 //----------------------------------------
 
