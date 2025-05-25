@@ -11,7 +11,7 @@
 namespace adikdrum {
 
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
-    : currentStep(0),
+    : currentStep_(0),
       clickStep(0),
       // pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
@@ -113,8 +113,9 @@ void DrumPlayer::stopAllSounds() {
     }
 
     playing_ = false;
+    recording_ = false;
     clicking_ = false;
-    currentStep = 0;
+    currentStep_ = 0;
     clickStep = 0;
     beatCounter_ = 0;
 }
@@ -124,7 +125,7 @@ void DrumPlayer::stopAllSounds() {
 void DrumPlayer::startClick() {
     clicking_ = true;
     if (playing_) {
-      clickStep = currentStep;
+      clickStep = currentStep_;
       beatCounter_ = clickStep % numSteps_;
     } else {
       clickStep =0;
@@ -163,7 +164,7 @@ void DrumPlayer::stopClick() {
 void DrumPlayer::playMetronome() {
     if (playing_) {
         // valable aussi pour si currentStep =0 et beatCounter =0
-        beatCounter_ = currentStep / 4; // Note: Le résultat est une division entière puisque les deux nombres sont des entiers.
+        beatCounter_ = currentStep_ / 4; // Note: Le résultat est une division entière puisque les deux nombres sont des entiers.
     }
     
     if (mixer_) {
@@ -192,8 +193,8 @@ void DrumPlayer::playPattern() {
             // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
             for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
                 // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
-                if (currentStep < curPattern_->getPatData()[currentBar_][i].size() && // Vérification de la limite de currentStep
-                    curPattern_->getPatData()[currentBar_][i][currentStep]) {
+                if (currentStep_ < curPattern_->getPatData()[currentBar_][i].size() && // Vérification de la limite de currentStep
+                    curPattern_->getPatData()[currentBar_][i][currentStep_]) {
                     if (drumSounds_[i]) {
                         // Jouer le son sur le canal correspondant (i + 1)
                         mixer_->play(i + 1, drumSounds_[i]);
@@ -202,11 +203,11 @@ void DrumPlayer::playPattern() {
             }
 
             // Incrémente le pas courant
-            currentStep++;
+            currentStep_++;
 
             // Si le pas courant dépasse la longueur de la barre actuelle
-            if (currentStep >= numSteps_) {
-                currentStep =0;
+            if (currentStep_ >= numSteps_) {
+                currentStep_ =0;
                 size_t nextBarIndex = currentBar_ + 1; // Passe à la barre suivante
 
                 // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
@@ -229,7 +230,7 @@ void DrumPlayer::playPattern() {
 void DrumPlayer::playPattern0() {
     if (mixer_ && playing_) {
         for (size_t i = 0; i < pattern_.size(); ++i) { //
-            if (pattern_[i][currentStep]) {
+            if (pattern_[i][currentStep_]) {
                 if (drumSounds_[i]) {
                     
                      
@@ -316,7 +317,7 @@ void DrumPlayer::recordStep(size_t soundIndex) {
         // Utilise currentStep_ qui est le pas de lecture actuel du DrumPlayer
         // Au lieu de currentStep directement, utilisez la variable membre currentStep_
         // de DrumPlayer qui est mise à jour par la boucle de lecture.
-        // size_t currentStep = currentStep_; 
+        size_t currentStep = currentStep_; 
 
         // S'assurer que l'index du son et le pas sont valides
         if (soundIndex < numSounds_ && currentStep < curPattern_->getNumSteps()) {

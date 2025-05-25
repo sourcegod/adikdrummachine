@@ -17,7 +17,7 @@ public:
     // DrumPlayer(int numSounds, int initialBpm, const std::vector<SoundPtr>& sounds, int numSteps);
     ~DrumPlayer();
 
-    size_t currentStep;
+    size_t currentStep_;
     double secondsPerStep;
     std::vector<SoundPtr> drumSounds_; // Utilisation de shared_ptr
     SoundPtr soundClick1_; // Nouveau membre pour le son aigu du métronome
@@ -49,7 +49,7 @@ public:
     void startClick();
     void stopClick();
     size_t getNumSteps() const { return numSteps_; }
-    size_t getCurrentStep() const { return currentStep; }
+    size_t getCurrentStep() const { return currentStep_; }
     size_t getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
     bool isSoundMuted(size_t soundIndex) const;
     void setSoundMuted(size_t soundIndex, bool muted);
