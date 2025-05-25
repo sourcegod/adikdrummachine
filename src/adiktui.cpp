@@ -366,7 +366,32 @@ void AdikTUI::close() {
     endwin(); // Nettoyer ncurses
 }
 //----------------------------------------
+void AdikTUI::displayMessage(const std::string& message) {
+    if (messageWindow_ == nullptr) return;
 
+    werase(messageWindow_); // Effacer tout le contenu de la fenêtre de message
+    wrefresh(messageWindow_); // Rafraîchir pour vider l'écran (important pour le lecteur d'écran)
+    napms(50); // Petite pause pour s'assurer que l'effacement est perçu
+
+    box(messageWindow_, 0, 0); // Redessine la bordure
+
+    // Calcule la hauteur de la fenêtre pour trouver l'avant-dernière ligne
+    int max_y, max_x;
+    getmaxyx(messageWindow_, max_y, max_x);
+
+    // Positionne le message sur l'avant-dernière ligne (max_y - 2 pour la bordure inférieure et une ligne au-dessus)
+    // Commence à la colonne 1 pour être à l'intérieur de la bordure gauche.
+    mvwprintw(messageWindow_, max_y - 2, 1, "%s", message.c_str());
+
+    // Déplace le curseur texte au début de la ligne du message pour l'accessibilité
+    wmove(messageWindow_, max_y - 2, 1);
+
+    wrefresh(messageWindow_); // Rafraîchit pour afficher le message et positionner le curseur
+    // napms(500); // pause de 500ms (commenté, car potentiellement gênant pour l'utilisateur)
+    // beep(); // (commenté, à activer si vous voulez un feedback sonore)
+}
+
+/*
 void AdikTUI::displayMessage(const std::string& message) {
     if (messageWindow_ == nullptr) return;
 
@@ -386,6 +411,7 @@ void AdikTUI::displayMessage(const std::string& message) {
 
 }
 //----------------------------------------
+*/
 
 void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
     if (gridWindow_ == nullptr) return;
