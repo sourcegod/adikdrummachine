@@ -41,7 +41,6 @@ public:
     double softClip(double x) { return tanh(x); }
     float hardClip(double x) { return std::clamp(x, -1.0, 1.0); }
 
-// Nouvelle fonction de hard clipping
 
     double getBpm() const { return bpm_; }
     void setBpm(double newBpm);

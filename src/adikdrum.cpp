@@ -239,8 +239,7 @@ void AdikDrum::loadPattern() {
     displayMessage(msgText_);
     
     // Récupère le pattern courant
-    auto curPattern = drumPlayer_.curPattern_;
-
+    auto curPattern = getCurPattern();
     // Vérifie si le pattern est valide avant de générer des données
     if (curPattern) {
         // Génère les données du pattern directement dans l'objet AdikPattern
@@ -282,27 +281,37 @@ void AdikDrum::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair
 }
 //----------------------------------------
 
+
 void AdikDrum::selectStep() {
-    drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = true;
+    // Utiliser la barre courante du pattern
+    size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+    // Accéder et modifier directement le pas dans la barre courante du pattern
+    drumPlayer_.curPattern_->getPatternBar(currentBar)[cursorPos.second][cursorPos.first] = true;
     msgText_ = "Step " + std::to_string(cursorPos.first + 1) + " on sound " + std::to_string(cursorPos.second + 1) + " activated and playing.";
     displayMessage(msgText_);
     drumPlayer_.playSound(cursorPos.second);
-    displayGrid(drumPlayer_.pattern_, cursorPos);
+    // Afficher la grille mise à jour pour la barre courante
+    displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
 }
 //----------------------------------------
 
 void AdikDrum::unselectStep() {
-    drumPlayer_.pattern_[cursorPos.second][cursorPos.first] = false;
+    // Utiliser la barre courante du pattern
+    size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+    // Accéder et modifier directement le pas dans la barre courante du pattern
+    drumPlayer_.curPattern_->getPatternBar(currentBar)[cursorPos.second][cursorPos.first] = false;
     msgText_ = "Step " + std::to_string(cursorPos.first + 1) + " on sound " + std::to_string(cursorPos.second + 1) + " deactivated.";
     displayMessage(msgText_);
-    displayGrid(drumPlayer_.pattern_, cursorPos);
+    // Afficher la grille mise à jour pour la barre courante
+    displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
 }
 //----------------------------------------
 
 void AdikDrum::moveCursorUp() {
     if (cursorPos.second > 0) {
         cursorPos.second--;
-        displayGrid(drumPlayer_.pattern_, cursorPos);
+        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
         msgText_ = "Cursor up, playing sound " + std::to_string(cursorPos.second + 1);
         displayMessage(msgText_);
         drumPlayer_.playSound(cursorPos.second);
@@ -315,7 +324,8 @@ void AdikDrum::moveCursorUp() {
 void AdikDrum::moveCursorDown() {
     if (cursorPos.second < numSounds_ - 1) {
         cursorPos.second++;
-        displayGrid(drumPlayer_.pattern_, cursorPos);
+        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
         msgText_ = "Cursor down, playing sound " + std::to_string(cursorPos.second + 1);
         displayMessage(msgText_);
         drumPlayer_.playSound(cursorPos.second);
@@ -328,7 +338,8 @@ void AdikDrum::moveCursorDown() {
 void AdikDrum::moveCursorRight() {
     if (cursorPos.first < numSteps_ - 1) {
         cursorPos.first++;
-        displayGrid(drumPlayer_.pattern_, cursorPos);
+        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
         msgText_ = "Cursor right, step " + std::to_string(cursorPos.first + 1);
         displayMessage(msgText_);
     } else {
@@ -341,7 +352,8 @@ void AdikDrum::moveCursorRight() {
 void AdikDrum::moveCursorLeft() {
     if (cursorPos.first > 0) {
         cursorPos.first--;
-        displayGrid(drumPlayer_.pattern_, cursorPos);
+        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
         msgText_ = "Cursor left, step " + std::to_string(cursorPos.first + 1);
         displayMessage(msgText_);
     } else {
@@ -350,6 +362,7 @@ void AdikDrum::moveCursorLeft() {
     }
 }
 //----------------------------------------
+
 
 void AdikDrum::playPause() {
     drumPlayer_.togglePlay();
@@ -495,7 +508,7 @@ void AdikDrum::changeBar(int delta) {
     size_t numBars = drumPlayer_.curPattern_->getBar(); // Get total number of bars
 
     // Calculate new bar index, ensuring it stays within bounds
-    // Need to cast currentBar to int for arithmetic with delta, then back to size_t for clamp
+    // Note: Need to cast currentBar to int for arithmetic with delta, then back to size_t for clamp
     int barInt = static_cast<int>(curBar) + delta;
     // Note: cannot convert int to size_t,  cause the int will be maximum int value.
     size_t barIndex = std::clamp(barInt, 0, static_cast<int>(numBars -1));

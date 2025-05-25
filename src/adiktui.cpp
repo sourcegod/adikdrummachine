@@ -114,7 +114,7 @@ void AdikTUI::run() {
             case '\n': // Entrée
                 adikDrum_->selectStep();
                 break;
-            case 127: // Backspace
+            case KEY_BACKSPACE: // Backspace
                 adikDrum_->unselectStep();
                 break;
             case ' ': // Espace
