@@ -311,7 +311,7 @@ void AdikDrum::moveCursorUp() {
     if (cursorPos.second > 0) {
         cursorPos.second--;
         size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
-        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
+        // displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
         msgText_ = "Cursor up, playing sound " + std::to_string(cursorPos.second + 1);
         displayMessage(msgText_);
         drumPlayer_.playSound(cursorPos.second);

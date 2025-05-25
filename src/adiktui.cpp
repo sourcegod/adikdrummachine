@@ -351,7 +351,7 @@ void AdikTUI::run() {
         // Re-get the pattern after potential changes by AdikDrum functions
         const auto& curPattern = adikDrum_.getCurPattern();
         const auto& updatedPattern = curPattern ? curPattern->getPatternBar(curPattern->getCurrentBar()) : std::vector<std::vector<bool>>();
-        displayGrid(updatedPattern, adikDrum_.cursorPos, numSounds, numSteps);
+        // displayGrid(updatedPattern, adikDrum_.cursorPos, numSounds, numSteps);
         // displayGrid(pattern, adikDrum_.cursorPos, numSounds, numSteps); // Update grid after each input
 
     } // End of while loop
@@ -366,6 +366,7 @@ void AdikTUI::close() {
     endwin(); // Nettoyer ncurses
 }
 //----------------------------------------
+
 void AdikTUI::displayMessage(const std::string& message) {
     if (messageWindow_ == nullptr) return;
 
@@ -390,6 +391,7 @@ void AdikTUI::displayMessage(const std::string& message) {
     // napms(500); // pause de 500ms (commenté, car potentiellement gênant pour l'utilisateur)
     // beep(); // (commenté, à activer si vous voulez un feedback sonore)
 }
+//----------------------------------------
 
 /*
 void AdikTUI::displayMessage(const std::string& message) {
@@ -414,6 +416,7 @@ void AdikTUI::displayMessage(const std::string& message) {
 */
 
 void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
+    return;
     if (gridWindow_ == nullptr) return;
 
     werase(gridWindow_); // Efface le contenu précédent de la fenêtre
@@ -452,63 +455,7 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 
     wrefresh(gridWindow_); // Met à jour l'affichage de la fenêtre et repositionne le curseur
 }
-
-/*
-void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
-    if (gridWindow_ == nullptr) return;
-
-    werase(gridWindow_);
-    box(gridWindow_, 0, 0);
-
-    // Calculer les dimensions des cellules
-    int gridHeight = getmaxy(gridWindow_) - 2; // -2 pour la bordure
-    int gridWidth  = getmaxx(gridWindow_) - 2;
-    float cellHeight = (float)gridHeight / numSounds;
-    float cellWidth  = (float)gridWidth  / numSteps;
-
-     // Gestion des erreurs : Vérifier les dimensions nulles
-    if (cellHeight <= 0 || cellWidth <= 0) {
-        mvwprintw(gridWindow_, 1, 1, "Grille trop petite pour être affichée.");
-        wrefresh(gridWindow_);
-        return;
-    }
-
-    // Afficher la grille
-    for (size_t i = 0; i < numSounds; ++i) {
-        for (size_t j = 0; j < numSteps; ++j) {
-            int y = 1 + static_cast<int>(i * cellHeight); // +1 pour la bordure
-            int x = 1 + static_cast<int>(j * cellWidth);
-
-            // S'assurer que nous n'écrivons pas en dehors des limites de la fenêtre.
-            if (y < gridHeight && x < gridWidth) {
-                 if (grid[i][j]) {
-                    wattron(gridWindow_, A_STANDOUT); // Mettre en évidence les cellules actives
-                    mvwprintw(gridWindow_, y, x, "██");
-                    wattroff(gridWindow_, A_STANDOUT);
-                }
-                else
-                {
-                     mvwprintw(gridWindow_, y, x, "  ");
-                }
-            }
-           
-        }
-    }
-
-    // Afficher le curseur
-    int cursorY = 1 + static_cast<int>(cursor.first * cellHeight);
-    int cursorX = 1 + static_cast<int>(cursor.second * cellWidth);
-     if (cursorY < gridHeight && cursorX < gridWidth)
-        {
-             wattron(gridWindow_, A_REVERSE);
-             mvwprintw(gridWindow_, cursorY, cursorX, "><");
-             wattroff(gridWindow_, A_REVERSE);
-        }
-
-    wrefresh(gridWindow_);
-}
 //----------------------------------------
-*/
 
 } // namespace adikdrum
 
