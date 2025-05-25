@@ -577,6 +577,30 @@ void AdikDrum::recordSound(size_t soundIndex) {
     }
 
     if (drumPlayer_.curPattern_) {
+        // La logique d'enregistrement du pas est maintenant dans DrumPlayer
+        drumPlayer_.recordStep(soundIndex);
+
+        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        size_t currentStep = drumPlayer_.currentStep; // Accède à la variable membre currentStep de drumPlayer
+
+        msgText_ = "Enregistré: Son " + std::to_string(soundIndex + 1) + " au pas " + std::to_string(currentStep + 1);
+        // displayMessage(msgText_);
+
+        // Mettre à jour l'affichage de la grille pour montrer le pas enregistré
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
+    } else {
+        msgText_ = "Erreur: Aucun pattern chargé pour enregistrer.";
+        displayMessage(msgText_);
+    }
+}
+
+/*
+void AdikDrum::recordSound(size_t soundIndex) {
+    if (!drumPlayer_.isRecording()) {
+        return; // Ne fait rien si l'enregistrement n'est pas actif
+    }
+
+    if (drumPlayer_.curPattern_) {
         size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
         size_t currentStep = drumPlayer_.currentStep; // Récupère le pas de lecture actuel
 
@@ -598,6 +622,8 @@ void AdikDrum::recordSound(size_t soundIndex) {
         displayMessage(msgText_);
     }
 }
+*/
+
 //----------------------------------------
 
 //==== End of class AdikDrum ====
