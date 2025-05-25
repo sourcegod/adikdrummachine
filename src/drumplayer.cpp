@@ -22,7 +22,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       beatCounter_(0),
       mixer_(nullptr), // Initialiser à nullptr
       isMuted_(numSounds, false), // Initialiser tous les sons comme non mutés
-      lastSoundIndex_(0)
+      lastSoundIndex_(0),
+      numSounds_(numSounds)
 
 {
     setBpm(bpm_);
@@ -304,6 +305,32 @@ bool DrumPlayer::isRecording() const {
     return recording_;
 }
 //----------------------------------------
+
+void DrumPlayer::recordStep(size_t soundIndex) {
+    if (!recording_) {
+        return; // Ne fait rien si l'enregistrement n'est pas actif
+    }
+
+    if (curPattern_) {
+        size_t currentBar = curPattern_->getCurrentBar();
+        // Utilise currentStep_ qui est le pas de lecture actuel du DrumPlayer
+        // Au lieu de currentStep directement, utilisez la variable membre currentStep_
+        // de DrumPlayer qui est mise à jour par la boucle de lecture.
+        // size_t currentStep = currentStep_; 
+
+        // S'assurer que l'index du son et le pas sont valides
+        if (soundIndex < numSounds_ && currentStep < curPattern_->getNumSteps()) {
+            curPattern_->getPatternBar(currentBar)[soundIndex][currentStep] = true;
+            playSound(soundIndex); // Joue le son immédiatement lors de l'enregistrement
+        }
+    } else {
+        // En mode console, on ne peut pas afficher de message directement depuis ici.
+        // C'est AdikDrum qui gère l'affichage des messages.
+        std::cerr << "Erreur: Aucun pattern chargé pour enregistrer un pas dans DrumPlayer." << std::endl;
+    }
+}
+//----------------------------------------
+
 
 
 //==== End of class DrumPlayer ====

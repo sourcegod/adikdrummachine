@@ -74,6 +74,7 @@ public:
     // Partie Enregistrement
     void toggleRecord();
     void recordSound(size_t soundIndex); 
+    void recordStep(size_t soundIndex); // Nouvelle fonction pour enregistrer un pas
 
 private:
     AudioDriver audioDriver_;

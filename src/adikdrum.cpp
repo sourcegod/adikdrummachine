@@ -600,7 +600,6 @@ void AdikDrum::recordSound(size_t soundIndex) {
 }
 //----------------------------------------
 
-
 //==== End of class AdikDrum ====
 
 } // namespace adikdrum
