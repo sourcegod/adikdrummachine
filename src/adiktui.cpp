@@ -388,7 +388,47 @@ void AdikTUI::displayMessage(const std::string& message) {
 //----------------------------------------
 
 void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
-    return;
+    if (gridWindow_ == nullptr) return;
+
+    werase(gridWindow_); // Efface le contenu précédent de la fenêtre
+    box(gridWindow_, 0, 0); // Dessine la bordure de la fenêtre
+
+    // Lignes et colonnes de départ pour l'affichage de la grille à l'intérieur de la bordure
+    int displayStartY = 1;
+    int displayStartX = 1;
+
+    // Afficher la grille
+    for (size_t i = 0; i < numSounds; ++i) { // Itère sur les lignes (sons)
+        for (size_t j = 0; j < numSteps; ++j) { // Itère sur les colonnes (pas)
+            char charToDisplay;
+
+            if (i == cursor.second && j == cursor.first) {
+                // Si c'est la position du curseur
+                charToDisplay = 'X';
+            } else if (grid[i][j]) {
+                // Si le pad est activé
+                charToDisplay = '#';
+            } else {
+                // Si le pad est inactif
+                charToDisplay = '-';
+            }
+            // Afficher le caractère, suivi d'un espace pour la clarté
+            // Chaque élément prend 2 colonnes (caractère + espace)
+            mvwprintw(gridWindow_, displayStartY + i, displayStartX + (j * 2), "%c ", charToDisplay);
+        }
+    }
+
+    // Repositionner le curseur du terminal après l'affichage de la grille
+    // Le curseur est sur `cursorPos.second` (ligne) et `cursorPos.first` (colonne).
+    // Chaque élément de la grille prend 2 caractères (caractère + espace), donc on multiplie la colonne par 2.
+    // On ajoute displayStartY et displayStartX pour tenir compte des bordures.
+    wmove(gridWindow_, displayStartY + cursor.second, displayStartX + (cursor.first * 2));
+
+    wrefresh(gridWindow_); // Met à jour l'affichage de la fenêtre et repositionne le curseur
+}
+
+/*
+void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<size_t, size_t> cursor, size_t numSounds, size_t numSteps) {
     if (gridWindow_ == nullptr) return;
 
     werase(gridWindow_);
@@ -442,6 +482,7 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
     wrefresh(gridWindow_);
 }
 //----------------------------------------
+*/
 
 } // namespace adikdrum
 
