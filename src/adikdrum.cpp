@@ -239,7 +239,7 @@ void AdikDrum::loadPattern() {
     displayMessage(msgText_);
     
     // Récupère le pattern courant
-    auto curPattern = getCurPattern();
+    auto curPattern = drumPlayer_.curPattern_;
     // Vérifie si le pattern est valide avant de générer des données
     if (curPattern) {
         // Génère les données du pattern directement dans l'objet AdikPattern
