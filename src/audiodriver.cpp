@@ -140,7 +140,7 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
             if (data->player->isPlaying()) {
-                data->player->clickStep = data->player->currentStep;
+                data->player->clickStep = data->player->getCurrentStep();
                 if (data->player->isClicking() && data->player->clickStep % 4 == 0) {
                   data->player->playMetronome();
                 }
