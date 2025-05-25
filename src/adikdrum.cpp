@@ -437,27 +437,12 @@ void AdikDrum::changePan(float deltaPan) {
 void AdikDrum::playKey(int soundIndex) {
     soundIndex += shiftPadIndex_;
     drumPlayer_.playSound(soundIndex);
-    /*
-    auto it = KEY_TO_SOUND_MAP.find(key);
-    if (it != KEY_TO_SOUND_MAP.end()) {
-        int soundIndex = it->second + shiftPadIndex_;
-        drumPlayer_.playSound(soundIndex);
-    }
-    */
-
 }
 //----------------------------------------
 
 void AdikDrum::playKeyPad(int soundIndex) {
     soundIndex += shiftPadIndex_;
     drumPlayer_.playSound(soundIndex);
-    /*
-    auto it = KEYPAD_TO_SOUND_MAP.find(key);
-    if (it != KEYPAD_TO_SOUND_MAP.end()) {
-        int soundIndex = it->second + shiftPadIndex_;
-        drumPlayer_.playSound(soundIndex);
-    }
-    */
 }
 //----------------------------------------
 
