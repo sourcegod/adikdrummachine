@@ -14,6 +14,8 @@ AdikPattern::AdikPattern()
             patData_[i][j].assign(16, false); // Par défaut 16 pas par son
         }
     }
+    numSteps_ =16;
+
 }
 //----------------------------------------
 
@@ -29,6 +31,7 @@ AdikPattern::AdikPattern(size_t numBars)
             patData_[i][j].assign(16, false); // Par défaut 16 pas par son
         }
     }
+    numSteps_ =16;
 }
 //----------------------------------------
 

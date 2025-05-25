@@ -70,6 +70,10 @@ public:
     void gotoStart();
     void gotoEnd();
     void setUIApp(UIApp* uiApp);
+    
+    // Partie Enregistrement
+    void toggleRecord();
+    void recordSound(size_t soundIndex); 
 
 private:
     AudioDriver audioDriver_;

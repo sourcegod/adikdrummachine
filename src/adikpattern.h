@@ -43,6 +43,7 @@ public:
     size_t getCurrentBar() const { return currentBar_; }
     void setCurrentBar(size_t newBarIndex);
     size_t getCurrentStep() const { return currentStep_; }
+    size_t getNumSteps() const { return numSteps_; }
     void setCurrentStep(size_t newStepIndex);
 
     void setPosition(size_t bar=0, size_t step=0);
@@ -52,6 +53,7 @@ private:
     size_t numBars_; // Nombre de barres dans le pattern
     size_t currentBar_;
     size_t currentStep_;
+    size_t numSteps_; 
     size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
     std::vector<std::vector<std::vector<bool>>> patData_; // Structure pour stocker le pattern de batterie [barre][son][pas]
 };

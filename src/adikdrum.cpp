@@ -565,6 +565,48 @@ void AdikDrum::setUIApp(UIApp* uiApp) {
 }
 //----------------------------------------
 
+void AdikDrum::toggleRecord() {
+    drumPlayer_.toggleRecord();
+    msgText_ = "Enregistrement: " + std::string(drumPlayer_.isRecording() ? "ACTIF" : "INACTIF");
+    displayMessage(msgText_);
+    // Optionnel: Si vous voulez effacer le pattern quand l'enregistrement démarre
+    // if (drumPlayer_.isRecording()) {
+    //     drumPlayer_.curPattern_->clearData();
+    //     displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
+    // }
+}
+//----------------------------------------
+
+void AdikDrum::recordSound(size_t soundIndex) {
+    if (!drumPlayer_.isRecording()) {
+        return; // Ne fait rien si l'enregistrement n'est pas actif
+    }
+
+    if (drumPlayer_.curPattern_) {
+        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        size_t currentStep = drumPlayer_.curPattern_->getCurrentStep(); // Récupère le pas de lecture actuel
+
+        // S'assurer que l'index du son et le pas sont valides
+        if (soundIndex < numSounds_ &&
+            currentStep < drumPlayer_.curPattern_->getNumSteps()) {
+
+            drumPlayer_.curPattern_->getPatternBar(currentBar)[soundIndex][currentStep] = true;
+            drumPlayer_.playSound(soundIndex); // Joue le son immédiatement lors de l'enregistrement
+
+            msgText_ = "Enregistré: Son " + std::to_string(soundIndex + 1) + " au pas " + std::to_string(currentStep + 1);
+            displayMessage(msgText_);
+
+            // Mettre à jour l'affichage de la grille pour montrer le pas enregistré
+            displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos); // Utilisez cursorPos pour la position du curseur d'édition
+        }
+    } else {
+        msgText_ = "Erreur: Aucun pattern chargé pour enregistrer.";
+        displayMessage(msgText_);
+    }
+}
+//----------------------------------------
+
+
 //==== End of class AdikDrum ====
 
 } // namespace adikdrum
