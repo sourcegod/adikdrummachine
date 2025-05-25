@@ -581,7 +581,7 @@ void AdikDrum::recordSound(size_t soundIndex) {
         drumPlayer_.recordStep(soundIndex);
 
         size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
-        size_t currentStep = drumPlayer_.currentStep; // Accède à la variable membre currentStep de drumPlayer
+        size_t currentStep = drumPlayer_.getCurrentStep(); // Accède à la variable membre currentStep de drumPlayer
 
         msgText_ = "Enregistré: Son " + std::to_string(soundIndex + 1) + " au pas " + std::to_string(currentStep + 1);
         // displayMessage(msgText_);

@@ -49,6 +49,7 @@ public:
     void startClick();
     void stopClick();
     size_t getNumSteps() const { return numSteps_; }
+    size_t getCurrentStep() const { return currentStep; }
     size_t getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
     bool isSoundMuted(size_t soundIndex) const;
     void setSoundMuted(size_t soundIndex, bool muted);
