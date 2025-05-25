@@ -560,14 +560,16 @@ void AdikDrum::setUIApp(UIApp* uiApp) {
 //----------------------------------------
 
 void AdikDrum::toggleRecord() {
-    drumPlayer_.toggleRecord();
-    msgText_ = "Enregistrement: " + std::string(drumPlayer_.isRecording() ? "ACTIF" : "INACTIF");
+    if (drumPlayer_.isRecording()) { // Si c'était en enregistrement, on l'arrête
+        drumPlayer_.stopRecord();
+        msgText_ = "Enregistrement: INACTIF. Lecture continue.";
+    } else { // Si ce n'était pas en enregistrement, on le démarre
+        drumPlayer_.startRecord();
+        msgText_ = "Enregistrement: ACTIF. Métronome et lecture démarrés.";
+    }
     displayMessage(msgText_);
-    // Optionnel: Si vous voulez effacer le pattern quand l'enregistrement démarre
-    // if (drumPlayer_.isRecording()) {
-    //     drumPlayer_.curPattern_->clearData();
-    //     displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
-    // }
+    // Optionnel: Mettre à jour la grille au cas où le pattern ait été effacé au démarrage de l'enregistrement
+    // displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
 }
 //----------------------------------------
 
