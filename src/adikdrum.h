@@ -53,8 +53,8 @@ public:
     void changeVolume(float deltaVolume);
     void changeBpm(float deltaBpm);
     void changePan(float deltaPan);
-    void playKey(char key);        
-    void playKeyPad(char key);
+    void playKey(int soundIndex);        
+    void playKeyPad(int soundIndex);
     void triggerLastSound();
     void playCurrentSound();
     auto& getPattern() { return drumPlayer_.pattern_; }

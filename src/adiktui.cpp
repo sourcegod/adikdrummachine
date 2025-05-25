@@ -127,9 +127,6 @@ void AdikTUI::run() {
             case 'p': // Demo
                 adikDrum_->demo();
                 break;
-            case 16: // Ctrl+p (assumant que 16 est le code ASCII pour Ctrl+p)
-                adikDrum_->loadPattern();
-                break;
             case 'v': // Stop all sounds
             case '.': // '.'
                 adikDrum_->stopAllSounds();
@@ -186,6 +183,15 @@ void AdikTUI::run() {
             case '>': // Go to end of pattern
                 adikDrum_->gotoEnd();
                 break;
+
+            case 16: // Ctrl+p (assumant que 16 est le code ASCII pour Ctrl+p)
+                adikDrum_->loadPattern();
+                break;
+            case 18: // Ctrl+R (ASCII value for Ctrl+R)
+                adikDrum_->toggleRecord();
+                break;
+
+
             case KEY_UP:
                 adikDrum_->moveCursorUp();
                 break;
@@ -204,10 +210,49 @@ void AdikTUI::run() {
             case KEY_NPAGE: // PageDown pour mesure suivante
                 adikDrum_->changeBar(1);
                 break;
+            
+            default:
+                // Gérer les touches de lecture/enregistrement de sons (Q, S, D, F, pavé numérique, etc.)
+                int soundIndex = -1;
+                // Vérifier les touches de clavier mappées
+                auto it = KEY_TO_SOUND_MAP.find(key);
+                if (it != KEY_TO_SOUND_MAP.end()) {
+                    soundIndex = it->second;
+                } else {
+                    // Vérifier les touches du pavé numérique mappées
+                    // Note: Ncurses peut retourner des valeurs différentes pour les touches du pavé numérique.
+                    // Assurez-vous que KEYPAD_TO_SOUND_MAP est compatible avec les valeurs de 'ch'.
+                    auto it_num = KEYPAD_TO_SOUND_MAP.find(key); // 'ch' est déjà un int pour les touches spéciales
+                    if (it_num != KEYPAD_TO_SOUND_MAP.end()) {
+                        soundIndex = it_num->second;
+                    }
+                }
+
+                if (soundIndex != -1) {
+                    if (adikDrum_->getDrumPlayer().isRecording()) {
+                        adikDrum_->recordSound(soundIndex);
+                    } else {
+                        adikDrum_->playKey(soundIndex); // Joue le son normalement
+                    }
+                }
+                break;
+
+            /*
             default:
                 // Vérifier si la touche correspond à un son
                 // Note: KEY_TO_SOUND_MAP est dans constants.h
                 auto it = KEY_TO_SOUND_MAP.find(key);
+                if (soundIndex != -1) {
+                    if (adikDrum_->drumPlayer_.isRecording()) {
+                        adikDrum_->recordSound(soundIndex);
+                    } else {
+                        adikDrum_->playSound(soundIndex); // Joue le son normalement
+                    }
+                }
+                break;
+                */
+
+                /*
                 if (it != KEY_TO_SOUND_MAP.end()) {
                     adikDrum_->playKey(key);
                 } else if (KEYPAD_TO_SOUND_MAP.count(key)) { // Check for keypad keys
@@ -216,6 +261,8 @@ void AdikTUI::run() {
                     displayMessage(std::string("Touche pressée : ") + (char)key);
                 }
                 break;
+                */
+
         }
         // Re-get the pattern after potential changes by AdikDrum functions
         const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();

@@ -52,7 +52,7 @@ public:
 private:
     size_t numBars_; // Nombre de barres dans le pattern
     size_t currentBar_;
-    size_t currentStep_;
+    size_t currentStep_ =0;
     size_t numSteps_; 
     size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
     std::vector<std::vector<std::vector<bool>>> patData_; // Structure pour stocker le pattern de batterie [barre][son][pas]

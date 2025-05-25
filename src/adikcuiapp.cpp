@@ -95,7 +95,13 @@ void AdikCUIApp::run() {
             adikDrum_.changeSpeed(0.25f);
 
         } else if (KEY_TO_SOUND_MAP.count(key)) {
-            adikDrum_.playKey(key); // Gérer les autres touches pour jouer des sons
+            // Vérifier les touches de clavier mappées
+            auto it = KEY_TO_SOUND_MAP.find(key);
+            if (it != KEY_TO_SOUND_MAP.end()) {
+                int soundIndex = it->second;
+                adikDrum_.playKey(soundIndex); // Gérer les autres touches pour jouer des sons
+            }
+
         } else if (key == 'D') { // Touche 'D'
             adikDrum_.toggleDelay();
         } else if (key == 'l' or key == '.') { // Touche 'l'

@@ -434,21 +434,30 @@ void AdikDrum::changePan(float deltaPan) {
 }
 //----------------------------------------
 
-void AdikDrum::playKey(char key) {
+void AdikDrum::playKey(int soundIndex) {
+    soundIndex += shiftPadIndex_;
+    drumPlayer_.playSound(soundIndex);
+    /*
     auto it = KEY_TO_SOUND_MAP.find(key);
     if (it != KEY_TO_SOUND_MAP.end()) {
         int soundIndex = it->second + shiftPadIndex_;
         drumPlayer_.playSound(soundIndex);
     }
+    */
+
 }
 //----------------------------------------
 
-void AdikDrum::playKeyPad(char key) {
+void AdikDrum::playKeyPad(int soundIndex) {
+    soundIndex += shiftPadIndex_;
+    drumPlayer_.playSound(soundIndex);
+    /*
     auto it = KEYPAD_TO_SOUND_MAP.find(key);
     if (it != KEYPAD_TO_SOUND_MAP.end()) {
         int soundIndex = it->second + shiftPadIndex_;
         drumPlayer_.playSound(soundIndex);
     }
+    */
 }
 //----------------------------------------
 
@@ -584,10 +593,10 @@ void AdikDrum::recordSound(size_t soundIndex) {
 
     if (drumPlayer_.curPattern_) {
         size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
-        size_t currentStep = drumPlayer_.curPattern_->getCurrentStep(); // Récupère le pas de lecture actuel
+        size_t currentStep = drumPlayer_.currentStep; // Récupère le pas de lecture actuel
 
         // S'assurer que l'index du son et le pas sont valides
-        if (soundIndex < numSounds_ &&
+        if (soundIndex < drumPlayer_.getNumSounds() &&
             currentStep < drumPlayer_.curPattern_->getNumSteps()) {
 
             drumPlayer_.curPattern_->getPatternBar(currentBar)[soundIndex][currentStep] = true;

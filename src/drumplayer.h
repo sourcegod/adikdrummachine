@@ -48,8 +48,8 @@ public:
     void setMixer(AudioMixer& mixer); // Nouvelle fonction pour assigner le mixer
     void startClick();
     void stopClick();
-    int getNumSteps() const { return numSteps_; }
-    int getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
+    size_t getNumSteps() const { return numSteps_; }
+    size_t getNumSounds() const { return drumSounds_.size(); } // On peut déduire le nombre de sons de la taille du vecteur
     bool isSoundMuted(size_t soundIndex) const;
     void setSoundMuted(size_t soundIndex, bool muted);
     void resetMute();
