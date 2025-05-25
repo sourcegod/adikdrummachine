@@ -294,6 +294,18 @@ void DrumPlayer::resetMute() {
     std::cout << "Tous les sons ont été démutés." << std::endl;
 }
 //----------------------------------------
+
+void DrumPlayer::toggleRecord() {
+    recording_ = !recording_;
+}
+//----------------------------------------
+
+bool DrumPlayer::isRecording() const {
+    return recording_;
+}
+//----------------------------------------
+
+
 //==== End of class DrumPlayer ====
 
 } // namespace adikdrum

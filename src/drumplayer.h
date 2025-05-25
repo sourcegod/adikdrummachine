@@ -61,6 +61,11 @@ public:
     void playLastSound();
     size_t getLastSoundIndex() const { return lastSoundIndex_; }
 
+    // Partie Enregistrement
+    void toggleRecord();
+    bool isRecording() const;
+
+
 private:
     bool playing_;
     bool clicking_;
@@ -69,6 +74,7 @@ private:
     AudioMixer* mixer_; // Pointeur vers l'AudioMixer
     std::vector<bool> isMuted_; // true si le son est muté
     size_t lastSoundIndex_; // Nouveau membre privé
+    bool recording_ = false; // Nouvelle variable pour l'état d'enregistrement
 
     SoundPtr getSound(size_t soundIndex); 
 
