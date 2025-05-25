@@ -23,7 +23,7 @@ public:
     SoundPtr soundClick1_; // Nouveau membre pour le son aigu du métronome
     SoundPtr soundClick2_; // Nouveau membre pour le son grave du métronome
 
-    int clickStep;
+    size_t clickStep_;
     std::vector<std::vector<bool>> pattern_;
     size_t numSteps_;
     int sampleRate_;

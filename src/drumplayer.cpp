@@ -12,7 +12,7 @@ namespace adikdrum {
 
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     : currentStep_(0),
-      clickStep(0),
+      clickStep_(0),
       // pattern_(numSounds, std::vector<bool>(numSteps, false)),
       numSteps_(numSteps),
       sampleRate_(44100),
@@ -116,7 +116,7 @@ void DrumPlayer::stopAllSounds() {
     recording_ = false;
     clicking_ = false;
     currentStep_ = 0;
-    clickStep = 0;
+    clickStep_ = 0;
     beatCounter_ = 0;
 }
 //----------------------------------------
@@ -125,10 +125,10 @@ void DrumPlayer::stopAllSounds() {
 void DrumPlayer::startClick() {
     clicking_ = true;
     if (playing_) {
-      clickStep = currentStep_;
-      beatCounter_ = clickStep % numSteps_;
+      clickStep_ = currentStep_;
+      beatCounter_ = clickStep_ % numSteps_;
     } else {
-      clickStep =0;
+      clickStep_ =0;
       beatCounter_ =0;
     }
 
