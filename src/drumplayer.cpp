@@ -299,16 +299,6 @@ void DrumPlayer::resetMute() {
 }
 //----------------------------------------
 
-void DrumPlayer::toggleRecord() {
-    recording_ = !recording_;
-}
-//----------------------------------------
-
-bool DrumPlayer::isRecording() const {
-    return recording_;
-}
-//----------------------------------------
-
 void DrumPlayer::startRecord() {
     recording_ = true;
     startClick(); // Démarre le métronome

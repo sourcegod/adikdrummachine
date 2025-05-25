@@ -63,8 +63,8 @@ public:
     size_t getLastSoundIndex() const { return lastSoundIndex_; }
 
     // Partie Enregistrement
-    void toggleRecord();
-    bool isRecording() const;
+    void toggleRecord() { recording_ = !recording_; }
+    bool isRecording() const { return recording_; }
     void startRecord();
     void stopRecord();
     void recordStep(size_t soundIndex);
