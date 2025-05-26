@@ -639,38 +639,6 @@ void AdikDrum::deleteLastPlayedStep() {
 }
 //----------------------------------------
 
-
-/*
-void AdikDrum::deleteLastRecordedStep() {
-    if (!drumPlayer_.isRecording()) {
-        msgText_ = "Non en mode enregistrement pour supprimer des pas.";
-        displayMessage(msgText_);
-        return;
-    }
-
-    int lastSoundIndex = drumPlayer_.getLastSoundIndex();
-    if (lastSoundIndex == -1) {
-        msgText_ = "Aucun son joué récemment pour supprimer.";
-        displayMessage(msgText_);
-        return;
-    }
-
-    // Appelle la logique d'effacement centralisée dans DrumPlayer
-    drumPlayer_.deleteStepAtCurrentPosition();
-
-    // Récupère les infos pour le message après l'opération
-    size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
-    size_t currentStep = drumPlayer_.currentStep_; // Le pas de lecture actuel
-
-    msgText_ = "Effacé: Son " + std::to_string(lastSoundIndex + 1) + " au pas " + std::to_string(currentStep + 1);
-    displayMessage(msgText_);
-
-    // Mettre à jour l'affichage de la grille
-    displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
-}
-//----------------------------------------
-*/
-
 //==== End of class AdikDrum ====
 
 } // namespace adikdrum
