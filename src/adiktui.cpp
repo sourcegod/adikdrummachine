@@ -248,11 +248,27 @@ void AdikTUI::run() {
                 }
                 break;
 
+        } // End of switch
+
+        /*
+        // On rafraîchit la grille et le message normal uniquement si l'aide n'est PAS affichée.
+        if (!adikDrum_->isHelpDisplayed()) {
+            const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();
+            displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
+            displayMessage(adikDrum_->msgText_);
+        } else {
+            // Si l'aide est affichée, s'assurer que le message de l'aide reste à l'écran
+            // displayMessage(adikDrum_->msgText_); est déjà appelé dans AdikDrum::toggleHelp()
+            // lorsque helpDisplayed_ passe à true. Si l'aide est déjà affichée,
+            // il n'y a pas besoin de la redessiner à chaque frame.
+            // On peut juste s'assurer que le curseur est masqué ou repositionné si nécessaire.
+            // Pour l'instant, on se contente de l'affichage sur les 2 lignes du bas.
         }
-        // Re-get the pattern after potential changes by AdikDrum functions
-        const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();
-        displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
-    }
+        */
+
+
+    } // End of While Loop
+
 }
 //----------------------------------------
 
