@@ -706,6 +706,23 @@ void AdikDrum::clearLastPlayedSound() {
 }
 //----------------------------------------
 
+void AdikDrum::toggleHelp() {
+    helpDisplayed_ = !helpDisplayed_; // Inverse l'état d'affichage de l'aide
+
+    if (helpDisplayed_) {
+        // Sauvegarder le message actuel avant d'afficher l'aide
+        previousMsgText_ = msgText_; // Assurez-vous d'avoir un membre previousMsgText_
+        msgText_ = helpText_;
+        displayMessage(msgText_); 
+    } else {
+        // Restaurer le message précédent ou effacer l'aide
+        msgText_ = previousMsgText_; // Restaurer le message d'origine
+        displayMessage(msgText_); // Rafraîchir l'affichage
+    }
+    // L'affichage de la grille n'est pas affecté directement par l'aide
+}
+//----------------------------------------
+
 
 //==== End of class AdikDrum ====
 
