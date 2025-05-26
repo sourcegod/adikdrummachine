@@ -1,0 +1,42 @@
+Aide pour Adik Drum Machine
+Appuyez sur les touches suivantes pour contrôler l'application:
+
+    Q: Quitter l'application
+    Ctrl+H: Afficher/masquer cette aide
+    Entrée: Activer le pas à la position du curseur
+    Backspace: Désactiver le pas à la position du curseur
+    Espace / 0: Activer/désactiver la lecture
+    c: Démarrer/arrêter le métronome
+    p: Lancer la démo des sons
+    Ctrl+P: Charger un nouveau pattern aléatoire
+    Ctrl+R: Activer/désactiver l'enregistrement
+    v / .: Arrêter tous les sons en cours
+    x: Muter/démuter le son courant (ligne du curseur)
+    X: Réinitialiser le mute de tous les canaux
+    +: Augmenter le volume global
+    -: Diminuer le volume global
+    (: Diminuer le BPM
+    ): Augmenter le BPM
+    [: Déplacer le panoramique du son courant vers la gauche
+    ]: Déplacer le panoramique du son courant vers la droite
+    {: Diminuer la vitesse de lecture du son courant
+    }: Augmenter la vitesse de lecture du son courant
+    D: Activer/désactiver le délai pour le son courant
+    l / 9: Rejouer le dernier son joué
+    m: Jouer le son à la position actuelle du curseur
+    /: Diminuer le décalage (shift) du pad
+    *: Augmenter le décalage (shift) du pad
+    <: Aller au début du pattern
+    >: Aller à la fin du pattern
+    Flèche Haut: Déplacer le curseur vers le haut et jouer le son
+    Flèche Bas: Déplacer le curseur vers le bas et jouer le son
+    Flèche Droite: Déplacer le curseur vers la droite
+    Flèche Gauche: Déplacer le curseur vers la gauche
+    PageHaut: Mesure précédente
+    PageBas: Mesure suivante
+    Delete: Effacer le dernier son joué au pas de lecture actuel
+    Ctrl+D: Effacer toutes les occurrences du son au curseur (dans tout le pattern)
+    Ctrl+K: Effacer toutes les occurrences du dernier son joué (dans tout le pattern)
+    Touches [q-k, a-i]: Jouer le son correspondant
+    Touches [1-8]: Jouer le son correspondant
+
