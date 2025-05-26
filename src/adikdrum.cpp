@@ -608,7 +608,7 @@ void AdikDrum::recordSound(size_t soundIndex) {
         // La logique d'enregistrement du pas est maintenant dans DrumPlayer
         drumPlayer_.recordStep(soundIndex);
 
-        size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+        // size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
         size_t currentStep = drumPlayer_.getCurrentStep(); // Accède à la variable membre currentStep de drumPlayer
 
         msgText_ = "Enregistré: Son " + std::to_string(soundIndex + 1) + " au pas " + std::to_string(currentStep + 1);

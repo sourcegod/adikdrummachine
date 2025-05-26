@@ -24,9 +24,6 @@ public:
     UIApp* uiApp_; // Pointeur vers l'objet UIApp
     std::string helpText_;
     bool helpDisplayed_ = false; // Pour savoir si l'aide est affichée
-    std::string msgText_;
-    std::string previousMsgText_; 
-
 
     std::pair<size_t, size_t> cursorPos;
 
@@ -98,6 +95,10 @@ private:
     int initialBpm_;
     DrumPlayer drumPlayer_; // Note: il faut Déclarer drumPlayer_ APRÈS numSounds_ et numSteps_, pour l'ordre d'initialisation des membres
     DrumMachineData drumData_;
+    std::string msgText_;
+    std::string previousMsgText_; 
+
+
     size_t shiftPadIndex_ =0;
 
 };
