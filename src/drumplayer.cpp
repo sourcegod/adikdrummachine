@@ -402,6 +402,46 @@ bool DrumPlayer::clearSoundFromPattern(int soundIndex) {
 }
 //----------------------------------------
 
+void DrumPlayer::addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex) {
+    // Il est important de s'assurer que curPattern_ est valide ici
+    // et que les indices sont dans les limites.
+    if (!curPattern_ || soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSounds_ ||
+        barIndex >= curPattern_->getBar() || stepIndex >= curPattern_->getNumSteps()) {
+        std::cerr << "Erreur: Tentative d'ajouter un enregistrement en attente invalide." << std::endl;
+        return;
+    }
+    pendingRecordings_.emplace_back(soundIndex, barIndex, stepIndex);
+}
+
+bool DrumPlayer::mergePendingRecordings() {
+    if (pendingRecordings_.empty() || !curPattern_) {
+        return false;
+    }
+
+    bool changed = false;
+    for (const auto& rec : pendingRecordings_) {
+        int soundIndex = std::get<0>(rec);
+        size_t barIndex = std::get<1>(rec);
+        size_t stepIndex = std::get<2>(rec);
+
+        // Activer le pas dans le pattern principal
+        // Assurez-vous que Pattern::toggleStep peut être appelé avec un barIndex
+        // ou adaptez l'accès au pattern
+        if (barIndex < curPattern_->getBar() && stepIndex < curPattern_->getNumSteps() &&
+            soundIndex >= 0 && static_cast<size_t>(soundIndex) < numSounds_)
+        {
+            // Vérifier si le pas n'est pas déjà activé pour éviter des boucles ou des activations inutiles
+            if (!curPattern_->getPatternBar(barIndex)[soundIndex][stepIndex]) {
+                curPattern_->getPatternBar(barIndex)[soundIndex][stepIndex] = true;
+                changed = true;
+            }
+        }
+    }
+    pendingRecordings_.clear(); // Vider les enregistrements en attente après la fusion
+    return changed;
+}
+
+
 //==== End of class DrumPlayer ====
 
 } // namespace adikdrum

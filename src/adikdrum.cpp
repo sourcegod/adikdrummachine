@@ -615,7 +615,7 @@ void AdikDrum::recordSound(size_t soundIndex) {
         // displayMessage(msgText_);
 
         // Mettre à jour l'affichage de la grille pour montrer le pas enregistré
-        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
+        // displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
     } else {
         msgText_ = "Erreur: Aucun pattern chargé pour enregistrer.";
         displayMessage(msgText_);

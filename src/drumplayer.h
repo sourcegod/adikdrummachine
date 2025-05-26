@@ -32,6 +32,10 @@ public:
     size_t currentBar_;  // Supposons que ces membres existent et sont gérés
     size_t numTotalBars_ =0;
 
+    // Nouvelle structure pour stocker les enregistrements en attente
+    // Tuple: soundIndex, barIndex, stepIndex
+    std::vector<std::tuple<int, size_t, size_t>> pendingRecordings_;
+
 
     void playSound(size_t soundIndex);
     void stopAllSounds();
@@ -73,6 +77,12 @@ public:
     void recordStep(size_t soundIndex);
     bool deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar); 
     bool clearSoundFromPattern(int soundIndex);
+
+    // Nouvelle fonction pour ajouter un enregistrement en attente
+    void addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex);
+    // Nouvelle fonction pour fusionner les enregistrements en attente dans le pattern courant
+    bool mergePendingRecordings();
+
 
 
 private:
