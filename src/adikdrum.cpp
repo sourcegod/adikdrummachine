@@ -639,6 +639,30 @@ void AdikDrum::deleteLastPlayedStep() {
 }
 //----------------------------------------
 
+void AdikDrum::clearCurrentSound() {
+    int currentSoundIndex = cursorPos.second; // Le son à la position Y du curseur
+
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour effacer des sons.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    // Appeler la logique de DrumPlayer
+    bool changed = drumPlayer_.clearSoundFromPattern(currentSoundIndex);
+
+    if (changed) {
+        msgText_ = "Effacé: Toutes les occurrences du son " + std::to_string(currentSoundIndex + 1) + ".";
+        displayMessage(msgText_);
+        // Mettre à jour l'affichage de la grille
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
+    } else {
+        msgText_ = "Le son " + std::to_string(currentSoundIndex + 1) + " n'avait aucune occurrence.";
+        displayMessage(msgText_);
+    }
+}
+//----------------------------------------
+
 //==== End of class AdikDrum ====
 
 } // namespace adikdrum

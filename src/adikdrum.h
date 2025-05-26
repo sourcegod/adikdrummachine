@@ -74,8 +74,8 @@ public:
     // Partie Enregistrement
     void toggleRecord();
     void recordSound(size_t soundIndex); 
-    // void deleteLastRecordedStep(); // Nouvelle fonction pour effacer le dernier pas enregistré
     void deleteLastPlayedStep(); // Renommée pour être plus générique
+    void clearCurrentSound();
 
 private:
     AudioDriver audioDriver_;

@@ -183,7 +183,9 @@ void AdikTUI::run() {
             case '>': // Go to end of pattern
                 adikDrum_->gotoEnd();
                 break;
-
+            case 4: // Ctrl+D (ASCII value for Ctrl+D) - Pour effacer toutes les occurrences d'un son
+                adikDrum_->clearCurrentSound();
+                break;
             case 16: // Ctrl+p (assumant que 16 est le code ASCII pour Ctrl+p)
                 adikDrum_->loadPattern();
                 break;
