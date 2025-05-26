@@ -214,7 +214,6 @@ void AdikTUI::run() {
                 adikDrum_->deleteLastRecordedStep();
                 break;
 
-            
             default:
                 // Gérer les touches de lecture/enregistrement de sons (Q, S, D, F, pavé numérique, etc.)
                 int soundIndex = -1;

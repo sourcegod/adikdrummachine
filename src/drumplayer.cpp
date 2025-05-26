@@ -352,7 +352,32 @@ void DrumPlayer::recordStep(size_t soundIndex) {
 }
 //----------------------------------------
 
+void DrumPlayer::deleteStepAtCurrentPosition() {
+    if (!recording_) { // Seule la logique, pas le message d'erreur ici
+        return;
+    }
 
+    // On utilise getLastSoundIndex() comme tu l'as rappelé
+    int lastSoundIndex = getLastSoundIndex();
+    if (lastSoundIndex == -1) { // La vérification et le message seront dans AdikDrum
+        return;
+    }
+
+    if (curPattern_) {
+        size_t currentBar = curPattern_->getCurrentBar();
+        size_t currentStep = currentStep_;
+
+        if (lastSoundIndex >= 0 && static_cast<size_t>(lastSoundIndex) < numSounds_ &&
+            currentStep < curPattern_->getNumSteps()) {
+            curPattern_->getPatternBar(currentBar)[lastSoundIndex][currentStep] = false;
+        } else {
+            std::cerr << "Erreur interne: Indices de suppression invalides dans DrumPlayer::deleteStepAtCurrentPosition." << std::endl;
+        }
+    } else {
+        std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::deleteStepAtCurrentPosition." << std::endl;
+    }
+}
+//----------------------------------------
 
 //==== End of class DrumPlayer ====
 
