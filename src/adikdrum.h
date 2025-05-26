@@ -22,7 +22,7 @@ public:
     };
 
     UIApp* uiApp_; // Pointeur vers l'objet UIApp
-    std::string helpText;
+    std::string helpText_;
     std::pair<size_t, size_t> cursorPos;
 
 

@@ -52,7 +52,7 @@ AdikDrum::AdikDrum(UIApp* uiApp)
 
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
-      helpText = "Appuyez sur les touches suivantes pour contrôler l'application:\n"
+      helpText_ = "Appuyez sur les touches suivantes pour contrôler l'application:\n"
                "  Q: Quitter l'application\n"
                "  Entrée: Activer le pas à la position du curseur\n"
                "  Backspace: Désactiver le pas à la position du curseur\n"
