@@ -71,7 +71,8 @@ public:
     void startRecord();
     void stopRecord();
     void recordStep(size_t soundIndex);
-    void deleteStepAtCurrentPosition(); // Nouvelle fonction pour supprimer un pas au pas courant
+    // void deleteStepAtCurrentPosition(); // Nouvelle fonction pour supprimer un pas au pas courant
+    bool deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar); 
 
 
 private:

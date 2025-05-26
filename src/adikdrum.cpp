@@ -604,6 +604,43 @@ void AdikDrum::recordSound(size_t soundIndex) {
 }
 //----------------------------------------
 
+void AdikDrum::deleteLastPlayedStep() {
+    int lastSoundIndex = drumPlayer_.getLastSoundIndex();
+    if (lastSoundIndex == -1) {
+        msgText_ = "Aucun son joué récemment pour supprimer.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour supprimer des pas.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    size_t currentBar = drumPlayer_.curPattern_->getCurrentBar();
+    size_t currentStep = drumPlayer_.currentStep_; // Le pas de lecture actuel
+
+    // Appel de la fonction DrumPlayer. La fonction de DrumPlayer retourne un booléen
+    // pour indiquer si la suppression a réussi.
+    bool success = drumPlayer_.deleteStepAtPos(lastSoundIndex, currentStep, currentBar);
+
+    if (success) {
+        msgText_ = "Effacé: Son " + std::to_string(lastSoundIndex + 1) + " au pas " + std::to_string(currentStep + 1);
+        displayMessage(msgText_);
+
+        // Mettre à jour l'affichage de la grille
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
+    } else {
+        // Ce cas devrait être rare si les checks sont faits en amont ou si drumPlayer::deleteStepAtPos est robuste
+        msgText_ = "Erreur lors de la suppression du pas. Indices invalides.";
+        displayMessage(msgText_);
+    }
+}
+//----------------------------------------
+
+
+/*
 void AdikDrum::deleteLastRecordedStep() {
     if (!drumPlayer_.isRecording()) {
         msgText_ = "Non en mode enregistrement pour supprimer des pas.";
@@ -632,6 +669,7 @@ void AdikDrum::deleteLastRecordedStep() {
     displayGrid(drumPlayer_.curPattern_->getPatternBar(currentBar), cursorPos);
 }
 //----------------------------------------
+*/
 
 //==== End of class AdikDrum ====
 

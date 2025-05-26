@@ -352,6 +352,27 @@ void DrumPlayer::recordStep(size_t soundIndex) {
 }
 //----------------------------------------
 
+bool DrumPlayer::deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar) {
+    if (!curPattern_) {
+        std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::deleteStepAtPos." << std::endl;
+        return false;
+    }
+
+    // Vérifications d'indices plus robustes ici, car cette fonction peut être appelée de n'importe où
+    if (soundIndex >= 0 && static_cast<size_t>(soundIndex) < numSounds_ &&
+        currentStep < curPattern_->getNumSteps() &&
+        currentBar < curPattern_->getBar()) { // Ajout de la vérification de la barre
+
+        curPattern_->getPatternBar(currentBar)[soundIndex][currentStep] = false;
+        return true; // Suppression réussie
+    } else {
+        std::cerr << "Erreur interne: Indices de suppression invalides dans DrumPlayer::deleteStepAtPos." << std::endl;
+        return false; // Suppression échouée (indices invalides)
+    }
+}
+//----------------------------------------
+
+/*
 void DrumPlayer::deleteStepAtCurrentPosition() {
     if (!recording_) { // Seule la logique, pas le message d'erreur ici
         return;
@@ -378,6 +399,7 @@ void DrumPlayer::deleteStepAtCurrentPosition() {
     }
 }
 //----------------------------------------
+*/
 
 //==== End of class DrumPlayer ====
 

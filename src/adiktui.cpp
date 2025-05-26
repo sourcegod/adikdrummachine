@@ -211,7 +211,7 @@ void AdikTUI::run() {
                 adikDrum_->changeBar(1);
                 break;
             case KEY_DC: // Touche Delete
-                adikDrum_->deleteLastRecordedStep();
+                adikDrum_->deleteLastPlayedStep();
                 break;
 
             default:
