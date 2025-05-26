@@ -76,6 +76,7 @@ public:
     void recordSound(size_t soundIndex); 
     void deleteLastPlayedStep(); // Renommée pour être plus générique
     void clearCurrentSound();
+    void clearLastPlayedSound();
 
 private:
     AudioDriver audioDriver_;

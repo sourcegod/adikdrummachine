@@ -372,6 +372,7 @@ bool DrumPlayer::deleteStepAtPos(int soundIndex, size_t currentStep, size_t curr
 }
 //----------------------------------------
 
+
 bool DrumPlayer::clearSoundFromPattern(int soundIndex) {
     if (!curPattern_) {
         std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::clearSoundFromPattern." << std::endl;
