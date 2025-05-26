@@ -52,28 +52,44 @@ AdikDrum::AdikDrum(UIApp* uiApp)
 
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
-      helpText_ = "Appuyez sur les touches suivantes pour contrôler l'application:\n"
-               "  Q: Quitter l'application\n"
-               "  Entrée: Activer le pas à la position du curseur\n"
-               "  Backspace: Désactiver le pas à la position du curseur\n"
-               "  Espace: Activer/désactiver la lecture\n"
-               "  c: Démarrer/arrêter le métronome\n"
-               "  p: Lancer la démo des sons\n"
-               "  Ctrl+p: Charger un nouveau pattern aléatoire\n"
-               "  v: Arrêter tous les sons en cours\n"
-               "  x: Muter/démuter le son courant (ligne du curseur)\n"
-               "  X: Réinitialiser le mute de tous les canaux\n"
-               "  +: Augmenter le volume global\n"
-               "  -: Diminuer le volume global\n"
-               "  (: Diminuer le BPM\n"
-               "  ): Augmenter le BPM\n"
-               "  [: Déplacer le panoramique du son courant vers la gauche\n"
-               "  ]: Déplacer le panoramique du son courant vers la droite\n"
-               "  Flèche Haut: Déplacer le curseur vers le haut et jouer le son\n"
-               "  Flèche Bas: Déplacer le curseur vers le bas et jouer le son\n"
-               "  Flèche Droite: Déplacer le curseur vers la droite\n"
-               "  Flèche Gauche: Déplacer le curseur vers la gauche\n"
-               "  Touches [q-k, a-i]: Jouer le son correspondant\n";
+    helpText_ = "Appuyez sur les touches suivantes pour contrôler l'application:\n"
+                "  Q: Quitter l'application\n"
+                "  F1: Afficher/masquer cette aide\n" // Nouveau raccourci
+                "  Entrée: Activer le pas à la position du curseur\n"
+                "  Backspace: Désactiver le pas à la position du curseur\n"
+                "  Espace / 0: Activer/désactiver la lecture\n"
+                "  c: Démarrer/arrêter le métronome\n"
+                "  p: Lancer la démo des sons\n"
+                "  Ctrl+P: Charger un nouveau pattern aléatoire\n" // Correction: Ctrl+P pour charger
+                "  Ctrl+R: Activer/désactiver l'enregistrement\n" // Nouveau raccourci
+                "  v / .: Arrêter tous les sons en cours\n"
+                "  x: Muter/démuter le son courant (ligne du curseur)\n"
+                "  X: Réinitialiser le mute de tous les canaux\n"
+                "  +: Augmenter le volume global\n"
+                "  -: Diminuer le volume global\n"
+                "  (: Diminuer le BPM\n"
+                "  ): Augmenter le BPM\n"
+                "  [: Déplacer le panoramique du son courant vers la gauche\n"
+                "  ]: Déplacer le panoramique du son courant vers la droite\n"
+                "  {: Diminuer la vitesse de lecture du son courant\n"
+                "  }: Augmenter la vitesse de lecture du son courant\n"
+                "  D: Activer/désactiver le délai pour le son courant\n"
+                "  l / 9: Rejouer le dernier son joué\n"
+                "  m: Jouer le son à la position actuelle du curseur\n"
+                "  /: Diminuer le décalage (shift) du pad\n"
+                "  *: Augmenter le décalage (shift) du pad\n"
+                "  <: Aller au début du pattern\n"
+                "  >: Aller à la fin du pattern\n"
+                "  Flèche Haut: Déplacer le curseur vers le haut et jouer le son\n"
+                "  Flèche Bas: Déplacer le curseur vers le bas et jouer le son\n"
+                "  Flèche Droite: Déplacer le curseur vers la droite\n"
+                "  Flèche Gauche: Déplacer le curseur vers la gauche\n"
+                "  PageHaut: Mesure précédente\n"
+                "  PageBas: Mesure suivante\n"
+                "  Delete: Effacer le dernier son joué au pas de lecture actuel\n"
+                "  Ctrl+D: Effacer toutes les occurrences du son au curseur (dans tout le pattern)\n" // Nouveau raccourci
+                "  Ctrl+K: Effacer toutes les occurrences du dernier son joué (dans tout le pattern)\n" // Nouveau raccourci
+                "  Touches [q-k, a-i]: Jouer le son correspondant\n";
 
 }
 //----------------------------------------

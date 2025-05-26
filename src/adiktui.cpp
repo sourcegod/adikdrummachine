@@ -245,32 +245,6 @@ void AdikTUI::run() {
                 }
                 break;
 
-            /*
-            default:
-                // Vérifier si la touche correspond à un son
-                // Note: KEY_TO_SOUND_MAP est dans constants.h
-                auto it = KEY_TO_SOUND_MAP.find(key);
-                if (soundIndex != -1) {
-                    if (adikDrum_->drumPlayer_.isRecording()) {
-                        adikDrum_->recordSound(soundIndex);
-                    } else {
-                        adikDrum_->playSound(soundIndex); // Joue le son normalement
-                    }
-                }
-                break;
-                */
-
-                /*
-                if (it != KEY_TO_SOUND_MAP.end()) {
-                    adikDrum_->playKey(key);
-                } else if (KEYPAD_TO_SOUND_MAP.count(key)) { // Check for keypad keys
-                    adikDrum_->playKeyPad(key);
-                } else {
-                    displayMessage(std::string("Touche pressée : ") + (char)key);
-                }
-                break;
-                */
-
         }
         // Re-get the pattern after potential changes by AdikDrum functions
         const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();
