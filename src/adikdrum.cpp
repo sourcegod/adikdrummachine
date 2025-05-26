@@ -48,7 +48,8 @@ AdikDrum::AdikDrum(UIApp* uiApp)
       numSounds_(16),
       numSteps_(16),
       drumPlayer_(numSounds_, numSteps_),
-      msgText_("") // Initialisation optionnelle
+      msgText_(""), // Initialisation optionnelle
+      previousMsgText_("")
 
 {
       std::cout << "AdikDrum::Constructor - numSounds_: " << numSounds_ << ", numSteps_: " << numSteps_ << std::endl;
@@ -89,7 +90,8 @@ AdikDrum::AdikDrum(UIApp* uiApp)
                 "  Delete: Effacer le dernier son joué au pas de lecture actuel\n"
                 "  Ctrl+D: Effacer toutes les occurrences du son au curseur (dans tout le pattern)\n" // Nouveau raccourci
                 "  Ctrl+K: Effacer toutes les occurrences du dernier son joué (dans tout le pattern)\n" // Nouveau raccourci
-                "  Touches [q-k, a-i]: Jouer le son correspondant\n";
+                "  Touches [q-k, a-i]: Jouer le son correspondant\n"
+                "  Touches [1-8]: Jouer le son correspondant\n"; // Ajout de cette ligne
 
 }
 //----------------------------------------

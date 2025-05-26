@@ -79,6 +79,8 @@ public:
     void clearCurrentSound();
     void clearLastPlayedSound();
     void toggleHelp(); // Pour basculer l'affichage de l'aide
+    bool isHelpDisplayed() const { return helpDisplayed_; }
+
 
 private:
     AudioDriver audioDriver_;

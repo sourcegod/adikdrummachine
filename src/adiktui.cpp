@@ -186,6 +186,9 @@ void AdikTUI::run() {
             case 4: // Ctrl+D (ASCII value for Ctrl+D) - Pour effacer toutes les occurrences d'un son
                 adikDrum_->clearCurrentSound();
                 break;
+            case 8: // Ctrl+H
+                adikDrum_->toggleHelp();
+                break;
             case 11: // Ctrl+K (ASCII value for Ctrl+K) - Efface toutes les occurrences du DERNIER SON JOUÉ
                 adikDrum_->clearLastPlayedSound();
                 break;
