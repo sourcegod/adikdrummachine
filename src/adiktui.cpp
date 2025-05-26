@@ -210,6 +210,10 @@ void AdikTUI::run() {
             case KEY_NPAGE: // PageDown pour mesure suivante
                 adikDrum_->changeBar(1);
                 break;
+            case KEY_DC: // Touche Delete
+                adikDrum_->deleteLastRecordedStep();
+                break;
+
             
             default:
                 // Gérer les touches de lecture/enregistrement de sons (Q, S, D, F, pavé numérique, etc.)
