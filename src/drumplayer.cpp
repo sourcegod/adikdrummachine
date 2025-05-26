@@ -372,6 +372,35 @@ bool DrumPlayer::deleteStepAtPos(int soundIndex, size_t currentStep, size_t curr
 }
 //----------------------------------------
 
+bool DrumPlayer::clearSoundFromPattern(int soundIndex) {
+    if (!curPattern_) {
+        std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::clearSoundFromPattern." << std::endl;
+        return false;
+    }
+
+    // Vérifier si l'index du son est valide
+    if (soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSounds_) {
+        std::cerr << "Erreur interne: Index de son invalide dans DrumPlayer::clearSoundFromPattern." << std::endl;
+        return false;
+    }
+
+    // Parcourir toutes les barres et tous les pas pour désactiver le son
+    size_t totalBars = curPattern_->getBar(); // Assurez-vous que getBar() retourne le nombre total de barres
+    size_t totalSteps = curPattern_->getNumSteps();
+
+    bool changed = false;
+    for (size_t barIdx = 0; barIdx < totalBars; ++barIdx) {
+        for (size_t stepIdx = 0; stepIdx < totalSteps; ++stepIdx) {
+            if (curPattern_->getPatternBar(barIdx)[soundIndex][stepIdx]) {
+                curPattern_->getPatternBar(barIdx)[soundIndex][stepIdx] = false;
+                changed = true;
+            }
+        }
+    }
+    return changed; // Indique si des modifications ont été apportées
+}
+//----------------------------------------
+
 //==== End of class DrumPlayer ====
 
 } // namespace adikdrum

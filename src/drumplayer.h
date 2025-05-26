@@ -72,6 +72,7 @@ public:
     void stopRecord();
     void recordStep(size_t soundIndex);
     bool deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar); 
+    bool clearSoundFromPattern(int soundIndex);
 
 
 private:
