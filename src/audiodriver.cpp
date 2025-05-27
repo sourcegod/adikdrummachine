@@ -139,17 +139,18 @@ int AudioDriver::drumMachineCallback(const void* inputBuffer, void* outputBuffer
 
         if (frameCounter >= samplesPerStep) {
             frameCounter = 0;
+            auto numSteps = data->player->getNumSteps();
             if (data->player->isPlaying()) {
                 data->player->clickStep_ = data->player->getCurrentStep();
                 if (data->player->isClicking() && data->player->clickStep_ % 4 == 0) {
                   data->player->playMetronome();
                 }
-                data->player->playPattern();
+                data->player->playPattern(numSteps);
             } else if (data->player->isClicking()) {
                 if (data->player->clickStep_ % 4 == 0) {
                     data->player->playMetronome();
                 }
-                data->player->clickStep_ = (data->player->clickStep_ + 1) % data->player->getNumSteps();
+                data->player->clickStep_ = (data->player->clickStep_ + 1) % numSteps;
             }
         }
 

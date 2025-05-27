@@ -43,7 +43,7 @@ public:
     void playSound(size_t soundIndex);
     void stopAllSounds();
     void playMetronome();
-    void playPattern();
+    void playPattern(size_t mergeIntervalSteps=16);
 
     double softClip(double x) { return tanh(x); }
     float hardClip(double x) { return std::clamp(x, -1.0, 1.0); }

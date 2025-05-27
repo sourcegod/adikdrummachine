@@ -196,8 +196,69 @@ void DrumPlayer::playMetronome() {
 
 }
 //----------------------------------------
+void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
+    if (mixer_ && playing_) {
+        if (curPattern_) {
+            currentBar_ = curPattern_->getCurrentBar();
+            numTotalBars_ = curPattern_->getBar();
+            numSteps_ = curPattern_->getBarLength(currentBar_);
 
-void DrumPlayer::playPattern() {
+            // Jouer les sons du pas actuel (cette partie reste inchangée)
+            auto& currentBarData = curPattern_->getPatData()[currentBar_];
+            for (size_t i = 0; i < currentBarData.size(); ++i) {
+                if (currentStep_ < currentBarData[i].size() &&
+                    currentBarData[i][currentStep_]) {
+                    if (drumSounds_[i]) {
+                        mixer_->play(static_cast<int>(i + 1), drumSounds_[i]);
+                    }
+                }
+            }
+
+            // Incrémente le pas courant
+            currentStep_++;
+
+            // Si le pas courant dépasse la longueur de la barre actuelle
+            if (currentStep_ >= numSteps_) {
+                currentStep_ = 0;
+                size_t nextBarIndex = currentBar_ + 1;
+
+                if (nextBarIndex >= numTotalBars_) {
+                    nextBarIndex = 0;
+                }
+                curPattern_->setCurrentBar(nextBarIndex);
+            }
+
+            // *** NOUVELLE LOGIQUE POUR LA FUSION : DÉCLENCHEMENT CONDITIONNEL ***
+            // La fusion est déclenchée si le pas courant (après incrémentation)
+            // est un multiple de 'mergeIntervalSteps'.
+            // Si 'mergeIntervalSteps' est 16 (une mesure), ça se déclenchera au début de chaque mesure.
+            // Si 'mergeIntervalSteps' est 4 (un beat), ça se déclenchera au début de chaque beat.
+            // Assurez-vous que numSteps_ est le nombre de pas d'une mesure (ex: 16)
+            // Et currentStep_ est le pas **après** l'incrémentation ci-dessus, donc c'est le pas pour le PROCHAIN cycle.
+
+            // On va déclencher la fusion juste *avant* que le pas courant ne soit joué si c'est un intervalle de fusion
+            // Ou plus simplement, au moment où on franchit un seuil de fusion.
+
+            // Option 1: Déclencher si on vient de franchir un pas qui est un multiple de mergeIntervalSteps
+            // (Cela signifie que les enregistrements du pas précédent seront fusionnés)
+            if (currentStep_ % mergeIntervalSteps == 0) {
+                 mergePendingRecordings();
+            }
+
+            // Si le mergeIntervalSteps est égal à numSteps_ (16), cela équivaut à la fusion par mesure.
+            // Si le mergeIntervalSteps est égal à stepsPerBeat_ (4), cela équivaut à la fusion par beat.
+
+
+        } else {
+            std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer::playPattern." << std::endl;
+        }
+    }
+}
+
+
+/*
+// Marche bien avec fusion des enregistrements par mesure
+void DrumPlayer::playPattern3() {
     if (mixer_ && playing_) { // Condition d'origine maintenue
         if (curPattern_) {
 
@@ -244,10 +305,12 @@ void DrumPlayer::playPattern() {
         }
     }
 }
+*/
 
 
 /*
-void DrumPlayer::playPattern() {
+// Marche mal, car fusion des enregistrements à chaque pas, ce qui déclenche un double son
+void DrumPlayer::playPattern2() {
     if (mixer_ && playing_) { // Condition d'origine maintenue
         // Vérifie si curPattern_ est valide
         if (curPattern_) {
@@ -318,55 +381,6 @@ void DrumPlayer::playPattern() {
 //----------------------------------------
 */
 
-
-/*
-void DrumPlayer::playPattern1() {
-    if (mixer_ && playing_) {
-        // Vérifie si curPattern_ est valide
-        if (curPattern_) {
-            // Récupère l'index de la barre courante depuis l'objet AdikPattern
-            currentBar_ = curPattern_->getCurrentBar();
-            // Récupère le nombre total de barres
-            numTotalBars_ = curPattern_->getBar();
-            // Récupère le nombre de pas dans la barre actuelle
-            numSteps_ = curPattern_->getBarLength(currentBar_);
-
-            // Affiche la barre courante (pour le débogage, peut être supprimé)
-            // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
-            for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
-                // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
-                if (currentStep_ < curPattern_->getPatData()[currentBar_][i].size() && // Vérification de la limite de currentStep
-                    curPattern_->getPatData()[currentBar_][i][currentStep_]) {
-                    if (drumSounds_[i]) {
-                        // Jouer le son sur le canal correspondant (i + 1)
-                        mixer_->play(i + 1, drumSounds_[i]);
-                    }
-                }
-            }
-
-            // Incrémente le pas courant
-            currentStep_++;
-
-            // Si le pas courant dépasse la longueur de la barre actuelle
-            if (currentStep_ >= numSteps_) {
-                currentStep_ =0;
-                size_t nextBarIndex = currentBar_ + 1; // Passe à la barre suivante
-
-                // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
-                if (nextBarIndex >= numTotalBars_) {
-                    nextBarIndex = 0; // Boucle vers la première barre
-                }
-                // Met à jour la barre courante dans l'objet AdikPattern
-                curPattern_->setCurrentBar(nextBarIndex);
-            }
-        } else {
-            // Gérer le cas où curPattern_ n'est pas initialisé (par exemple, afficher un message d'erreur)
-            std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer::playPattern." << std::endl;
-        }
-    }
-}
-//----------------------------------------
-*/
 
 
 /*
