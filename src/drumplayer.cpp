@@ -617,6 +617,33 @@ size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution
 
     size_t quantizedStep = currentStep;
 
+    // Calcul de la moitié de la durée du pas pour les seuils
+    double halfStepDuration = secondsPerStep / 2.0;
+
+    // Logique de quantification au pas le plus proche
+    if (latency.count() > halfStepDuration) {
+        // La frappe est au-delà de la moitié du pas actuel -> quantifie sur le pas suivant
+        quantizedStep = (currentStep + 1);
+        if (quantizedStep >= numSteps_) {
+            quantizedStep = 0; // Gère le retour au début de la mesure
+        }
+        std::cout << "DEBUG: Quantizing to next step: " << quantizedStep << std::endl;
+    } else if (latency.count() < -halfStepDuration) {
+        // La frappe est avant la moitié du pas actuel ET significativement en avance sur le pas précédent -> quantifie sur le pas précédent
+        if (currentStep == 0) {
+            // Si on est au pas 0 et qu'on est en avance, on va au dernier pas de la mesure précédente
+            quantizedStep = numSteps_ - 1;
+        } else {
+            quantizedStep = currentStep - 1;
+        }
+        std::cout << "DEBUG: Quantizing to previous step: " << quantizedStep << std::endl;
+    } else {
+        // La frappe est à l'intérieur de la première moitié du pas actuel
+        // (y compris les latences négatives faibles)
+        std::cout << "DEBUG: Quantizing to current step: " << quantizedStep << std::endl;
+    }
+    
+    /*
     // Logique de quantification au pas le plus proche
     // Si la frappe est au-delà de la moitié de la durée du pas, on quantifie au pas suivant.
     if (latency.count() > (secondsPerStep / 2.0)) {
@@ -641,6 +668,8 @@ size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution
     // Si `latency.count() < -(secondsPerStep / 2.0)`, cela voudrait dire "plus proche du pas précédent".
     // On peut l'ajouter si tu vois encore des décalages bizarres.
     // Pour l'instant, la logique actuelle considère `currentStep` si `latency` est négative ou juste un peu positive.
+    */
+
 
 
     return quantizedStep;
