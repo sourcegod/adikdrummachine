@@ -39,6 +39,7 @@ public:
     // Variables pour la gestion du temps de lecture
     std::chrono::high_resolution_clock::time_point lastUpdateTime_;
     double stepsPerBeat_; // Par exemple 4 pour des 16èmes de notes
+    std::chrono::high_resolution_clock::time_point lastKeyPressTime_; // Temps de la dernière frappe de touche
 
     void playSound(size_t soundIndex);
     void stopAllSounds();
@@ -89,6 +90,8 @@ public:
 
     // Assurez-vous d'avoir des getters pour currentBar_ et currentStep_
     size_t getCurrentBar() const { return currentBar_; }
+    size_t quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
+    // size_t quantizeStep(size_t currentStep);
 
 
 

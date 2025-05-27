@@ -609,13 +609,23 @@ void AdikDrum::recordSound(size_t soundIndex) {
     // La fonction playSound de DrumPlayer utilise le mixer_
     drumPlayer_.playSound(soundIndex);
 
+    // Capture le temps exact de la frappe juste après playSound
+    // car playSound peut introduire un petit délai.
+    // L'important est que ce timestamp soit le plus proche possible du moment où le son est audible.
+    std::chrono::high_resolution_clock::time_point keyPressTime = std::chrono::high_resolution_clock::now(); // <-- Capture ici
+
+
     // Enregistrer le pas dans la liste des enregistrements en attente
     size_t currentBar = drumPlayer_.getCurrentBar();
     size_t currentStep = drumPlayer_.getCurrentStep();
 
+    // ICI : Appel à la fonction de quantification
+    size_t quantizedStep = drumPlayer_.quantizeStep(currentStep, keyPressTime);
+
+    // Appel à la fonction de quantification simplifiée
+    // size_t quantizedStep = drumPlayer_.quantizeStep(currentStep); // Ne passe que currentStep
     drumPlayer_.addPendingRecording(static_cast<int>(soundIndex), currentBar, currentStep);
 
-    // Pas de message ici
 }
 
 
