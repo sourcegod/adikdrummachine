@@ -600,6 +600,30 @@ void AdikDrum::toggleRecord() {
 //----------------------------------------
 
 void AdikDrum::recordSound(size_t soundIndex) {
+    if (!drumPlayer_.curPattern_ || !drumPlayer_.isPlaying()) {
+        // Pas de displayMessage ici. Le message sera mis à jour par le mécanisme normal de l'UI.
+        return;
+    }
+
+    // Jouer le son IMMÉDIATEMENT pour le retour sonore sans latence
+    // La fonction playSound de DrumPlayer utilise le mixer_
+    drumPlayer_.playSound(soundIndex);
+
+    // Enregistrer le pas dans la liste des enregistrements en attente
+    size_t currentBar = drumPlayer_.getCurrentBar();
+    size_t currentStep = drumPlayer_.getCurrentStep();
+
+    drumPlayer_.addPendingRecording(static_cast<int>(soundIndex), currentBar, currentStep);
+
+    // Pas de message ici
+}
+
+
+//----------------------------------------
+
+
+/*
+void AdikDrum::recordSound(size_t soundIndex) {
     if (!drumPlayer_.isRecording()) {
         return; // Ne fait rien si l'enregistrement n'est pas actif
     }
@@ -622,6 +646,7 @@ void AdikDrum::recordSound(size_t soundIndex) {
     }
 }
 //----------------------------------------
+*/
 
 void AdikDrum::deleteLastPlayedStep() {
     int lastSoundIndex = drumPlayer_.getLastSoundIndex();

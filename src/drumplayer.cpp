@@ -8,6 +8,9 @@
 #include <iostream>
 #include <memory>
 #include <algorithm> // pour std::clamp
+#include <chrono>
+
+
 namespace adikdrum {
 
 DrumPlayer::DrumPlayer(int numSounds, int numSteps)
@@ -17,13 +20,15 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       numSteps_(numSteps),
       sampleRate_(44100),
       playing_(false),
+      recording_(false),
       clicking_(false),
       bpm_(100),
       beatCounter_(0),
       mixer_(nullptr), // Initialiser à nullptr
       isMuted_(numSounds, false), // Initialiser tous les sons comme non mutés
       lastSoundIndex_(0),
-      numSounds_(numSounds)
+      numSounds_(numSounds),
+      stepsPerBeat_(4.0) // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
 
 {
     setBpm(bpm_);
@@ -31,6 +36,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     // Création d'un objet AdikPattern avec 2 barres
     curPattern_ = std::make_shared<AdikPattern>(2);
     patData_ = curPattern_->getPatData();
+    lastUpdateTime_ = std::chrono::high_resolution_clock::now(); // Initialisation
 
 }
 //----------------------------------------
@@ -192,6 +198,129 @@ void DrumPlayer::playMetronome() {
 //----------------------------------------
 
 void DrumPlayer::playPattern() {
+    if (mixer_ && playing_) { // Condition d'origine maintenue
+        if (curPattern_) {
+
+            // Récupère l'index de la barre courante depuis l'objet AdikPattern
+            currentBar_ = curPattern_->getCurrentBar();
+            // Récupère le nombre total de barres
+            numTotalBars_ = curPattern_->getBar();
+            // Récupère le nombre de pas dans la barre actuelle
+            numSteps_ = curPattern_->getBarLength(currentBar_); // Votre variable numSteps_ est mise à jour ici
+
+            // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
+            // Utilisation de la référence locale pour la lisibilité
+            auto& currentBarData = curPattern_->getPatData()[currentBar_];
+            for (size_t i = 0; i < currentBarData.size(); ++i) { // Utilise currentBarData.size()
+                if (currentStep_ < currentBarData[i].size() &&
+                    currentBarData[i][currentStep_]) {
+                    if (drumSounds_[i]) {
+                        mixer_->play(static_cast<int>(i + 1), drumSounds_[i]);
+                    }
+                }
+            }
+
+            // Incrémente le pas courant (logique conservée)
+            currentStep_++;
+
+            // Si le pas courant dépasse la longueur de la barre actuelle (logique conservée)
+            if (currentStep_ >= numSteps_) {
+                currentStep_ = 0;
+                size_t nextBarIndex = currentBar_ + 1;
+
+                // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
+                if (nextBarIndex >= numTotalBars_) {
+                    nextBarIndex = 0;
+                }
+                // Met à jour la barre courante dans l'objet AdikPattern
+                curPattern_->setCurrentBar(nextBarIndex);
+
+                // *** NOUVELLE LOGIQUE POUR LA FUSION : DÉCLENCHEMENT À CHAQUE NOUVELLE MESURE ***
+                // Ceci est appelé uniquement lorsque currentStep_ repasse à 0 (nouvelle mesure)
+                mergePendingRecordings();
+            }
+        } else {
+            std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer::playPattern." << std::endl;
+        }
+    }
+}
+
+
+/*
+void DrumPlayer::playPattern() {
+    if (mixer_ && playing_) { // Condition d'origine maintenue
+        // Vérifie si curPattern_ est valide
+        if (curPattern_) {
+
+            // --- NOUVELLE LOGIQUE : GESTION DU TEMPS ET FUSION DES ENREGISTREMENTS ---
+            // Le but est de s'assurer que la fusion se fait au bon moment, même si le callback n'est pas parfaitement synchrone.
+            // On calcule combien de "pas" logiques se sont écoulés depuis la dernière exécution.
+            auto now = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = now - lastUpdateTime_;
+
+            double beatsPerSecond = bpm_ / 60.0;
+            double stepsPerSecond = beatsPerSecond * stepsPerBeat_;
+            double stepsPassed = elapsed.count() * stepsPerSecond;
+
+            // Si au moins un pas logique s'est écoulé, nous fusionnons.
+            // Cela permet de ne pas surcharger la fusion si le callback est appelé très fréquemment,
+            // et de capturer les événements si le callback est appelé moins fréquemment.
+            if (stepsPassed >= 1.0) {
+                mergePendingRecordings(); // Fusionne les enregistrements en attente
+                // Mettre à jour lastUpdateTime_ pour le prochain calcul
+                lastUpdateTime_ = now;
+            }
+            // --- FIN DE LA NOUVELLE LOGIQUE ---
+
+
+            // Récupère l'index de la barre courante depuis l'objet AdikPattern
+            // Cette ligne était déjà là et est conservée.
+            currentBar_ = curPattern_->getCurrentBar();
+            // Récupère le nombre total de barres
+            numTotalBars_ = curPattern_->getBar();
+            // Récupère le nombre de pas dans la barre actuelle
+            numSteps_ = curPattern_->getBarLength(currentBar_); // Votre variable numSteps_ est mise à jour ici
+
+            // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
+            for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
+                // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
+                if (currentStep_ < curPattern_->getPatData()[currentBar_][i].size() && // Vérification de la limite de currentStep
+                    curPattern_->getPatData()[currentBar_][i][currentStep_]) {
+                    if (drumSounds_[i]) {
+                        // Jouer le son sur le canal correspondant (i + 1)
+                        mixer_->play(static_cast<int>(i + 1), drumSounds_[i]);
+                    }
+                }
+            }
+
+            // Incrémente le pas courant (cette logique est conservée)
+            currentStep_++;
+
+            // Si le pas courant dépasse la longueur de la barre actuelle (cette logique est conservée)
+            if (currentStep_ >= numSteps_) {
+                currentStep_ = 0;
+                size_t nextBarIndex = currentBar_ + 1; // Passe à la barre suivante
+
+                // Si la barre suivante dépasse le nombre total de barres, revient à la première barre
+                if (nextBarIndex >= numTotalBars_) {
+                    nextBarIndex = 0; // Boucle vers la première barre
+                }
+                // Met à jour la barre courante dans l'objet AdikPattern
+                curPattern_->setCurrentBar(nextBarIndex);
+                // currentBar_ est mis à jour par curPattern_->getCurrentBar() au début du prochain appel.
+            }
+        } else {
+            // Gérer le cas où curPattern_ n'est pas initialisé (par exemple, afficher un message d'erreur)
+            std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer::playPattern." << std::endl;
+        }
+    }
+}
+//----------------------------------------
+*/
+
+
+/*
+void DrumPlayer::playPattern1() {
     if (mixer_ && playing_) {
         // Vérifie si curPattern_ est valide
         if (curPattern_) {
@@ -237,6 +366,7 @@ void DrumPlayer::playPattern() {
     }
 }
 //----------------------------------------
+*/
 
 
 /*
@@ -412,35 +542,86 @@ void DrumPlayer::addPendingRecording(int soundIndex, size_t barIndex, size_t ste
     }
     pendingRecordings_.emplace_back(soundIndex, barIndex, stepIndex);
 }
-
+//----------------------------------------
 bool DrumPlayer::mergePendingRecordings() {
     if (pendingRecordings_.empty() || !curPattern_) {
         return false;
     }
 
     bool changed = false;
-    for (const auto& rec : pendingRecordings_) {
+    // On itère sur une copie pour vider immédiatement pendingRecordings_
+    std::vector<std::tuple<int, size_t, size_t>> recordingsToMerge = pendingRecordings_;
+    pendingRecordings_.clear();
+
+    for (const auto& rec : recordingsToMerge) {
         int soundIndex = std::get<0>(rec);
         size_t barIndex = std::get<1>(rec);
         size_t stepIndex = std::get<2>(rec);
 
-        // Activer le pas dans le pattern principal
-        // Assurez-vous que Pattern::toggleStep peut être appelé avec un barIndex
-        // ou adaptez l'accès au pattern
         if (barIndex < curPattern_->getBar() && stepIndex < curPattern_->getNumSteps() &&
             soundIndex >= 0 && static_cast<size_t>(soundIndex) < numSounds_)
         {
-            // Vérifier si le pas n'est pas déjà activé pour éviter des boucles ou des activations inutiles
-            if (!curPattern_->getPatternBar(barIndex)[soundIndex][stepIndex]) {
-                curPattern_->getPatternBar(barIndex)[soundIndex][stepIndex] = true;
+            // Utilisation de la référence locale pour la lisibilité
+            auto& targetBar = curPattern_->getPatternBar(barIndex);
+            if (!targetBar[soundIndex][stepIndex]) {
+                targetBar[soundIndex][stepIndex] = true;
                 changed = true;
             }
         }
     }
-    pendingRecordings_.clear(); // Vider les enregistrements en attente après la fusion
     return changed;
 }
+//----------------------------------------
 
+
+/*
+// Petite modification pour la lecture du pattern, pour potentiellement intégrer la fusion
+// quand on passe au pas suivant ou à la barre suivante
+void DrumPlayer::updatePlayback() {
+    if (!playing_ || !curPattern_) {
+        return;
+    }
+
+    auto now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = now - lastUpdateTime_;
+
+    double beatsElapsed = elapsed.count() * (bpm_ / 60.0);
+    double stepsElapsed = beatsElapsed * stepsPerBeat_; // ou stepsPerBeat (1 beat = 4 steps pour 16th notes)
+
+    if (stepsElapsed >= 1.0) {
+        int stepsToAdvance = static_cast<int>(stepsElapsed);
+        for (int i = 0; i < stepsToAdvance; ++i) {
+            // *** C'EST ICI QU'ON POURRAIT DÉCLENCHER LA FUSION ***
+            // Idée: Fusionner à chaque nouveau pas, ou à chaque nouvelle barre
+            // Si on fusionne à chaque nouveau pas, le délai sera minime.
+            // Si on fusionne à chaque barre, ça sera moins fréquent mais plus de latence potentielle.
+
+            // Option 1: Fusionner à chaque pas (plus réactif pour l'enregistrement)
+            mergePendingRecordings(); // Fusionne ce qui a été enregistré dans le pas précédent ou actuel.
+
+            currentStep_ = (currentStep_ + 1) % numSteps_; // Avance au pas suivant
+            if (currentStep_ == 0) {
+                // Avance à la barre suivante quand un cycle de pas est terminé
+                currentBar_ = (currentBar_ + 1) % curPattern_->getBar();
+                // Option 2: Fusionner ici (fin de barre)
+                // mergePendingRecordings();
+            }
+
+            // Play sounds for the current step
+            if (curPattern_) {
+                const auto& currentBarPattern = curPattern_->getPatternBar(currentBar_);
+                for (size_t soundIdx = 0; soundIdx < numSounds_; ++soundIdx) {
+                    if (currentBarPattern[soundIdx][currentStep_]) {
+                        // Play the sound
+                        playSound(soundIdx);
+                    }
+                }
+            }
+        }
+        lastUpdateTime_ = now;
+    }
+}
+*/
 
 //==== End of class DrumPlayer ====
 

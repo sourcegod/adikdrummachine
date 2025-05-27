@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <algorithm> // pour std::clamp
+#include <chrono>
 
 namespace adikdrum {
 class DrumPlayer {
@@ -35,7 +36,9 @@ public:
     // Nouvelle structure pour stocker les enregistrements en attente
     // Tuple: soundIndex, barIndex, stepIndex
     std::vector<std::tuple<int, size_t, size_t>> pendingRecordings_;
-
+    // Variables pour la gestion du temps de lecture
+    std::chrono::high_resolution_clock::time_point lastUpdateTime_;
+    double stepsPerBeat_; // Par exemple 4 pour des 16èmes de notes
 
     void playSound(size_t soundIndex);
     void stopAllSounds();
@@ -82,6 +85,11 @@ public:
     void addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex);
     // Nouvelle fonction pour fusionner les enregistrements en attente dans le pattern courant
     bool mergePendingRecordings();
+    // void updatePlayback();
+
+    // Assurez-vous d'avoir des getters pour currentBar_ et currentStep_
+    size_t getCurrentBar() const { return currentBar_; }
+
 
 
 
