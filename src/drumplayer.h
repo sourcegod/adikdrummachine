@@ -10,6 +10,7 @@
 #include <cmath>
 #include <algorithm> // pour std::clamp
 #include <chrono>
+#include <map>
 
 namespace adikdrum {
 class DrumPlayer {
@@ -45,6 +46,8 @@ public:
     std::vector<double> recentLatencies_;
     const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
     size_t quantReso_ =0; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
+    std::map<size_t, size_t> quantResolutionMap;
+
 
     void playSound(size_t soundIndex);
     void stopAllSounds();

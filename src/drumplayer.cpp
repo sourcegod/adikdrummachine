@@ -31,7 +31,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       lastUpdateTime_(std::chrono::high_resolution_clock::now()), // Initialisation de lastUpdateTime_
       lastKeyPressTime_(std::chrono::high_resolution_clock::now()), // *** AJOUTEZ CETTE LIGNE ***
       stepsPerBeat_(4.0), // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
-      quantReso_(0) // --- Initialisé sans quantification (0) ---
+      quantReso_(4) //
 
 {
     setBpm(bpm_);
@@ -40,6 +40,12 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     curPattern_ = std::make_shared<AdikPattern>(2);
     patData_ = curPattern_->getPatData();
     // lastUpdateTime_ = std::chrono::high_resolution_clock::now(); // Initialisation
+
+    quantResolutionMap[1] = numSteps_;       // Ronde = Mesure complète (16 steps)
+    quantResolutionMap[2] = numSteps_ / 2;   // Blanche = Demi-mesure (8 steps)
+    quantResolutionMap[4] = numSteps_ / 4;   // Noire = Quart de mesure (4 steps)
+    quantResolutionMap[8] = numSteps_ / 8;   // Croche = Huitième de mesure (2 steps)
+    quantResolutionMap[16] = numSteps_ / 16; // Double-Croche = Seizième de mesure (1 step)
 
 }
 //----------------------------------------
@@ -600,11 +606,117 @@ bool DrumPlayer::mergePendingRecordings() {
 }
 //----------------------------------------
 
-// --- Modification de quantizeStep ---
-// drumplayer.cpp
+// /*
+size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
+    // --- PARTIE 1 : COMPENSATION DE LATENCE (INCHANGÉE) ---
+    const double resetThresholdMs = 50.0;
+    double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_; // Durée d'un pas de base (seizième de note)
+    std::chrono::duration<double> rawLatency = keyPressTime - lastUpdateTime_;
+    double rawLatencyMs = rawLatency.count() * 1000.0;
+    double stepDurationMs = secondsPerStep * 1000.0;
 
-// ... (votre fonction calculateAverageLatency inchangée) ...
+    if (!recentLatencies_.empty()) {
+        double currentAverage = calculateAverageLatency();
+        if (std::abs(rawLatencyMs - currentAverage) > resetThresholdMs) {
+            std::cout << "DEBUG: Changement significatif détecté (" << rawLatencyMs << "ms vs Moyenne " << currentAverage << "ms). Réinitialisation de l'historique de latence." << std::endl;
+            recentLatencies_.clear();
+        }
+    }
+    recentLatencies_.push_back(rawLatencyMs);
+    while (recentLatencies_.size() > maxRecentLatencies_) {
+        recentLatencies_.erase(recentLatencies_.begin());
+    }
+    double averageLatencyMs = calculateAverageLatency();
+    double compensatedLatencyMs = rawLatencyMs - averageLatencyMs;
+    // --- FIN DE LA PARTIE 1 ---
 
+    std::cout << "DEBUG: Latence brute frappe : " << rawLatencyMs << " ms (Moy: " << averageLatencyMs << " ms, Taille Hist: " << recentLatencies_.size() << ")" << std::endl;
+    std::cout << "DEBUG: Latence compensée : " << compensatedLatencyMs << " ms par rapport au début du pas " << currentStep << "." << std::endl;
+    std::cout << "DEBUG: Chaque pas de *base* dure " << stepDurationMs << " ms." << std::endl;
+
+    size_t quantizedStep = currentStep; // Valeur par défaut si rien n'est quantifié
+
+    // --- PARTIE 2 : CALCUL DU PAS CIBLE APRÈS COMPENSATION ---
+    // On convertit la latence compensée en un décalage en nombre de *pas de base*.
+    // C'est la position "réelle" de la frappe sur la grille des seizièmes de note.
+    double stepOffset = compensatedLatencyMs / stepDurationMs; // Ex: 0.5 signifie un demi-pas en avant
+    double targetStepDouble = static_cast<double>(currentStep) + stepOffset;
+
+    // Arroindit au pas de base (seizième) le plus proche
+    // Utilise round() pour arrondir au plus proche, car stepOffset peut être négatif ou positif
+    size_t initialQuantizedBaseStep = static_cast<size_t>(std::round(targetStepDouble));
+
+    // Gérer le "wrap-around" si initialQuantizedBaseStep dépasse ou est négatif
+    if (initialQuantizedBaseStep >= numSteps_) {
+        initialQuantizedBaseStep = initialQuantizedBaseStep % numSteps_; // S'assure que c'est dans la mesure
+    }
+    // Gérer les cas où targetStepDouble serait négatif et round() le laisserait comme tel,
+    // ou si on a un wrap-around sur la mesure précédente (ex: -1 -> 15)
+    // std::round(targetStepDouble) avec targetStepDouble = -0.5 donnera 0, -0.6 donnera -1.
+    // Il faut que notre pas soit toujours positif et dans la mesure.
+    if (targetStepDouble < 0) {
+        // Si la frappe est très en avance, elle pourrait se retrouver sur le pas précédent de la mesure précédente.
+        // On la cale sur la mesure actuelle pour simplifier, sauf si on veut gérer ça.
+        // Pour l'instant, on se contente de la ramener dans la mesure.
+        // Si targetStepDouble est -0.1, round donne 0. Si -0.6, round donne -1.
+        // Mais nous voulons qu'un -0.6 soit le pas 15 de la mesure précédente.
+        // Pour simplifier, si c'est négatif, on le cale sur 0, sauf si on a activé la quantification au pas précédent.
+        // Comme nous avons commenté la logique de quantification au pas précédent,
+        // nous allons simplement nous assurer que c'est >= 0.
+        initialQuantizedBaseStep = initialQuantizedBaseStep % numSteps_;
+        if (initialQuantizedBaseStep < 0) initialQuantizedBaseStep += numSteps_; // Au cas où modulo retournerait un négatif
+    }
+    // Assurer que initialQuantizedBaseStep est bien dans les limites 0 à numSteps_-1
+    initialQuantizedBaseStep = initialQuantizedBaseStep % numSteps_;
+
+
+    std::cout << "DEBUG: Pas de base cible initial (après compensation): " << initialQuantizedBaseStep << std::endl;
+
+    // --- PARTIE 3 : APPLICATION DE LA RÉSOLUTION DE QUANTIFICATION ---
+    if (quantReso_ == 0) {
+        // Pas de quantification : on utilise le pas de base le plus proche après compensation
+        quantizedStep = initialQuantizedBaseStep;
+        std::cout << "DEBUG: Pas de quantification : Utilise le pas de base : " << quantizedStep << std::endl;
+    } else {
+        // Quantification active : calage sur la grille choisie
+        auto it = quantResolutionMap.find(quantReso_);
+        if (it != quantResolutionMap.end()) {
+            size_t quantUnitSteps = it->second; // Nombre de pas pour cette résolution (ex: 4 pour noire)
+
+            // Calcule le début de l'unité de quantification où se trouve initialQuantizedBaseStep
+            size_t quantGridStartStep = (initialQuantizedBaseStep / quantUnitSteps) * quantUnitSteps;
+
+            // Calcule la moitié de l'unité de quantification pour l'arrondi
+            size_t halfQuantUnitSteps = quantUnitSteps / 2;
+
+            // Détermine la position de initialQuantizedBaseStep dans son unité de quantification
+            size_t positionInQuantUnit = initialQuantizedBaseStep - quantGridStartStep;
+
+            if (positionInQuantUnit >= halfQuantUnitSteps) {
+                // Si la position est dans la seconde moitié de l'unité, on arrondit à l'unité suivante
+                quantizedStep = quantGridStartStep + quantUnitSteps;
+                if (quantizedStep >= numSteps_) {
+                    quantizedStep = 0; // Gérer le wrap-around de la mesure
+                }
+                std::cout << "DEBUG: Quantification: Arrondi à l'unité de résolution suivante (" << quantUnitSteps << " pas) : " << quantizedStep << std::endl;
+            } else {
+                // Sinon, on arrondit au début de l'unité actuelle
+                quantizedStep = quantGridStartStep;
+                std::cout << "DEBUG: Quantification: Arrondi à l'unité de résolution actuelle (" << quantUnitSteps << " pas) : " << quantizedStep << std::endl;
+            }
+        } else {
+            // Si quantReso_ n'est pas valide (pas dans la map), fallback à la double-croche (1 step)
+            std::cerr << "AVERTISSEMENT: Résolution de quantification inconnue : " << quantReso_ << ". Utilisation de la double-croche (1 step)." << std::endl;
+            quantizedStep = initialQuantizedBaseStep; // Pas de calage grossier, juste le pas de base
+        }
+    }
+
+    return quantizedStep;
+}
+// */
+
+
+/*
 // --- MODIFICATION DE quantizeStep ---
 size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
     double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_;
@@ -678,6 +790,7 @@ size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution
     return quantizedStep;
 }
 //----------------------------------------
+*/
 
 double DrumPlayer::calculateAverageLatency() const {
     if (recentLatencies_.empty()) {
