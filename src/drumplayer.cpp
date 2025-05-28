@@ -600,56 +600,82 @@ bool DrumPlayer::mergePendingRecordings() {
 //----------------------------------------
 
 // --- Modification de quantizeStep ---
+// drumplayer.cpp
+
+// ... (votre fonction calculateAverageLatency inchangée) ...
+
+// --- MODIFICATION DE quantizeStep ---
 size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
     double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_;
     std::chrono::duration<double> rawLatency = keyPressTime - lastUpdateTime_;
     double rawLatencyMs = rawLatency.count() * 1000.0;
     double stepDurationMs = secondsPerStep * 1000.0;
 
+    // --- LOGIQUE DE RÉINITIALISATION DE LA MOYENNE ---
+    // Si la pile est vide ou si la nouvelle latence est très différente de la moyenne actuelle,
+    // on vide la pile pour "recommencer" la calibration.
+    // Le seuil de 50 ms est un exemple, ajuste-le selon ce qui te semble bien.
+    const double resetThresholdMs = 50.0; // Seuil pour réinitialiser la moyenne
+
+    if (!recentLatencies_.empty()) {
+        double currentAverage = calculateAverageLatency();
+        if (std::abs(rawLatencyMs - currentAverage) > resetThresholdMs) {
+            std::cout << "DEBUG: Detected significant change (" << rawLatencyMs << "ms vs Avg " << currentAverage << "ms). Resetting latency history." << std::endl;
+            recentLatencies_.clear(); // Vide l'historique
+        }
+    }
+
     // *** 1. Stocker la latence brute (rawLatencyMs) ***
     recentLatencies_.push_back(rawLatencyMs);
-    if (recentLatencies_.size() > maxRecentLatencies_) {
-        recentLatencies_.erase(recentLatencies_.begin()); // Supprime la plus ancienne
+    // Assure-toi que la pile ne dépasse pas maxRecentLatencies_ après ajout,
+    // même si on a réinitialisé juste avant.
+    while (recentLatencies_.size() > maxRecentLatencies_) {
+        recentLatencies_.erase(recentLatencies_.begin()); // Supprime la plus ancienne si trop grand
     }
 
     // *** 2. Calculer la latence moyenne ***
     double averageLatencyMs = calculateAverageLatency();
 
     // *** 3. Appliquer la compensation ***
-    // C'est la latence ADJUSTÉE après compensation
     double compensatedLatencyMs = rawLatencyMs - averageLatencyMs;
     std::chrono::duration<double> compensatedLatency = std::chrono::duration<double>(compensatedLatencyMs / 1000.0);
 
-    std::cout << "DEBUG: Raw Key press latency: " << rawLatencyMs << " ms (Avg: " << averageLatencyMs << " ms)" << std::endl;
+    std::cout << "DEBUG: Raw Key press latency: " << rawLatencyMs << " ms (Avg: " << averageLatencyMs << " ms, History Size: " << recentLatencies_.size() << ")" << std::endl;
     std::cout << "DEBUG: Compensated Latency: " << compensatedLatencyMs << " ms relative to step " << currentStep << " start." << std::endl;
     std::cout << "DEBUG: Each step lasts " << stepDurationMs << " ms." << std::endl;
 
     size_t quantizedStep = currentStep;
     double halfStepDuration = secondsPerStep / 2.0;
 
-    // Logique de quantification au pas le plus proche, mais utilisant la latence COMPENSÉE
+    // Logique de quantification au pas le plus proche, utilisant la latence COMPENSÉE
     if (compensatedLatency.count() > halfStepDuration) {
+        // La frappe est au-delà de la moitié du pas actuel -> quantifie sur le pas suivant
         quantizedStep = (currentStep + 1);
         if (quantizedStep >= numSteps_) {
-            quantizedStep = 0;
+            quantizedStep = 0; // Gère le retour au début de la mesure
         }
         std::cout << "DEBUG: Quantizing to next step: " << quantizedStep << std::endl;
-    } else if (compensatedLatency.count() < -halfStepDuration) {
-        // Gérer les frappes très en avance (compensées)
-        if (currentStep == 0) {
-            quantizedStep = numSteps_ - 1;
-        } else {
-            quantizedStep = currentStep - 1;
-        }
-        std::cout << "DEBUG: Quantizing to previous step: " << quantizedStep << std::endl;
     }
+    // else if (compensatedLatency.count() < -halfStepDuration) {
+    //     // La frappe est avant la moitié du pas actuel ET significativement en avance sur le pas précédent
+    //     // Si tu commentes cette partie, les latences négatives (même importantes)
+    //     // seront quantifiées sur le currentStep.
+    //     if (currentStep == 0) {
+    //         quantizedStep = numSteps_ - 1;
+    //     } else {
+    //         quantizedStep = currentStep - 1;
+    //     }
+    //     std::cout << "DEBUG: Quantizing to previous step: " << quantizedStep << std::endl;
+    // }
     else {
+        // La frappe est à l'intérieur de la première moitié du pas actuel
+        // (y compris les latences négatives faibles ou toute latence négative si la partie ci-dessus est commentée)
         std::cout << "DEBUG: Quantizing to current step: " << quantizedStep << std::endl;
     }
 
+
     return quantizedStep;
 }
-
 double DrumPlayer::calculateAverageLatency() const {
     if (recentLatencies_.empty()) {
         return 0.0;
