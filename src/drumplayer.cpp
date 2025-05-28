@@ -204,6 +204,9 @@ void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
         if (curPattern_) {
             // *** Mettre à jour lastUpdateTime_ ICI, au début de chaque "pas" logique ***
             lastUpdateTime_ = std::chrono::high_resolution_clock::now();
+            // auto endTime = std::chrono::high_resolution_clock::now();
+            // std::chrono::duration<double> lastTime = lastUpdateTime_ - endTime;
+            // std::cout << "DEBUG, in playPattern: lastUpdateTime: " << lastTime.count() << "\n";
 
             currentBar_ = curPattern_->getCurrentBar();
             numTotalBars_ = curPattern_->getBar();
@@ -259,6 +262,7 @@ void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
             std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer::playPattern." << std::endl;
         }
     }
+
 }
 //----------------------------------------
 
@@ -594,169 +598,66 @@ bool DrumPlayer::mergePendingRecordings() {
     return changed;
 }
 //----------------------------------------
+
+// --- Modification de quantizeStep ---
 size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
-    // Calcul de la durée d'un pas en secondes
-    // bpm_ (battements par minute)
-    // stepsPerBeat_ (subdivisions par battement, ex: 4 pour des 16èmes)
-    // numSteps_ (pas par mesure) n'est pas directement utilisé ici pour la durée d'UN pas,
-    // mais bpm / (stepsPerBeat * 4) donnerait les 16èmes de notes.
-    // Il faut que "stepsPerBeat_" reflète la granularité de ton 'step'.
-    // Si 16 steps/measure, et 4 beats/measure, alors 4 steps/beat.
-    // Ta variable stepsPerBeat_ est déjà 4.0, c'est bon.
-    double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_; // Durée d'une 16ème note en secondes
-
-    // Calcul du décalage de la frappe par rapport au DÉBUT du currentStep_
-    std::chrono::duration<double> latency = keyPressTime - lastUpdateTime_; // 'double' pour avoir des secondes
-
-    // Convertir en millisecondes pour un affichage plus lisible
-    double latencyMs = latency.count() * 1000.0;
+    double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_;
+    std::chrono::duration<double> rawLatency = keyPressTime - lastUpdateTime_;
+    double rawLatencyMs = rawLatency.count() * 1000.0;
     double stepDurationMs = secondsPerStep * 1000.0;
 
-    std::cout << "DEBUG: Key press at latency: " << latencyMs << " ms relative to step " << currentStep << " start." << std::endl;
+    // *** 1. Stocker la latence brute (rawLatencyMs) ***
+    recentLatencies_.push_back(rawLatencyMs);
+    if (recentLatencies_.size() > maxRecentLatencies_) {
+        recentLatencies_.erase(recentLatencies_.begin()); // Supprime la plus ancienne
+    }
+
+    // *** 2. Calculer la latence moyenne ***
+    double averageLatencyMs = calculateAverageLatency();
+
+    // *** 3. Appliquer la compensation ***
+    // C'est la latence ADJUSTÉE après compensation
+    double compensatedLatencyMs = rawLatencyMs - averageLatencyMs;
+    std::chrono::duration<double> compensatedLatency = std::chrono::duration<double>(compensatedLatencyMs / 1000.0);
+
+    std::cout << "DEBUG: Raw Key press latency: " << rawLatencyMs << " ms (Avg: " << averageLatencyMs << " ms)" << std::endl;
+    std::cout << "DEBUG: Compensated Latency: " << compensatedLatencyMs << " ms relative to step " << currentStep << " start." << std::endl;
     std::cout << "DEBUG: Each step lasts " << stepDurationMs << " ms." << std::endl;
 
     size_t quantizedStep = currentStep;
-
-    // Calcul de la moitié de la durée du pas pour les seuils
     double halfStepDuration = secondsPerStep / 2.0;
 
-    // Logique de quantification au pas le plus proche
-    if (latency.count() > halfStepDuration) {
-        // La frappe est au-delà de la moitié du pas actuel -> quantifie sur le pas suivant
+    // Logique de quantification au pas le plus proche, mais utilisant la latence COMPENSÉE
+    if (compensatedLatency.count() > halfStepDuration) {
         quantizedStep = (currentStep + 1);
         if (quantizedStep >= numSteps_) {
-            quantizedStep = 0; // Gère le retour au début de la mesure
+            quantizedStep = 0;
         }
         std::cout << "DEBUG: Quantizing to next step: " << quantizedStep << std::endl;
-    } else if (latency.count() < -halfStepDuration) {
-        // La frappe est avant la moitié du pas actuel ET significativement en avance sur le pas précédent -> quantifie sur le pas précédent
+    } else if (compensatedLatency.count() < -halfStepDuration) {
+        // Gérer les frappes très en avance (compensées)
         if (currentStep == 0) {
-            // Si on est au pas 0 et qu'on est en avance, on va au dernier pas de la mesure précédente
             quantizedStep = numSteps_ - 1;
         } else {
             quantizedStep = currentStep - 1;
         }
         std::cout << "DEBUG: Quantizing to previous step: " << quantizedStep << std::endl;
-    } else {
-        // La frappe est à l'intérieur de la première moitié du pas actuel
-        // (y compris les latences négatives faibles)
+    }
+    else {
         std::cout << "DEBUG: Quantizing to current step: " << quantizedStep << std::endl;
     }
-    
-    /*
-    // Logique de quantification au pas le plus proche
-    // Si la frappe est au-delà de la moitié de la durée du pas, on quantifie au pas suivant.
-    if (latency.count() > (secondsPerStep / 2.0)) {
-        quantizedStep = (currentStep + 1);
-        // Gérer le wrap-around à la fin de la mesure
-        if (quantizedStep >= numSteps_) { // numSteps_ est le nombre de pas PAR MESURE (ex: 16)
-            quantizedStep = 0; // Revient au début de la mesure suivante
-        }
-        std::cout << "DEBUG: Quantizing to next step: " << quantizedStep << std::endl;
-    } else {
-        // La frappe est avant ou jusqu'à la moitié du pas actuel, on garde le pas actuel.
-        std::cout << "DEBUG: Quantizing to current step: " << quantizedStep << std::endl;
-    }
-
-    // Gérer les cas où la frappe est significativement en avance (latence négative).
-    // Si la frappe est plus proche du pas précédent, on peut quantizer au pas précédent.
-    // Cela dépend de la "fenêtre de quantification" que tu souhaites.
-    // Pour l'instant, on se base sur le pas actuel et le suivant.
-    // Si latency est négative, elle signifie que la frappe a eu lieu AVANT le début du `currentStep_`.
-    // Pour des raisons de simplicité et si la latence négative n'est pas trop grande,
-    // on peut la laisser sur le `currentStep` si elle n'atteint pas le seuil de "demi-pas avant".
-    // Si `latency.count() < -(secondsPerStep / 2.0)`, cela voudrait dire "plus proche du pas précédent".
-    // On peut l'ajouter si tu vois encore des décalages bizarres.
-    // Pour l'instant, la logique actuelle considère `currentStep` si `latency` est négative ou juste un peu positive.
-    */
-
-
 
     return quantizedStep;
 }
 
-
-
-/*
-size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
-    // Mesurer le décalage (pour le diagnostic)
-    // lastUpdateTime_ contient le moment où le 'currentStep_' actuel a été initié ou mis à jour.
-    // std::cout << "voici, keyPressTime: " << keyPressTime << ", lastUpdateTime: " << lastUpdateTime_ << std::endl;
-    std::chrono::duration<double> latency = keyPressTime - lastUpdateTime_; // Décalage de la frappe par rapport au début du pas
-    double secondsPerStep = 60.0 / bpm_ / stepsPerBeat_; // Durée d'un pas en secondes
-
-    // Pour le diagnostic, affichons le décalage
-    std::cout << "DEBUG: Key press at latency: " << latency.count() * 1000 << " ms relative to current step: " << currentStep << " start." << std::endl;
-    std::cout << "DEBUG: Each step lasts " << secondsPerStep * 1000 << " ms." << std::endl;
-
-    // Logique de quantification (première ébauche : très simple)
-    // Si la frappe est plus proche du pas actuel, on garde le pas actuel.
-    // Si la frappe est plus proche du pas suivant, on se décale sur le pas suivant.
-    // La "moitié de pas" est le seuil.
-    if (latency.count() > (secondsPerStep / 2.0)) {
-        // La frappe est plus proche du pas suivant
-        size_t nextStep = (currentStep + 1) % numSteps_; // numSteps_ doit être la taille totale des pas dans une mesure
-        std::cout << "DEBUG: Quantizing to next step: " << nextStep << std::endl;
-        return nextStep;
-    } else {
-        // La frappe est plus proche du pas actuel (ou exactement sur/avant)
-        std::cout << "DEBUG: Quantizing to current step: " << currentStep << std::endl;
-        return currentStep;
+double DrumPlayer::calculateAverageLatency() const {
+    if (recentLatencies_.empty()) {
+        return 0.0;
     }
+    double sum = std::accumulate(recentLatencies_.begin(), recentLatencies_.end(), 0.0);
+    return sum / recentLatencies_.size();
 }
 //----------------------------------------
-*/
-
-
-
-/*
-// Petite modification pour la lecture du pattern, pour potentiellement intégrer la fusion
-// quand on passe au pas suivant ou à la barre suivante
-void DrumPlayer::updatePlayback() {
-    if (!playing_ || !curPattern_) {
-        return;
-    }
-
-    auto now = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = now - lastUpdateTime_;
-
-    double beatsElapsed = elapsed.count() * (bpm_ / 60.0);
-    double stepsElapsed = beatsElapsed * stepsPerBeat_; // ou stepsPerBeat (1 beat = 4 steps pour 16th notes)
-
-    if (stepsElapsed >= 1.0) {
-        int stepsToAdvance = static_cast<int>(stepsElapsed);
-        for (int i = 0; i < stepsToAdvance; ++i) {
-            // *** C'EST ICI QU'ON POURRAIT DÉCLENCHER LA FUSION ***
-            // Idée: Fusionner à chaque nouveau pas, ou à chaque nouvelle barre
-            // Si on fusionne à chaque nouveau pas, le délai sera minime.
-            // Si on fusionne à chaque barre, ça sera moins fréquent mais plus de latence potentielle.
-
-            // Option 1: Fusionner à chaque pas (plus réactif pour l'enregistrement)
-            mergePendingRecordings(); // Fusionne ce qui a été enregistré dans le pas précédent ou actuel.
-
-            currentStep_ = (currentStep_ + 1) % numSteps_; // Avance au pas suivant
-            if (currentStep_ == 0) {
-                // Avance à la barre suivante quand un cycle de pas est terminé
-                currentBar_ = (currentBar_ + 1) % curPattern_->getBar();
-                // Option 2: Fusionner ici (fin de barre)
-                // mergePendingRecordings();
-            }
-
-            // Play sounds for the current step
-            if (curPattern_) {
-                const auto& currentBarPattern = curPattern_->getPatternBar(currentBar_);
-                for (size_t soundIdx = 0; soundIdx < numSounds_; ++soundIdx) {
-                    if (currentBarPattern[soundIdx][currentStep_]) {
-                        // Play the sound
-                        playSound(soundIdx);
-                    }
-                }
-            }
-        }
-        lastUpdateTime_ = now;
-    }
-}
-*/
 
 //==== End of class DrumPlayer ====
 

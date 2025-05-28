@@ -41,6 +41,10 @@ public:
     double stepsPerBeat_; // Par exemple 4 pour des 16èmes de notes
     std::chrono::high_resolution_clock::time_point lastKeyPressTime_; // Temps de la dernière frappe de touche
 
+    // Membre pour stocker les latences récentes
+    std::vector<double> recentLatencies_;
+    const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
+
     void playSound(size_t soundIndex);
     void stopAllSounds();
     void playMetronome();
@@ -91,7 +95,10 @@ public:
     // Assurez-vous d'avoir des getters pour currentBar_ et currentStep_
     size_t getCurrentBar() const { return currentBar_; }
     size_t quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
-    // size_t quantizeStep(size_t currentStep);
+    // Fonction pour calculer la moyenne de latence
+    double calculateAverageLatency() const;
+
+
 
 
 
