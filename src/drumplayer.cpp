@@ -30,7 +30,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       numSounds_(numSounds),
       lastUpdateTime_(std::chrono::high_resolution_clock::now()), // Initialisation de lastUpdateTime_
       lastKeyPressTime_(std::chrono::high_resolution_clock::now()), // *** AJOUTEZ CETTE LIGNE ***
-      stepsPerBeat_(4.0) // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
+      stepsPerBeat_(4.0), // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
+      quantReso_(0) // --- Initialisé sans quantification (0) ---
 
 {
     setBpm(bpm_);
@@ -676,6 +677,8 @@ size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution
 
     return quantizedStep;
 }
+//----------------------------------------
+
 double DrumPlayer::calculateAverageLatency() const {
     if (recentLatencies_.empty()) {
         return 0.0;
@@ -684,6 +687,13 @@ double DrumPlayer::calculateAverageLatency() const {
     return sum / recentLatencies_.size();
 }
 //----------------------------------------
+
+void DrumPlayer::setQuantizeResolution(size_t resolution) {
+    quantReso_ = resolution;
+    std::cout << "Résolution de quantification réglée sur : " << quantReso_ << std::endl;
+}
+//----------------------------------------
+
 
 //==== End of class DrumPlayer ====
 

@@ -44,6 +44,7 @@ public:
     // Membre pour stocker les latences récentes
     std::vector<double> recentLatencies_;
     const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
+    size_t quantReso_ =0; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
 
     void playSound(size_t soundIndex);
     void stopAllSounds();
@@ -86,9 +87,10 @@ public:
     bool deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar); 
     bool clearSoundFromPattern(int soundIndex);
 
-    // Nouvelle fonction pour ajouter un enregistrement en attente
+    // Fonction pour ajouter un enregistrement en attente
     void addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex);
-    // Nouvelle fonction pour fusionner les enregistrements en attente dans le pattern courant
+    
+    // Fonction pour fusionner les enregistrements en attente dans le pattern courant
     bool mergePendingRecordings();
     // void updatePlayback();
 
@@ -97,6 +99,7 @@ public:
     size_t quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     // Fonction pour calculer la moyenne de latence
     double calculateAverageLatency() const;
+    void setQuantizeResolution(size_t resolution);
 
 
 
