@@ -31,7 +31,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       lastUpdateTime_(std::chrono::high_resolution_clock::now()), // Initialisation de lastUpdateTime_
       lastKeyPressTime_(std::chrono::high_resolution_clock::now()), // *** AJOUTEZ CETTE LIGNE ***
       stepsPerBeat_(4.0), // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
-      quantReso_(4) //
+      quantRecReso_(4) //
 
 {
     setBpm(bpm_);
@@ -607,7 +607,7 @@ bool DrumPlayer::mergePendingRecordings() {
 //----------------------------------------
 
 // /*
-size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
+size_t DrumPlayer::quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
     // --- PARTIE 1 : COMPENSATION DE LATENCE (INCHANGÉE) ---
     const double resetThresholdMs = 50.0;
     double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_; // Durée d'un pas de base (seizième de note)
@@ -673,13 +673,13 @@ size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution
     std::cout << "DEBUG: Pas de base cible initial (après compensation): " << initialQuantizedBaseStep << std::endl;
 
     // --- PARTIE 3 : APPLICATION DE LA RÉSOLUTION DE QUANTIFICATION ---
-    if (quantReso_ == 0) {
+    if (quantRecReso_ == 0) {
         // Pas de quantification : on utilise le pas de base le plus proche après compensation
         quantizedStep = initialQuantizedBaseStep;
         std::cout << "DEBUG: Pas de quantification : Utilise le pas de base : " << quantizedStep << std::endl;
     } else {
         // Quantification active : calage sur la grille choisie
-        auto it = quantResolutionMap.find(quantReso_);
+        auto it = quantResolutionMap.find(quantRecReso_);
         if (it != quantResolutionMap.end()) {
             size_t quantUnitSteps = it->second; // Nombre de pas pour cette résolution (ex: 4 pour noire)
 
@@ -705,8 +705,8 @@ size_t DrumPlayer::quantizeStep(size_t currentStep, std::chrono::high_resolution
                 std::cout << "DEBUG: Quantification: Arrondi à l'unité de résolution actuelle (" << quantUnitSteps << " pas) : " << quantizedStep << std::endl;
             }
         } else {
-            // Si quantReso_ n'est pas valide (pas dans la map), fallback à la double-croche (1 step)
-            std::cerr << "AVERTISSEMENT: Résolution de quantification inconnue : " << quantReso_ << ". Utilisation de la double-croche (1 step)." << std::endl;
+            // Si quantRecReso_ n'est pas valide (pas dans la map), fallback à la double-croche (1 step)
+            std::cerr << "AVERTISSEMENT: Résolution de quantification inconnue : " << quantRecReso_ << ". Utilisation de la double-croche (1 step)." << std::endl;
             quantizedStep = initialQuantizedBaseStep; // Pas de calage grossier, juste le pas de base
         }
     }
@@ -802,8 +802,8 @@ double DrumPlayer::calculateAverageLatency() const {
 //----------------------------------------
 
 void DrumPlayer::setQuantizeResolution(size_t resolution) {
-    quantReso_ = resolution;
-    std::cout << "Résolution de quantification réglée sur : " << quantReso_ << std::endl;
+    quantRecReso_ = resolution;
+    std::cout << "Résolution de quantification réglée sur : " << quantRecReso_ << std::endl;
 }
 //----------------------------------------
 

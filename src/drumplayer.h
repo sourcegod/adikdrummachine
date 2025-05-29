@@ -45,7 +45,7 @@ public:
     // Membre pour stocker les latences récentes
     std::vector<double> recentLatencies_;
     const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
-    size_t quantReso_ =0; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
+    size_t quantRecReso_; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
     std::map<size_t, size_t> quantResolutionMap;
 
 
@@ -99,7 +99,7 @@ public:
 
     // Assurez-vous d'avoir des getters pour currentBar_ et currentStep_
     size_t getCurrentBar() const { return currentBar_; }
-    size_t quantizeStep(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
+    size_t quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     // Fonction pour calculer la moyenne de latence
     double calculateAverageLatency() const;
     void setQuantizeResolution(size_t resolution);
