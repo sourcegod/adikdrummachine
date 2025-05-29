@@ -809,6 +809,18 @@ void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
 }
 //----------------------------------------
 
+void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
+    // Valider la résolution (doit être une clé valide dans quantResolutionMap ou 0)
+    if (resolution == 0 || quantResolutionMap.count(resolution)) {
+        quantPlayReso_ = resolution;
+        std::cout << "Résolution de lecture/quantification réglée sur : " << quantPlayReso_ << std::endl;
+    } else {
+        std::cerr << "AVERTISSEMENT: Résolution de lecture/quantification invalide : " << resolution << ". Garde la résolution précédente." << std::endl;
+    }
+}
+//----------------------------------------
+
+
 
 //==== End of class DrumPlayer ====
 
