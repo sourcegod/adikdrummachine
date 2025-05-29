@@ -46,6 +46,7 @@ public:
     std::vector<double> recentLatencies_;
     const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
     size_t quantRecReso_; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
+    size_t quantPlayReso_; // --- NOUVEAU: Résolution de quantification pour la lecture/édition ---
     std::map<size_t, size_t> quantResolutionMap;
 
 
@@ -102,7 +103,8 @@ public:
     size_t quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     // Fonction pour calculer la moyenne de latence
     double calculateAverageLatency() const;
-    void setQuantizeResolution(size_t resolution);
+    void setRecQuantizeResolution(size_t resolution);
+    void setPlayQuantizeResolution(size_t resolution); // --- NOUVEAU: Pour quantPlayReso_ (lecture/édition) ---
 
 
 
