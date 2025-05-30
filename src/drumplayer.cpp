@@ -31,7 +31,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       lastUpdateTime_(std::chrono::high_resolution_clock::now()), // Initialisation de lastUpdateTime_
       lastKeyPressTime_(std::chrono::high_resolution_clock::now()), // *** AJOUTEZ CETTE LIGNE ***
       stepsPerBeat_(4.0), // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
-      quantRecReso_(4),
+      quantRecReso_(8),
       quantPlayReso_(4)
 
 {
@@ -40,7 +40,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     // Création d'un objet AdikPattern avec 2 barres
     curPattern_ = std::make_shared<AdikPattern>(2);
     patternData_ = curPattern_->getPatternData();
-    // lastUpdateTime_ = std::chrono::high_resolution_clock::now(); // Initialisation
+    curPattern_->setPosition(0, 0);
 
     quantResolutionMap[1] = numSteps_;       // Ronde = Mesure complète (16 steps)
     quantResolutionMap[2] = numSteps_ / 2;   // Blanche = Demi-mesure (8 steps)
@@ -244,6 +244,7 @@ void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
                 }
                 curPattern_->setCurrentBar(nextBarIndex);
             }
+            curPattern_->setCurrentStep(currentStep_);
 
             // *** NOUVELLE LOGIQUE POUR LA FUSION : DÉCLENCHEMENT CONDITIONNEL ***
             // La fusion est déclenchée si le pas courant (après incrémentation)
@@ -619,7 +620,7 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
     if (!recentLatencies_.empty()) {
         double currentAverage = calculateAverageLatency();
         if (std::abs(rawLatencyMs - currentAverage) > resetThresholdMs) {
-            std::cout << "DEBUG: Changement significatif détecté (" << rawLatencyMs << "ms vs Moyenne " << currentAverage << "ms). Réinitialisation de l'historique de latence." << std::endl;
+            std::cout << "\nDEBUG: Changement significatif détecté (" << rawLatencyMs << "ms vs Moyenne " << currentAverage << "ms). Réinitialisation de l'historique de latence." << std::endl;
             recentLatencies_.clear();
         }
     }
@@ -631,8 +632,11 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
     double compensatedLatencyMs = rawLatencyMs - averageLatencyMs;
     // --- FIN DE LA PARTIE 1 ---
 
+    std::cout << "\nMesure: " << currentBar_ << ", Pas: " << currentStep_ << std::endl;
     std::cout << "DEBUG: Latence brute frappe : " << rawLatencyMs << " ms (Moy: " << averageLatencyMs << " ms, Taille Hist: " << recentLatencies_.size() << ")" << std::endl;
-    std::cout << "DEBUG: Latence compensée : " << compensatedLatencyMs << " ms par rapport au début du pas " << currentStep << "." << std::endl;
+    std::cout << "DEBUG: Latence compensée : " << compensatedLatencyMs 
+        << " ms par rapport au début de la mesure: " << currentBar_ 
+        << ", Pas: " << currentStep << "." << std::endl;
     std::cout << "DEBUG: Chaque pas de *base* dure " << stepDurationMs << " ms." << std::endl;
 
     size_t quantizedStep = currentStep; // Valeur par défaut si rien n'est quantifié
@@ -643,7 +647,7 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
     double stepOffset = compensatedLatencyMs / stepDurationMs; // Ex: 0.5 signifie un demi-pas en avant
     double targetStepDouble = static_cast<double>(currentStep) + stepOffset;
 
-    // Arroindit au pas de base (seizième) le plus proche
+    // Arrondit au pas de base (seizième) le plus proche
     // Utilise round() pour arrondir au plus proche, car stepOffset peut être négatif ou positif
     size_t initialQuantizedBaseStep = static_cast<size_t>(std::round(targetStepDouble));
 
@@ -677,7 +681,7 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
     if (quantRecReso_ == 0) {
         // Pas de quantification : on utilise le pas de base le plus proche après compensation
         quantizedStep = initialQuantizedBaseStep;
-        std::cout << "DEBUG: Pas de quantification : Utilise le pas de base : " << quantizedStep << std::endl;
+        std::cout << "DEBUG: Pas de quantification : Utilise le pas de base : " << quantizedStep << " et resolution est: " << quantRecReso_ << std::endl;
     } else {
         // Quantification active : calage sur la grille choisie
         auto it = quantResolutionMap.find(quantRecReso_);
@@ -695,11 +699,11 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
 
             if (positionInQuantUnit >= halfQuantUnitSteps) {
                 // Si la position est dans la seconde moitié de l'unité, on arrondit à l'unité suivante
-                quantizedStep = quantGridStartStep + quantUnitSteps;
+                quantizedStep = quantGridStartStep; // + quantUnitSteps;
                 if (quantizedStep >= numSteps_) {
                     quantizedStep = 0; // Gérer le wrap-around de la mesure
                 }
-                std::cout << "DEBUG: Quantification: Arrondi à l'unité de résolution suivante (" << quantUnitSteps << " pas) : " << quantizedStep << std::endl;
+                std::cout << "DEBUG: Quantification: ne pas Arrondi à l'unité de résolution suivante (" << quantUnitSteps << " pas) : " << quantizedStep << std::endl;
             } else {
                 // Sinon, on arrondit au début de l'unité actuelle
                 quantizedStep = quantGridStartStep;
@@ -711,6 +715,7 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
             quantizedStep = initialQuantizedBaseStep; // Pas de calage grossier, juste le pas de base
         }
     }
+    std::cout << "\n----------------------------------------\n";
 
     return quantizedStep;
 }

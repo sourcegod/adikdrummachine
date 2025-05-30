@@ -761,7 +761,28 @@ void AdikDrum::toggleHelp() {
 }
 //----------------------------------------
 
+void AdikDrum::showStatus() {
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour changer de mesure.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    size_t curBar = drumPlayer_.curPattern_->getCurrentBar();
+    size_t numBars = drumPlayer_.curPattern_->getBar(); // Get total number of bars
+    size_t curStep = drumPlayer_.curPattern_->getCurrentStep();
+
+    msgText_ = "Mesure: " + std::to_string(curBar + 1) + "/" + std::to_string(numBars) + ", "
+        + "Step: " + std::to_string(curStep);
+    displayMessage(msgText_);
+
+}
+//----------------------------------------
+
+
 void AdikDrum::test() {
+    drumPlayer_.setPlayQuantizeResolution(4);
+    drumPlayer_.quantizePlayedSteps();
     beep();
 }
 //----------------------------------------
