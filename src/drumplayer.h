@@ -103,9 +103,9 @@ public:
     // Fonction pour calculer la moyenne de latence
     double calculateAverageLatency() const;
     void setRecQuantizeResolution(size_t resolution);
-    size_t quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
+    size_t quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     void setPlayQuantizeResolution(size_t resolution); // --- NOUVEAU: Pour quantPlayReso_ (lecture/édition) ---
-    void quantizePlay(); // --- NOUVEAU: Pour appliquer la quantification au pattern en mémoire ---
+    void quantizePlayedSteps(); // --- NOUVEAU: Pour appliquer la quantification au pattern en mémoire ---
 
 
 

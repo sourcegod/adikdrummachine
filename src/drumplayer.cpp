@@ -608,7 +608,7 @@ bool DrumPlayer::mergePendingRecordings() {
 //----------------------------------------
 
 // /*
-size_t DrumPlayer::quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
+size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
     // --- PARTIE 1 : COMPENSATION DE LATENCE (INCHANGÉE) ---
     const double resetThresholdMs = 50.0;
     double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_; // Durée d'un pas de base (seizième de note)
@@ -824,7 +824,7 @@ void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
 }
 //----------------------------------------
 
-void DrumPlayer::quantizePlay() {
+void DrumPlayer::quantizePlayedSteps() {
     std::cout << "DEBUG: Début de la quantification du pattern en lecture avec résolution : " << quantPlayReso_ << std::endl;
 
     if (!curPattern_) {
