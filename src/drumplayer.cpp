@@ -39,7 +39,7 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     std::cout << "DrumPlayer::Constructor - numSteps_: " << numSteps_ << std::endl;
     // Création d'un objet AdikPattern avec 2 barres
     curPattern_ = std::make_shared<AdikPattern>(2);
-    patData_ = curPattern_->getPatData();
+    patternData_ = curPattern_->getPatternData();
     // lastUpdateTime_ = std::chrono::high_resolution_clock::now(); // Initialisation
 
     quantResolutionMap[1] = numSteps_;       // Ronde = Mesure complète (16 steps)
@@ -221,7 +221,7 @@ void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
             numSteps_ = curPattern_->getBarLength(currentBar_);
 
             // Jouer les sons du pas actuel (cette partie reste inchangée)
-            auto& currentBarData = curPattern_->getPatData()[currentBar_];
+            auto& currentBarData = curPattern_->getPatternData()[currentBar_];
             for (size_t i = 0; i < currentBarData.size(); ++i) {
                 if (currentStep_ < currentBarData[i].size() &&
                     currentBarData[i][currentStep_]) {
@@ -290,7 +290,7 @@ void DrumPlayer::playPattern3() {
 
             // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
             // Utilisation de la référence locale pour la lisibilité
-            auto& currentBarData = curPattern_->getPatData()[currentBar_];
+            auto& currentBarData = curPattern_->getPatternData()[currentBar_];
             for (size_t i = 0; i < currentBarData.size(); ++i) { // Utilise currentBarData.size()
                 if (currentStep_ < currentBarData[i].size() &&
                     currentBarData[i][currentStep_]) {
@@ -364,10 +364,10 @@ void DrumPlayer::playPattern2() {
             numSteps_ = curPattern_->getBarLength(currentBar_); // Votre variable numSteps_ est mise à jour ici
 
             // Pour chaque son dans la barre actuelle, vérifie si la note est active à l'étape courante
-            for (size_t i = 0; i < curPattern_->getPatData()[currentBar_].size(); ++i) {
+            for (size_t i = 0; i < curPattern_->getPatternData()[currentBar_].size(); ++i) {
                 // Si la note est active à l'étape actuelle (currentStep est un membre de DrumPlayer)
-                if (currentStep_ < curPattern_->getPatData()[currentBar_][i].size() && // Vérification de la limite de currentStep
-                    curPattern_->getPatData()[currentBar_][i][currentStep_]) {
+                if (currentStep_ < curPattern_->getPatternData()[currentBar_][i].size() && // Vérification de la limite de currentStep
+                    curPattern_->getPatternData()[currentBar_][i][currentStep_]) {
                     if (drumSounds_[i]) {
                         // Jouer le son sur le canal correspondant (i + 1)
                         mixer_->play(static_cast<int>(i + 1), drumSounds_[i]);
@@ -804,8 +804,12 @@ double DrumPlayer::calculateAverageLatency() const {
 //----------------------------------------
 
 void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
-    quantRecReso_ = resolution;
-    std::cout << "Résolution de quantification réglée sur : " << quantRecReso_ << std::endl;
+    if (resolution == 0 || quantResolutionMap.count(resolution)) {
+        quantRecReso_ = resolution;
+        std::cout << "Résolution d'enregistrement réglée sur : " << quantRecReso_ << std::endl;
+    } else {
+        std::cerr << "AVERTISSEMENT: Résolution d'enregistrement invalide : " << resolution << ". Garde la résolution précédente." << std::endl;
+    }
 }
 //----------------------------------------
 
@@ -820,7 +824,82 @@ void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
 }
 //----------------------------------------
 
+void DrumPlayer::quantizePlay() {
+    std::cout << "DEBUG: Début de la quantification du pattern en lecture avec résolution : " << quantPlayReso_ << std::endl;
 
+    if (!curPattern_) {
+        std::cerr << "ERREUR: curPattern_ n'est pas initialisé (nullptr) dans quantizePlay." << std::endl;
+        return;
+    }
+
+    if (quantPlayReso_ == 0) {
+        std::cout << "DEBUG: Quantification en lecture désactivée (quantPlayReso_ = 0). Aucune modification du pattern." << std::endl;
+        return;
+    }
+
+    size_t quantUnitSteps = 0;
+    auto it = quantResolutionMap.find(quantPlayReso_);
+
+    if (it != quantResolutionMap.end()) {
+        quantUnitSteps = it->second;
+    } else {
+        std::cerr << "AVERTISSEMENT: Résolution de quantification en lecture inconnue : " << quantPlayReso_ << ". Impossible de quantifier." << std::endl;
+        return;
+    }
+
+    // Create a new AdikPattern object to store the quantized notes.
+    // It's crucial to correctly size this new pattern.
+    // AdikPattern's constructor takes numBars. Its internal numSoundsPerBar_ is fixed at 16.
+    // Its internal numSteps_ (per bar) is fixed at 16.
+    // So, we need to ensure this new pattern matches the dimensions we intend to iterate over.
+    size_t numBarsInCurPattern = curPattern_->getBar();
+    size_t numSoundsInCurPattern = curPattern_->getNumSoundsPerBar(); // This is 16 based on your AdikPattern
+    size_t numStepsInCurPattern = curPattern_->getNumSteps(); // This is 16 based on your AdikPattern
+
+    // Create a new pattern with the same number of bars as the current one.
+    // AdikPattern constructor implicitly sets numSoundsPerBar_ and numSteps_.
+    std::shared_ptr<AdikPattern> newPattern = std::make_shared<AdikPattern>(numBarsInCurPattern);
+
+
+    // Iterate over all bars, sounds, and steps of the current pattern.
+    for (size_t barIdx = 0; barIdx < numBarsInCurPattern; ++barIdx) {
+        for (size_t soundIdx = 0; soundIdx < numSoundsInCurPattern; ++soundIdx) {
+            for (size_t step = 0; step < numStepsInCurPattern; ++step) {
+                // If a note exists at this step for this sound in the ORIGINAL pattern
+                if (curPattern_->getNote(barIdx, soundIdx, step)) { // --- USAGE: curPattern_->getNote(bar, sound, step) ---
+                    // It's the "source" step of the note before quantization
+                    size_t initialSourceStep = step;
+
+                    // --- Quantization logic ---
+                    size_t quantGridStartStep = (initialSourceStep / quantUnitSteps) * quantUnitSteps;
+                    size_t halfQuantUnitSteps = quantUnitSteps / 2;
+                    size_t positionInQuantUnit = initialSourceStep - quantGridStartStep;
+
+                    size_t quantizedTargetStep;
+
+                    if (positionInQuantUnit >= halfQuantUnitSteps) {
+                        quantizedTargetStep = quantGridStartStep + quantUnitSteps;
+                        if (quantizedTargetStep >= numStepsInCurPattern) { // Use numStepsInCurPattern for wrap-around
+                            quantizedTargetStep = 0;
+                        }
+                    } else {
+                        quantizedTargetStep = quantGridStartStep;
+                    }
+
+                    // Add the quantized note to the *new* pattern
+                    // --- USAGE: newPattern->setNote(bar, sound, step, value) ---
+                    newPattern->setNote(barIdx, soundIdx, quantizedTargetStep, true);
+                    std::cout << "DEBUG: Son " << soundIdx << " au pas " << initialSourceStep << " (bar " << barIdx << ") quantifié au pas " << quantizedTargetStep << std::endl;
+                }
+            }
+        }
+    }
+
+    // Replace the main pattern with the newly quantized pattern
+    curPattern_ = newPattern; // --- UPDATE THE SHARED POINTER ---
+    std::cout << "DEBUG: Quantification du pattern terminée. Pattern mis à jour." << std::endl;
+}
+//----------------------------------------
 
 //==== End of class DrumPlayer ====
 

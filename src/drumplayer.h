@@ -30,7 +30,7 @@ public:
     size_t numSteps_;
     int sampleRate_;
     std::shared_ptr<AdikPattern> curPattern_; // CHANGEMENT ICI : c'est maintenant un pointeur intelligent
-    std::vector<std::vector<std::vector<bool>>> patData_;
+    std::vector<std::vector<std::vector<bool>>> patternData_;
     size_t currentBar_;  // Supposons que ces membres existent et sont gérés
     size_t numTotalBars_ =0;
 
@@ -100,11 +100,12 @@ public:
 
     // Assurez-vous d'avoir des getters pour currentBar_ et currentStep_
     size_t getCurrentBar() const { return currentBar_; }
-    size_t quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     // Fonction pour calculer la moyenne de latence
     double calculateAverageLatency() const;
     void setRecQuantizeResolution(size_t resolution);
+    size_t quantizeRecord(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     void setPlayQuantizeResolution(size_t resolution); // --- NOUVEAU: Pour quantPlayReso_ (lecture/édition) ---
+    void quantizePlay(); // --- NOUVEAU: Pour appliquer la quantification au pattern en mémoire ---
 
 
 

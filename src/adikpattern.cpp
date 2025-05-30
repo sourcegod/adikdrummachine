@@ -7,11 +7,11 @@ namespace adikdrum {
 AdikPattern::AdikPattern()
     : numBars_(1), numSoundsPerBar_(16) { // Initialisation par défaut : 1 barre, 16 sons
     currentBar_ =0;
-    patData_.resize(numBars_);
+    patternData_.resize(numBars_);
     for (size_t i = 0; i < numBars_; ++i) {
-        patData_[i].resize(numSoundsPerBar_);
+        patternData_[i].resize(numSoundsPerBar_);
         for (size_t j = 0; j < numSoundsPerBar_; ++j) {
-            patData_[i][j].assign(16, false); // Par défaut 16 pas par son
+            patternData_[i][j].assign(16, false); // Par défaut 16 pas par son
         }
     }
     numSteps_ =16;
@@ -24,11 +24,11 @@ AdikPattern::AdikPattern(size_t numBars)
     : numBars_(numBars), numSoundsPerBar_(16) { // Initialisation par défaut : 16 sons
     if (numBars_ == 0) numBars_ = 1; // Assure au moins 1 barre
     currentBar_ =0;
-    patData_.resize(numBars_);
+    patternData_.resize(numBars_);
     for (size_t i = 0; i < numBars_; ++i) {
-        patData_[i].resize(numSoundsPerBar_);
+        patternData_[i].resize(numSoundsPerBar_);
         for (size_t j = 0; j < numSoundsPerBar_; ++j) {
-            patData_[i][j].assign(16, false); // Par défaut 16 pas par son
+            patternData_[i][j].assign(16, false); // Par défaut 16 pas par son
         }
     }
     numSteps_ =16;
@@ -42,12 +42,12 @@ void AdikPattern::setBar(size_t numBars) {
     }
     size_t oldnumBars = numBars_;
     numBars_ = numBars;
-    patData_.resize(numBars_); // Redimensionne le vecteur patData_
+    patternData_.resize(numBars_); // Redimensionne le vecteur patternData_
     // Initialise les barres nouvellement ajoutées
     for (size_t i = oldnumBars; i < numBars_; ++i) {
-        patData_[i].resize(numSoundsPerBar_);
+        patternData_[i].resize(numSoundsPerBar_);
         for (size_t j = 0; j < numSoundsPerBar_; ++j) {
-            patData_[i][j].assign(16, false); // Par défaut 16 pas pour les nouveaux sons dans les nouvelles barres
+            patternData_[i][j].assign(16, false); // Par défaut 16 pas pour les nouveaux sons dans les nouvelles barres
         }
     }
 }
@@ -68,12 +68,12 @@ void AdikPattern::setBarLength(size_t barIndex, size_t length) {
         barIndex = numBars_ - 1; // Ajuste l'index au maximum valide
     }
 
-    if (patData_[barIndex].empty()) { // S'assure que numSoundsPerBar_ est configuré pour cette barre
-        patData_[barIndex].resize(numSoundsPerBar_);
+    if (patternData_[barIndex].empty()) { // S'assure que numSoundsPerBar_ est configuré pour cette barre
+        patternData_[barIndex].resize(numSoundsPerBar_);
     }
 
     for (size_t j = 0; j < numSoundsPerBar_; ++j) {
-        patData_[barIndex][j].resize(length, false); // Redimensionne chaque son de la barre à la longueur spécifiée
+        patternData_[barIndex][j].resize(length, false); // Redimensionne chaque son de la barre à la longueur spécifiée
     }
 }
 //----------------------------------------
@@ -84,10 +84,10 @@ size_t AdikPattern::getBarLength(size_t barIndex) const {
     if (barIndex >= numBars_) {
         barIndex = numBars_ - 1; // Ajuste l'index au maximum valide
     }
-    if (patData_[barIndex].empty() || patData_[barIndex][0].empty()) {
+    if (patternData_[barIndex].empty() || patternData_[barIndex][0].empty()) {
         return 0; // Retourne 0 si la barre ou le premier son est vide
     }
-    return patData_[barIndex][0].size(); // Suppose que tous les sons d'une barre ont la même longueur
+    return patternData_[barIndex][0].size(); // Suppose que tous les sons d'une barre ont la même longueur
 }
 //----------------------------------------
 
@@ -99,7 +99,7 @@ std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) {
     } else if (barIndex >= numBars_) {
         barIndex = numBars_ - 1; // Ajuste l'index au maximum valide
     }
-    return patData_[barIndex];
+    return patternData_[barIndex];
 }
 //----------------------------------------
 
@@ -116,35 +116,75 @@ const std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex
     } else if (barIndex >= numBars_) {
         barIndex = numBars_ - 1;
     }
-    return patData_[barIndex];
+    return patternData_[barIndex];
 }
 //----------------------------------------
 
 // Fonction pour afficher le pattern de batterie
 void AdikPattern::displayPattern() const {
-    if (patData_.empty()) {
+    if (patternData_.empty()) {
         std::cout << "Le pattern de batterie est vide." << std::endl;
         return;
     }
 
     for (size_t i = 0; i < numBars_; ++i) { // Itère sur les barres
         std::cout << "Barre " << i + 1 << ":" << std::endl;
-        if (patData_[i].empty()) {
+        if (patternData_[i].empty()) {
             std::cout << "  [Barre Vide]" << std::endl;
             continue;
         }
         for (size_t j = 0; j < numSoundsPerBar_; ++j) { // Itère sur les sons
             std::cout << "  Son " << j + 1 << ": ";
-            if (patData_[i][j].empty()) {
+            if (patternData_[i][j].empty()) {
                 std::cout << "[Son Vide]" << std::endl;
                 continue;
             }
-            for (bool note : patData_[i][j]) { // Itère sur les pas
+            for (bool note : patternData_[i][j]) { // Itère sur les pas
                 std::cout << (note ? "1 " : "0 ");
             }
             std::cout << std::endl;
         }
     }
+}
+//----------------------------------------
+
+bool AdikPattern::getNote(size_t barIdx, size_t soundIdx, size_t stepIdx) const {
+    if (barIdx < patternData_.size() && soundIdx < numSoundsPerBar_ && stepIdx < getBarLength(barIdx)) {
+        return patternData_[barIdx][soundIdx][stepIdx];
+    }
+    // std::cerr << "AVERTISSEMENT: getNote hors limites. Bar: " << barIdx << ", Sound: " << soundIdx << ", Step: " << stepIdx << std::endl;
+    return false;
+}
+//----------------------------------------
+
+// --- NOUVEAU : setNote avec l'ordre bar, sound, step ---
+void AdikPattern::setNote(size_t barIdx, size_t soundIdx, size_t stepIdx, bool value) {
+    // Ensure the pattern is large enough for the requested bar
+    if (barIdx >= patternData_.size()) {
+        // Option 1: Expand the pattern (if this behavior is desired)
+        // resizeBars(barIdx + 1); // You might need a resizeBars method in AdikPattern
+        // For now, we'll just print a warning and return if out of bounds
+        std::cerr << "ERREUR: setNote hors limites de barres. Bar: " << barIdx << " (max: " << patternData_.size() << ")" << std::endl;
+        return;
+    }
+    // Ensure the sound vector is large enough for the requested bar
+    if (soundIdx >= numSoundsPerBar_) { // numSoundsPerBar_ is fixed to 16 in your AdikPattern
+        std::cerr << "ERREUR: setNote hors limites de sons. Sound: " << soundIdx << " (max: " << numSoundsPerBar_ << ")" << std::endl;
+        return;
+    }
+    // Ensure the step vector is large enough for the requested bar and sound
+    if (stepIdx >= getBarLength(barIdx)) { // Use getBarLength for the current bar's specific length
+        std::cerr << "ERREUR: setNote hors limites de pas. Step: " << stepIdx << " (max: " << getBarLength(barIdx) << ")" << std::endl;
+        return;
+    }
+
+    patternData_[barIdx][soundIdx][stepIdx] = value;
+}
+//----------------------------------------
+
+// --- NOUVEAU : clearNote avec l'ordre bar, sound, step ---
+void AdikPattern::clearNote(size_t barIdx, size_t soundIdx, size_t stepIdx) {
+    setNote(barIdx, soundIdx, stepIdx, false);
 }
 //----------------------------------------
 
@@ -172,20 +212,20 @@ void AdikPattern::genData() {
     std::uniform_int_distribution<> distrib(0, 1);
 
     // Parcourir les trois dimensions du pattern : [barre][son][pas]
-    for (size_t barIdx = 0; barIdx < patData_.size(); ++barIdx) {
+    for (size_t barIdx = 0; barIdx < patternData_.size(); ++barIdx) {
         // Assurez-vous que la dimension des sons est correctement redimensionnée
-        if (patData_[barIdx].empty()) {
-            patData_[barIdx].resize(numSoundsPerBar_);
+        if (patternData_[barIdx].empty()) {
+            patternData_[barIdx].resize(numSoundsPerBar_);
         }
 
-        for (size_t soundIdx = 0; soundIdx < patData_[barIdx].size(); ++soundIdx) {
+        for (size_t soundIdx = 0; soundIdx < patternData_[barIdx].size(); ++soundIdx) {
             // Assurez-vous que la dimension des pas est correctement redimensionnée
-            if (patData_[barIdx][soundIdx].empty()) {
-                patData_[barIdx][soundIdx].resize(getBarLength(barIdx), false);
+            if (patternData_[barIdx][soundIdx].empty()) {
+                patternData_[barIdx][soundIdx].resize(getBarLength(barIdx), false);
             }
 
-            for (size_t stepIdx = 0; stepIdx < patData_[barIdx][soundIdx].size(); ++stepIdx) {
-                patData_[barIdx][soundIdx][stepIdx] = (distrib(gen) == 1);
+            for (size_t stepIdx = 0; stepIdx < patternData_[barIdx][soundIdx].size(); ++stepIdx) {
+                patternData_[barIdx][soundIdx][stepIdx] = (distrib(gen) == 1);
             }
         }
     }
