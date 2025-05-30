@@ -761,6 +761,11 @@ void AdikDrum::toggleHelp() {
 }
 //----------------------------------------
 
+void AdikDrum::test() {
+    beep();
+}
+//----------------------------------------
+
 
 //==== End of class AdikDrum ====
 

@@ -198,7 +198,9 @@ void AdikTUI::run() {
             case 18: // Ctrl+R (ASCII value for Ctrl+R)
                 adikDrum_->toggleRecord();
                 break;
-
+            case 20: // Ctrl+T (ASCII value for Ctrl+R)
+                adikDrum_->test();
+                break;
 
             case KEY_UP:
                 adikDrum_->moveCursorUp();

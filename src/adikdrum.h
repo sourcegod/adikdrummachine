@@ -81,6 +81,7 @@ public:
     void clearLastPlayedSound();
     void toggleHelp(); // Pour basculer l'affichage de l'aide
     bool isHelpDisplayed() const { return helpDisplayed_; }
+    void test();
 
 
 private:
