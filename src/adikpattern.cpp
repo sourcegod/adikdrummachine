@@ -36,7 +36,7 @@ AdikPattern::AdikPattern(size_t numBars)
 //----------------------------------------
 
 // Fonction pour définir le nombre de barres
-void AdikPattern::setBar(size_t numBars) {
+void AdikPattern::setNumBars(size_t numBars) {
     if (numBars == 0) {
         numBars = 1; // Correction : nombre minimal de barres est 1
     }
@@ -53,16 +53,10 @@ void AdikPattern::setBar(size_t numBars) {
 }
 //----------------------------------------
 
-// Fonction pour obtenir le nombre de barres
-size_t AdikPattern::getBar() const {
-    return numBars_;
-}
-//----------------------------------------
-
 // Fonction pour définir la longueur (nombre de pas) d'une barre spécifique
 void AdikPattern::setBarLength(size_t barIndex, size_t length) {
     if (numBars_ == 0) { // Gère le cas où aucune barre n'existe encore
-        setBar(1); // Crée au moins une barre
+        setNumBars(1); // Crée au moins une barre
         barIndex = 0;
     } else if (barIndex >= numBars_) {
         barIndex = numBars_ - 1; // Ajuste l'index au maximum valide
@@ -94,7 +88,7 @@ size_t AdikPattern::getBarLength(size_t barIndex) const {
 // Fonction pour accéder au pattern 2D d'une barre spécifique
 std::vector<std::vector<bool>>& AdikPattern::getPatternBar(size_t barIndex) {
     if (numBars_ == 0) {
-        setBar(1); // Crée au moins une barre si aucune n'existe
+        setNumBars(1); // Crée au moins une barre si aucune n'existe
         barIndex = 0;
     } else if (barIndex >= numBars_) {
         barIndex = numBars_ - 1; // Ajuste l'index au maximum valide

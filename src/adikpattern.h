@@ -15,11 +15,11 @@ public:
     // Constructeur avec initialisation du nombre de barres
     AdikPattern(size_t numBars);
 
-    // Fonction pour définir le nombre de barres
-    void setBar(size_t numBars);
-
     // Fonction pour obtenir le nombre de barres
-    size_t getBar() const;
+    size_t getNumBars() const { return numBars_; }
+    // Fonction pour définir le nombre de barres
+    void setNumBars(size_t numBars);
+
 
     // Fonction pour définir la longueur (nombre de pas) d'une barre spécifique
     void setBarLength(size_t barIndex, size_t length);

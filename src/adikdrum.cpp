@@ -525,7 +525,7 @@ void AdikDrum::changeBar(int delta) {
     }
 
     size_t curBar = drumPlayer_.curPattern_->getCurrentBar();
-    size_t numBars = drumPlayer_.curPattern_->getBar(); // Get total number of bars
+    size_t numBars = drumPlayer_.curPattern_->getNumBars(); // Get total number of bars
 
     // Calculate new bar index, ensuring it stays within bounds
     // Note: Need to cast currentBar to int for arithmetic with delta, then back to size_t for clamp
@@ -553,7 +553,7 @@ void AdikDrum::gotoStart() {
     }
     curPattern->setPosition(0, 0);
     auto curBar = curPattern->getCurrentBar();
-    auto numBars = curPattern->getBar();
+    auto numBars = curPattern->getNumBars();
 
     msgText_ = "Première mesure: " + std::to_string(curBar +1) + "/" + std::to_string(numBars);
     displayMessage(msgText_);
@@ -567,7 +567,7 @@ void AdikDrum::gotoEnd() {
         displayMessage(msgText_);
         return;
     }
-    size_t numBars = drumPlayer_.curPattern_->getBar();
+    size_t numBars = drumPlayer_.curPattern_->getNumBars();
     if (numBars > 0) {
         drumPlayer_.curPattern_->setPosition(numBars - 1, drumPlayer_.curPattern_->getCurrentStep());
         msgText_ = "Dernière mesure: " + std::to_string(numBars) + "/" + std::to_string(numBars);
@@ -767,7 +767,7 @@ void AdikDrum::showStatus() {
     }
 
     size_t curBar = drumPlayer_.curPattern_->getCurrentBar();
-    size_t numBars = drumPlayer_.curPattern_->getBar(); // Get total number of bars
+    size_t numBars = drumPlayer_.curPattern_->getNumBars(); // Get total number of bars
     size_t curStep = drumPlayer_.curPattern_->getCurrentStep();
 
     msgText_ = "Mesure: " + std::to_string(curBar + 1) + "/" + std::to_string(numBars) + ", "

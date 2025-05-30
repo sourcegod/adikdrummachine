@@ -217,7 +217,7 @@ void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
             // std::cout << "DEBUG, in playPattern: lastUpdateTime: " << lastTime.count() << "\n";
 
             currentBar_ = curPattern_->getCurrentBar();
-            numTotalBars_ = curPattern_->getBar();
+            numTotalBars_ = curPattern_->getNumBars();
             numSteps_ = curPattern_->getBarLength(currentBar_);
 
             // Jouer les sons du pas actuel (cette partie reste inchangée)
@@ -285,7 +285,7 @@ void DrumPlayer::playPattern3() {
             // Récupère l'index de la barre courante depuis l'objet AdikPattern
             currentBar_ = curPattern_->getCurrentBar();
             // Récupère le nombre total de barres
-            numTotalBars_ = curPattern_->getBar();
+            numTotalBars_ = curPattern_->getNumBars();
             // Récupère le nombre de pas dans la barre actuelle
             numSteps_ = curPattern_->getBarLength(currentBar_); // Votre variable numSteps_ est mise à jour ici
 
@@ -360,7 +360,7 @@ void DrumPlayer::playPattern2() {
             // Cette ligne était déjà là et est conservée.
             currentBar_ = curPattern_->getCurrentBar();
             // Récupère le nombre total de barres
-            numTotalBars_ = curPattern_->getBar();
+            numTotalBars_ = curPattern_->getNumBars();
             // Récupère le nombre de pas dans la barre actuelle
             numSteps_ = curPattern_->getBarLength(currentBar_); // Votre variable numSteps_ est mise à jour ici
 
@@ -525,7 +525,7 @@ bool DrumPlayer::deleteStepAtPos(int soundIndex, size_t currentStep, size_t curr
     // Vérifications d'indices plus robustes ici, car cette fonction peut être appelée de n'importe où
     if (soundIndex >= 0 && static_cast<size_t>(soundIndex) < numSounds_ &&
         currentStep < curPattern_->getNumSteps() &&
-        currentBar < curPattern_->getBar()) { // Ajout de la vérification de la barre
+        currentBar < curPattern_->getNumBars()) { // Ajout de la vérification de la barre
 
         curPattern_->getPatternBar(currentBar)[soundIndex][currentStep] = false;
         return true; // Suppression réussie
@@ -550,7 +550,7 @@ bool DrumPlayer::clearSoundFromPattern(int soundIndex) {
     }
 
     // Parcourir toutes les barres et tous les pas pour désactiver le son
-    size_t totalBars = curPattern_->getBar(); // Assurez-vous que getBar() retourne le nombre total de barres
+    size_t totalBars = curPattern_->getNumBars(); // Assurez-vous que getNumBars() retourne le nombre total de barres
     size_t totalSteps = curPattern_->getNumSteps();
 
     bool changed = false;
@@ -570,7 +570,7 @@ void DrumPlayer::addPendingRecording(int soundIndex, size_t barIndex, size_t ste
     // Il est important de s'assurer que curPattern_ est valide ici
     // et que les indices sont dans les limites.
     if (!curPattern_ || soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSounds_ ||
-        barIndex >= curPattern_->getBar() || stepIndex >= curPattern_->getNumSteps()) {
+        barIndex >= curPattern_->getNumBars() || stepIndex >= curPattern_->getNumSteps()) {
         std::cerr << "Erreur: Tentative d'ajouter un enregistrement en attente invalide." << std::endl;
         return;
     }
@@ -593,7 +593,7 @@ bool DrumPlayer::mergePendingRecordings() {
         size_t barIndex = std::get<1>(rec);
         size_t stepIndex = std::get<2>(rec);
 
-        if (barIndex < curPattern_->getBar() && stepIndex < curPattern_->getNumSteps() &&
+        if (barIndex < curPattern_->getNumBars() && stepIndex < curPattern_->getNumSteps() &&
             soundIndex >= 0 && static_cast<size_t>(soundIndex) < numSounds_)
         {
             // Utilisation de la référence locale pour la lisibilité
@@ -858,7 +858,7 @@ void DrumPlayer::quantizePlayedSteps() {
     // AdikPattern's constructor takes numBars. Its internal numSoundsPerBar_ is fixed at 16.
     // Its internal numSteps_ (per bar) is fixed at 16.
     // So, we need to ensure this new pattern matches the dimensions we intend to iterate over.
-    size_t numBarsInCurPattern = curPattern_->getBar();
+    size_t numBarsInCurPattern = curPattern_->getNumBars();
     size_t numSoundsInCurPattern = curPattern_->getNumSoundsPerBar(); // This is 16 based on your AdikPattern
     size_t numStepsInCurPattern = curPattern_->getNumSteps(); // This is 16 based on your AdikPattern
 
