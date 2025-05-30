@@ -26,8 +26,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       beatCounter_(0),
       mixer_(nullptr), // Initialiser à nullptr
       isMuted_(numSounds, false), // Initialiser tous les sons comme non mutés
-      lastSoundIndex_(0),
       numSounds_(numSounds),
+      lastSoundIndex_(0),
       lastUpdateTime_(std::chrono::high_resolution_clock::now()), // Initialisation de lastUpdateTime_
       lastKeyPressTime_(std::chrono::high_resolution_clock::now()), // *** AJOUTEZ CETTE LIGNE ***
       stepsPerBeat_(4.0), // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
@@ -669,7 +669,8 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
         // Comme nous avons commenté la logique de quantification au pas précédent,
         // nous allons simplement nous assurer que c'est >= 0.
         initialQuantizedBaseStep = initialQuantizedBaseStep % numSteps_;
-        if (initialQuantizedBaseStep < 0) initialQuantizedBaseStep += numSteps_; // Au cas où modulo retournerait un négatif
+        // Note: initialBaseStep est un size_t, donc ne peut être négatif
+        // if (initialQuantizedBaseStep < 0) initialQuantizedBaseStep += numSteps_; // Au cas où modulo retournerait un négatif
     }
     // Assurer que initialQuantizedBaseStep est bien dans les limites 0 à numSteps_-1
     initialQuantizedBaseStep = initialQuantizedBaseStep % numSteps_;

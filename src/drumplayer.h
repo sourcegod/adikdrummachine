@@ -37,18 +37,6 @@ public:
     // Nouvelle structure pour stocker les enregistrements en attente
     // Tuple: soundIndex, barIndex, stepIndex
     std::vector<std::tuple<int, size_t, size_t>> pendingRecordings_;
-    // Variables pour la gestion du temps de lecture
-    std::chrono::high_resolution_clock::time_point lastUpdateTime_;
-    double stepsPerBeat_; // Par exemple 4 pour des 16èmes de notes
-    std::chrono::high_resolution_clock::time_point lastKeyPressTime_; // Temps de la dernière frappe de touche
-
-    // Membre pour stocker les latences récentes
-    std::vector<double> recentLatencies_;
-    const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
-    size_t quantRecReso_; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
-    size_t quantPlayReso_; // --- NOUVEAU: Résolution de quantification pour la lecture/édition ---
-    std::map<size_t, size_t> quantResolutionMap;
-
 
     void playSound(size_t soundIndex);
     void stopAllSounds();
@@ -114,14 +102,28 @@ public:
 
 private:
     bool playing_;
+    bool recording_ = false; // Nouvelle variable pour l'état d'enregistrement
     bool clicking_;
     double bpm_;
     int beatCounter_;
     AudioMixer* mixer_; // Pointeur vers l'AudioMixer
     std::vector<bool> isMuted_; // true si le son est muté
-    size_t lastSoundIndex_; // Nouveau membre privé
     size_t numSounds_;
-    bool recording_ = false; // Nouvelle variable pour l'état d'enregistrement
+    size_t lastSoundIndex_; // Nouveau membre privé
+    // Variables pour la gestion du temps de lecture
+    std::chrono::high_resolution_clock::time_point lastUpdateTime_;
+    std::chrono::high_resolution_clock::time_point lastKeyPressTime_; // Temps de la dernière frappe de touche
+    double stepsPerBeat_; // Par exemple 4 pour des 16èmes de notes
+
+
+    // Membre pour stocker les latences récentes
+    std::vector<double> recentLatencies_;
+    const size_t maxRecentLatencies_ = numSteps_; // Nombre de latences à conserver pour la moyenne
+    size_t quantRecReso_; // 0: Désactivé, 1: Mesure, 2: Demi-Mesure, etc.
+    size_t quantPlayReso_; // --- NOUVEAU: Résolution de quantification pour la lecture/édition ---
+    std::map<size_t, size_t> quantResolutionMap;
+
+
 
     SoundPtr getSound(size_t soundIndex); 
 

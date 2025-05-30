@@ -622,9 +622,7 @@ void AdikDrum::recordSound(size_t soundIndex) {
     // ICI : Appel à la fonction de quantification
     size_t quantizedStep = drumPlayer_.quantizeRecordedSteps(currentStep, keyPressTime);
 
-    // Appel à la fonction de quantification simplifiée
-    // size_t quantizedStep = drumPlayer_.quantizeStep(currentStep); // Ne passe que currentStep
-    drumPlayer_.addPendingRecording(static_cast<int>(soundIndex), currentBar, currentStep);
+    drumPlayer_.addPendingRecording(static_cast<int>(soundIndex), currentBar, quantizedStep);
 
 }
 
