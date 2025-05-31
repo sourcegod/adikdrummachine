@@ -607,6 +607,7 @@ void AdikDrum::recordSound(size_t soundIndex) {
 
     // Jouer le son IMMÉDIATEMENT pour le retour sonore sans latence
     // La fonction playSound de DrumPlayer utilise le mixer_
+    soundIndex += shiftPadIndex_;
     drumPlayer_.playSound(soundIndex);
 
     // Capture le temps exact de la frappe juste après playSound
@@ -779,7 +780,7 @@ void AdikDrum::showStatus() {
 
 
 void AdikDrum::test() {
-    drumPlayer_.setPlayQuantizeResolution(4);
+    drumPlayer_.setPlayQuantizeResolution(8);
     drumPlayer_.quantizePlayedSteps();
     beep();
 }

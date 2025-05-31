@@ -31,8 +31,8 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
       lastUpdateTime_(std::chrono::high_resolution_clock::now()), // Initialisation de lastUpdateTime_
       lastKeyPressTime_(std::chrono::high_resolution_clock::now()), // *** AJOUTEZ CETTE LIGNE ***
       stepsPerBeat_(4.0), // Initialisation de stepsPerBeat_ (4 pour des 16èmes)
-      quantRecReso_(8),
-      quantPlayReso_(4)
+      quantRecReso_(16),
+      quantPlayReso_(0)
 
 {
     setBpm(bpm_);
@@ -243,6 +243,7 @@ void DrumPlayer::playPattern(size_t mergeIntervalSteps) {
                     nextBarIndex = 0;
                 }
                 curPattern_->setCurrentBar(nextBarIndex);
+                currentBar_ = nextBarIndex;
             }
             curPattern_->setCurrentStep(currentStep_);
 
@@ -831,7 +832,7 @@ void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
 //----------------------------------------
 
 void DrumPlayer::quantizePlayedSteps() {
-    std::cout << "DEBUG: Début de la quantification du pattern en lecture avec résolution : " << quantPlayReso_ << std::endl;
+    std::cout << "\nDEBUG: Début de la quantification du pattern en lecture avec résolution : " << quantPlayReso_ << std::endl;
 
     if (!curPattern_) {
         std::cerr << "ERREUR: curPattern_ n'est pas initialisé (nullptr) dans quantizePlay." << std::endl;
@@ -884,7 +885,8 @@ void DrumPlayer::quantizePlayedSteps() {
                     size_t quantizedTargetStep;
 
                     if (positionInQuantUnit >= halfQuantUnitSteps) {
-                        quantizedTargetStep = quantGridStartStep + quantUnitSteps;
+                        // Pour l'instant on n'arrondi pas la quantize au Pas supérieur
+                        quantizedTargetStep = quantGridStartStep; // + quantUnitSteps;
                         if (quantizedTargetStep >= numStepsInCurPattern) { // Use numStepsInCurPattern for wrap-around
                             quantizedTargetStep = 0;
                         }
@@ -904,6 +906,7 @@ void DrumPlayer::quantizePlayedSteps() {
     // Replace the main pattern with the newly quantized pattern
     curPattern_ = newPattern; // --- UPDATE THE SHARED POINTER ---
     std::cout << "DEBUG: Quantification du pattern terminée. Pattern mis à jour." << std::endl;
+    std::cout << "\n----------------------------------------" << std::endl;
 }
 //----------------------------------------
 
