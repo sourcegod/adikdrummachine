@@ -373,6 +373,100 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 }
 //----------------------------------------
 
+
+std::string AdikTUI::trim(const std::string& str) {
+    size_t first = str.find_first_not_of(" \t\n\r\f\v");
+    if (std::string::npos == first) {
+        return str;
+    }
+    size_t last = str.find_last_not_of(" \t\n\r\f\v");
+    return str.substr(first, (last - first + 1));
+}
+
+CommandInput AdikTUI::parseCommandString(const std::string& inputString) {
+    CommandInput result;
+    std::string trimmedInput = trim(inputString);
+
+    if (trimmedInput.empty()) {
+        return result;
+    }
+
+    std::istringstream iss(trimmedInput);
+    std::string segment;
+
+    if (iss >> result.commandName) {
+        while (iss >> segment) {
+            result.args.push_back(segment);
+        }
+    }
+    return result;
+}
+
+void AdikTUI::clearCommandInputLine() {
+    if (messageWindow_) {
+        // Efface la ligne du message, où la commande est affichée
+        werase(messageWindow_); // Efface la ligne entière de messageWindow_
+        wrefresh(messageWindow_);
+    }
+}
+
+void AdikTUI::drawCommandInputLine() {
+    if (messageWindow_) {
+        // Redessine la ligne de commande sur messageWindow_
+        werase(messageWindow_); // Efface d'abord tout contenu précédent
+        mvwprintw(messageWindow_, 0, 0, ":%s", commandInputBuffer_.c_str());
+        wmove(messageWindow_, 0, 1 + commandCursorPos_); // Déplace le curseur Ncurses
+        wrefresh(messageWindow_);
+    }
+}
+
+// --- La fonction executeCommand (à implémenter plus en détail) ---
+void AdikTUI::executeCommand(const CommandInput& cmd) {
+    if (cmd.commandName.empty()) {
+        displayMessage("Commande vide. Annulé.");
+        return;
+    }
+
+    // Exemple simple: affiche la commande et ses args
+    std::string msg = "Exécution commande: " + cmd.commandName;
+    for (const auto& arg : cmd.args) {
+        msg += " '" + arg + "'";
+    }
+    displayMessage(msg); // Utilise ta fonction existante displayMessage
+
+    /*
+    // TODO: Ici, tu mettras la logique pour mapper cmd.commandName
+    // aux fonctions de adikDrum_ et passer les arguments.
+    // Utilise un switch ou une map de std::function pour dispatcher les commandes.
+    if (cmd.commandName == "bpm" && cmd.args.size() == 1) {
+        try {
+            float bpm = std::stof(cmd.args[0]);
+            adikDrum_->setBpm(bpm);
+            displayMessage("BPM réglé à " + std::to_string(bpm));
+        } catch (const std::invalid_argument& e) {
+            displayMessage("Erreur: Argument BPM invalide. " + std::string(e.what()));
+        } catch (const std::out_of_range& e) {
+            displayMessage("Erreur: BPM hors de portée. " + std::string(e.what()));
+        }
+    } else if (cmd.commandName == "quantplayreso" && cmd.args.size() == 1) {
+        try {
+            int reso = std::stoi(cmd.args[0]);
+            adikDrum_->setPlayQuantizeResolution(reso);
+            displayMessage("Résolution de quantification réglée à " + std::to_string(reso));
+        } catch (const std::invalid_argument& e) {
+            displayMessage("Erreur: Argument de résolution invalide. " + std::string(e.what()));
+        } catch (const std::out_of_range& e) {
+            displayMessage("Erreur: Résolution hors de portée. " + std::string(e.what()));
+        }
+    }
+    // ... ajoute d'autres commandes ici ...
+    else {
+        displayMessage("Commande inconnue: " + cmd.commandName);
+    }
+    */
+
+}
+
 } // namespace adikdrum
 
 int main() {

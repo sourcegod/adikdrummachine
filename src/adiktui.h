@@ -11,6 +11,26 @@
 
 namespace adikdrum {
 
+struct CommandInput {
+    std::string commandName;
+    std::vector<std::string> args;
+
+    // Pour l'affichage de debug
+    void print() const {
+        std::cout << "Command: '" << commandName << "'\n";
+        std::cout << "Args (" << args.size() << "): ";
+        for (const auto& arg : args) {
+            std::cout << "'" << arg << "' ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+enum class UIMode {
+    NORMAL,        // Mode normal de navigation et de lecture
+    COMMAND_INPUT  // Mode de saisie de commande (après avoir tapé ':')
+};
+
 class AdikTUI : public UIApp {
 public:
     // Le constructeur prend maintenant un pointeur vers AdikDrum
@@ -31,6 +51,25 @@ private:
     WINDOW* gridWindow_;
     void createWindows();
     void destroyWindows();
+
+
+    // fonctions pour le mode command
+    UIMode currentUIMode_ = UIMode::NORMAL; // Le mode d'interface actuel
+    std::string commandInputBuffer_;      // Le buffer pour la saisie de commande
+    size_t commandCursorPos_ = 0;         // Position du curseur dans le buffer de commande
+
+    // Fonctions utilitaires internes pour la gestion de la ligne de commande
+    void clearCommandInputLine();
+    void drawCommandInputLine();
+
+    // Utilitaires de string (tu peux les mettre dans un fichier .cpp util ou ici)
+    std::string trim(const std::string& str);
+    // Supposons que tu as déjà défini CommandInput struct ailleurs
+    // struct CommandInput { std::string commandName; std::vector<std::string> args; };
+    CommandInput parseCommandString(const std::string& inputString); // Déclaration
+
+    // Une fonction pour gérer l'exécution des commandes (à implémenter plus tard)
+    void executeCommand(const CommandInput& cmd);
 };
 
 } // namespace adikdrum
