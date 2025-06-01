@@ -82,6 +82,7 @@ public:
     void toggleHelp(); // Pour basculer l'affichage de l'aide
     bool isHelpDisplayed() const { return helpDisplayed_; }
     void showStatus();
+    const std::string& getMsgText() const { return msgText_; }
 
     void test();
 
