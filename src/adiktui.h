@@ -3,6 +3,7 @@
 
 #include "uiapp.h"
 #include "adikdrum.h"
+#include "adikcommands.h"
 
 #include <ncurses.h>
 #include <string>
@@ -10,21 +11,6 @@
 #include <utility>
 
 namespace adikdrum {
-
-struct CommandInput {
-    std::string commandName;
-    std::vector<std::string> args;
-
-    // Pour l'affichage de debug
-    void print() const {
-        std::cout << "Command: '" << commandName << "'\n";
-        std::cout << "Args (" << args.size() << "): ";
-        for (const auto& arg : args) {
-            std::cout << "'" << arg << "' ";
-        }
-        std::cout << std::endl;
-    }
-};
 
 enum class UIMode {
     NORMAL,        // Mode normal de navigation et de lecture
@@ -61,12 +47,6 @@ private:
     // Fonctions utilitaires internes pour la gestion de la ligne de commande
     void clearCommandInputLine();
     void drawCommandInputLine();
-
-    // Utilitaires de string (tu peux les mettre dans un fichier .cpp util ou ici)
-    std::string trim(const std::string& str);
-    // Supposons que tu as déjà défini CommandInput struct ailleurs
-    // struct CommandInput { std::string commandName; std::vector<std::string> args; };
-    CommandInput parseCommandString(const std::string& inputString); // Déclaration
 
     // Une fonction pour gérer l'exécution des commandes (à implémenter plus tard)
     void executeCommand(const CommandInput& cmd);

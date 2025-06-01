@@ -9,6 +9,7 @@
 #include "adiktui.h"
 #include "adikdrum.h"
 #include "constants.h"
+#include "adikcommands.h"
 
 #include <iostream>
 #include <iomanip>
@@ -373,34 +374,6 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 }
 //----------------------------------------
 
-
-std::string AdikTUI::trim(const std::string& str) {
-    size_t first = str.find_first_not_of(" \t\n\r\f\v");
-    if (std::string::npos == first) {
-        return str;
-    }
-    size_t last = str.find_last_not_of(" \t\n\r\f\v");
-    return str.substr(first, (last - first + 1));
-}
-
-CommandInput AdikTUI::parseCommandString(const std::string& inputString) {
-    CommandInput result;
-    std::string trimmedInput = trim(inputString);
-
-    if (trimmedInput.empty()) {
-        return result;
-    }
-
-    std::istringstream iss(trimmedInput);
-    std::string segment;
-
-    if (iss >> result.commandName) {
-        while (iss >> segment) {
-            result.args.push_back(segment);
-        }
-    }
-    return result;
-}
 
 void AdikTUI::clearCommandInputLine() {
     if (messageWindow_) {
