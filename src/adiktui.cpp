@@ -92,6 +92,261 @@ void AdikTUI::destroyWindows() {
 
 void AdikTUI::run() {
     std::string msg = "Le clavier est initialisé.";
+    displayMessage(msg); // Affiche le message initial
+
+    if (!adikDrum_) {
+        displayMessage("Erreur: AdikDrum n'est pas initialisé.");
+        return;
+    }
+
+    // Ces variables sont utilisées pour l'affichage de la grille
+    auto numSounds = adikDrum_->getNumSounds();
+    auto numSteps = adikDrum_->getNumSteps();
+
+    int key;
+    // Utilise wgetch pour lire spécifiquement de gridWindow_ en mode normal,
+    // car c'est là que le curseur de navigation est pertinent.
+    // Cependant, pour le mode commande, on lira de messageWindow_ ou stdscr.
+    // Pour simplifier l'exemple, je vais garder getch() qui lit de stdscr par défaut.
+    // Si tu utilises des sous-fenêtres pour les entrées, il faut être vigilant.
+    // Le plus simple pour gérer les modes est souvent de lire de stdscr.
+    while ((key = getch()) != 'Q') { // 'Q' pour quitter
+        // Mettre à jour l'état de l'application (playback, etc.) en continu
+        // adikDrum_->update();
+
+        // Gérer les entrées clavier selon le mode de l'UI
+        switch (currentUIMode_) {
+            case UIMode::NORMAL: {
+                // --- GESTION DES TOUCHES EN MODE NORMAL ---
+                switch (key) {
+                    case ':': // Bascule en mode commande
+                        currentUIMode_ = UIMode::COMMAND_INPUT;
+                        commandInputBuffer_.clear();
+                        commandCursorPos_ = 0;
+                        echo();      // Active l'écho temporairement pour la saisie (Ncurses)
+                        curs_set(1); // Affiche le curseur (Ncurses)
+                        drawCommandInputLine(); // Affiche le prompt vide sur messageWindow_
+                        break;
+                    case '\n': // Entrée
+                        adikDrum_->selectStep();
+                        break;
+                    case KEY_BACKSPACE: // Backspace
+                        adikDrum_->unselectStep();
+                        break;
+                    case ' ': // Espace
+                    case '0': // '0'
+                        adikDrum_->playPause();
+                        break;
+                    case 'c': // Metronome
+                        adikDrum_->toggleClick();
+                        break;
+                    case 'p': // Demo
+                        adikDrum_->demo();
+                        break;
+                    case 'v': // Stop all sounds
+                    case '.': // '.'
+                        adikDrum_->stopAllSounds();
+                        break;
+                    case 'x': // Mute current sound
+                        adikDrum_->toggleMute();
+                        break;
+                    case 'X': // Reset all mute
+                        adikDrum_->resetMute();
+                        break;
+                    case '+': // Increase volume
+                        adikDrum_->changeVolume(0.1f);
+                        break;
+                    case '-': // Decrease volume
+                        adikDrum_->changeVolume(-0.1f);
+                        break;
+                    case '(': // Decrease BPM
+                        adikDrum_->changeBpm(-5.0f);
+                        break;
+                    case ')': // Increase BPM
+                        adikDrum_->changeBpm(5.0f);
+                        break;
+                    case '[': // Pan left
+                        adikDrum_->changePan(-0.1f);
+                        break;
+                    case ']': // Pan right
+                        adikDrum_->changePan(0.1f);
+                        break;
+                    case '{': // Decrease speed
+                        adikDrum_->changeSpeed(-0.25f);
+                        break;
+                    case '}': // Increase speed
+                        adikDrum_->changeSpeed(0.25f);
+                        break;
+                    case 'D': // Toggle Delay
+                        adikDrum_->toggleDelay();
+                        break;
+                    case 'l': // 'l'
+                    case '9': // '9'
+                        adikDrum_->triggerLastSound();
+                        break;
+                    case 'm': // 'm'
+                        adikDrum_->playCurrentSound();
+                        break;
+                    case '/': // '/'
+                        adikDrum_->changeShiftPad(-8);
+                        break;
+                    case '*': // '*'
+                        adikDrum_->changeShiftPad(8);
+                        break;
+                    case '<': // Go to start of pattern
+                        adikDrum_->gotoStart();
+                        break;
+                    case '>': // Go to end of pattern
+                        adikDrum_->gotoEnd();
+                        break;
+                    case 4: // Ctrl+D
+                        adikDrum_->clearCurrentSound();
+                        break;
+                    case 8: // Ctrl+H
+                        adikDrum_->toggleHelp();
+                        break;
+                    case 11: // Ctrl+K
+                        adikDrum_->clearLastPlayedSound();
+                        break;
+                    case 16: // Ctrl+P
+                        adikDrum_->loadPattern();
+                        break;
+                    case 18: // Ctrl+R
+                        adikDrum_->toggleRecord();
+                        break;
+                    case 20: // Ctrl+T
+                        adikDrum_->test();
+                        break;
+                    case 21: // Ctrl+U
+                        adikDrum_->showStatus();
+                        break;
+                    case KEY_UP:
+                        adikDrum_->moveCursorUp();
+                        break;
+                    case KEY_DOWN:
+                        adikDrum_->moveCursorDown();
+                        break;
+                    case KEY_LEFT:
+                        adikDrum_->moveCursorLeft();
+                        break;
+                    case KEY_RIGHT:
+                        adikDrum_->moveCursorRight();
+                        break;
+                    case KEY_PPAGE: // PageUp
+                        adikDrum_->changeBar(-1);
+                        break;
+                    case KEY_NPAGE: // PageDown
+                        adikDrum_->changeBar(1);
+                        break;
+                    case KEY_DC: // Delete
+                        adikDrum_->deleteLastPlayedStep();
+                        break;
+                    default: {
+                        int soundIndex = -1;
+                        auto it = KEY_TO_SOUND_MAP.find(key);
+                        if (it != KEY_TO_SOUND_MAP.end()) {
+                            soundIndex = it->second;
+                        } else {
+                            auto it_num = KEYPAD_TO_SOUND_MAP.find(key);
+                            if (it_num != KEYPAD_TO_SOUND_MAP.end()) {
+                                soundIndex = it_num->second;
+                            }
+                        }
+                        if (soundIndex != -1) {
+                            if (adikDrum_->getDrumPlayer().isRecording()) {
+                                adikDrum_->recordSound(soundIndex);
+                            } else {
+                                adikDrum_->playKey(soundIndex);
+                            }
+                        }
+                        break;
+                    }
+                } // Fin du switch (key) en mode NORMAL
+                break;
+            } // Fin du case UIMode::NORMAL
+
+            case UIMode::COMMAND_INPUT: {
+                // --- GESTION DES TOUCHES EN MODE SAISIE DE COMMANDE ---
+                switch (key) {
+                    case KEY_BACKSPACE: // Gère la touche Retour arrière
+                    case 127:           // Code ASCII pour Backspace
+                    case '\b':          // Code ASCII pour Backspace
+                        if (commandCursorPos_ > 0) {
+                            commandInputBuffer_.erase(commandInputBuffer_.begin() + commandCursorPos_ - 1);
+                            commandCursorPos_--;
+                        }
+                        break;
+
+                    case KEY_LEFT: // Gère la flèche gauche
+                        if (commandCursorPos_ > 0) {
+                            commandCursorPos_--;
+                        }
+                        break;
+
+                    case KEY_RIGHT: // Gère la flèche droite
+                        if (commandCursorPos_ < commandInputBuffer_.length()) {
+                            commandCursorPos_++;
+                        }
+                        break;
+
+                    case '\n': // Gère la touche Entrée (validation)
+                    case '\r':
+                        {
+                            CommandInput cmd = parseCommandString(commandInputBuffer_);
+                            executeCommand(cmd); // Exécute la commande
+                        }
+                        // Réinitialise le mode d'interface
+                        currentUIMode_ = UIMode::NORMAL;
+                        noecho();    // Désactive l'écho (Ncurses)
+                        curs_set(0); // Masque le curseur (Ncurses)
+                        // Nettoie la ligne de commande, puis réaffiche le message normal du drum
+                        clearCommandInputLine();
+                        // displayMessage(adikDrum_->msgText_);
+                        break;
+
+                    case 27: // Code ASCII pour ESC (Escape)
+                        // Quitte le mode commande sans valider
+                        currentUIMode_ = UIMode::NORMAL;
+                        noecho();    // Désactive l'écho (Ncurses)
+                        curs_set(0); // Masque le curseur (Ncurses)
+                        clearCommandInputLine(); // Nettoie la ligne de commande
+                        displayMessage("Mode commande annulé.");
+                        break;
+
+                    default:
+                        // Si c'est un caractère imprimable, l'ajouter au buffer
+                        if (key >= 32 && key <= 126) { // Caractères ASCII imprimables
+                            commandInputBuffer_.insert(commandInputBuffer_.begin() + commandCursorPos_, static_cast<char>(key));
+                            commandCursorPos_++;
+                        }
+                        break;
+                }
+                drawCommandInputLine(); // Redessine le champ après chaque touche en mode commande
+                break;
+            } // Fin du case UIMode::COMMAND_INPUT
+        } // Fin du switch (currentUIMode_)
+
+        // --- Section de rafraîchissement de l'affichage principal ---
+        // Cette section est exécutée à chaque tour de boucle, mais son contenu dépend du mode UI.
+        if (!adikDrum_->isHelpDisplayed() && currentUIMode_ == UIMode::NORMAL) {
+            // Seule la grille est mise à jour si l'aide n'est pas affichée et que nous sommes en mode normal.
+            // Le message a déjà été mis à jour par displayMessage si une action normale a eu lieu.
+            const auto& updatedPattern = adikDrum_->getDrumPlayer().curPattern_ ? adikDrum_->getDrumPlayer().curPattern_->getPatternBar(adikDrum_->getDrumPlayer().curPattern_->getCurrentBar()) : std::vector<std::vector<bool>>();
+            displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
+            // displayMessage(adikDrum_->msgText_); // Non nécessaire si displayMessage est appelé après chaque action.
+                                                  // Il est déjà appelé quand on quitte le mode commande aussi.
+        }
+        // Si l'aide est affichée, le contenu de gridWindow_ et messageWindow_ est déjà géré par toggleHelp()
+        // et n'a pas besoin d'être rafraîchi ici.
+        // Si on est en mode COMMAND_INPUT, drawCommandInputLine() gère le messageWindow_.
+        // gridWindow_ n'a pas besoin d'être rafraîchi non plus pendant la saisie.
+    } // Fin de la boucle while
+}
+
+/*
+void AdikTUI::run() {
+
+std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
 
     // Assurez-vous que adikDrum_ est valide avant d'y accéder
@@ -256,27 +511,29 @@ void AdikTUI::run() {
 
         } // End of switch
 
-        /*
+        //
         // On rafraîchit la grille et le message normal uniquement si l'aide n'est PAS affichée.
-        if (!adikDrum_->isHelpDisplayed()) {
-            const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();
-            displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
-            displayMessage(adikDrum_->msgText_);
-        } else {
+        // if (!adikDrum_->isHelpDisplayed()) {
+        //    const auto& updatedPattern = adikDrum_->getCurPattern() ? adikDrum_->getCurPattern()->getPatternBar(adikDrum_->getCurPattern()->getCurrentBar()) : std::vector<std::vector<bool>>();
+        //    displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
+        //    displayMessage(adikDrum_->msgText_);
+        // } else {
             // Si l'aide est affichée, s'assurer que le message de l'aide reste à l'écran
             // displayMessage(adikDrum_->msgText_); est déjà appelé dans AdikDrum::toggleHelp()
             // lorsque helpDisplayed_ passe à true. Si l'aide est déjà affichée,
             // il n'y a pas besoin de la redessiner à chaque frame.
             // On peut juste s'assurer que le curseur est masqué ou repositionné si nécessaire.
             // Pour l'instant, on se contente de l'affichage sur les 2 lignes du bas.
-        }
-        */
+        // }
+        // 
 
 
     } // End of While Loop
 
 }
 //----------------------------------------
+*/
+
 
 void AdikTUI::close() {
     destroyWindows();
