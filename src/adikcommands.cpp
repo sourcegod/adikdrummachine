@@ -8,6 +8,7 @@
  * */
 
 #include "adikcommands.h"
+#include "adikdrum.h" // Inclut le header complet de AdikDrum pour accéder à ses méthodes
 #include <iostream>
 #include <string>
 #include <vector>
@@ -15,6 +16,184 @@
 #include <algorithm> // Pour std::remove_if, std::isspace
 
 namespace adikdrum {
+
+// Définition de la COMMAND_MAP
+const std::map<std::string, CommandAction> COMMAND_MAP = {
+    {"playpause", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                drum->playPause();
+            }
+        },
+        "playpause / pp: Démarre ou met en pause la lecture du séquenceur."
+    }},
+    {"pp", { // Alias pour playpause
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                drum->playPause();
+            }
+        },
+        "playpause / pp: Démarre ou met en pause la lecture du séquenceur."
+    }},
+    {"bpm", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    float bpm = std::stof(args[0]);
+                    drum->changeBpm(bpm);
+                } catch (const std::exception& e) {
+                    // Pour l'instant, on ne gère pas directement les messages d'erreur via displayMessage ici.
+                    // Ils seront gérés dans executeCommand.
+                    std::cerr << "Erreur BPM: " << e.what() << std::endl;
+                }
+            }
+        },
+        "bpm <valeur>: Règle le tempo en BPM."
+    }},
+    {"quantplayreso", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    int reso = std::stoi(args[0]);
+                    // drum->setPlayQuantizeResolution(reso);
+                } catch (const std::exception& e) {
+                    std::cerr << "Erreur Quantize: " << e.what() << std::endl;
+                }
+            }
+        },
+        "quantplayreso <résolution>: Règle la résolution de quantification de lecture."
+    }},
+    {"mute", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                if (args.empty()) {
+                    drum->toggleMute(); // Mute le son courant si pas d'argument
+                } else if (args.size() == 1) {
+                    try {
+                        int soundIndex = std::stoi(args[0]);
+                        // drum->muteSound(soundIndex); // Mute un son spécifique par index
+                    } catch (const std::exception& e) {
+                         std::cerr << "Erreur Mute: " << e.what() << std::endl;
+                    }
+                }
+            }
+        },
+        "mute [index]: Coupe le son courant ou le son à l'index spécifié."
+    }},
+    {"unmute", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    int soundIndex = std::stoi(args[0]);
+                    // drum->unmuteSound(soundIndex); // Unmute un son spécifique par index
+                } catch (const std::exception& e) {
+                     std::cerr << "Erreur Unmute: " << e.what() << std::endl;
+                }
+            }
+        },
+        "unmute <index>: Réactive le son à l'index spécifié."
+    }},
+    {"resetmute", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                // drum->resetMute();
+            }
+        },
+        "resetmute: Réactive tous les sons mutés."
+    }},
+    {"volume", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    float change = std::stof(args[0]);
+                    drum->changeVolume(change);
+                } catch (const std::exception& e) {
+                    std::cerr << "Erreur Volume: " << e.what() << std::endl;
+                }
+            }
+        },
+        "volume <changement>: Change le volume global (+/- 0.1 par exemple)."
+    }},
+    {"pan", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    float change = std::stof(args[0]);
+                    drum->changePan(change);
+                } catch (const std::exception& e) {
+                    std::cerr << "Erreur Pan: " << e.what() << std::endl;
+                }
+            }
+        },
+        "pan <changement>: Change le panoramique (+/- 0.1 par exemple)."
+    }},
+    {"speed", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    float change = std::stof(args[0]);
+                    drum->changeSpeed(change);
+                } catch (const std::exception& e) {
+                    std::cerr << "Erreur Speed: " << e.what() << std::endl;
+                }
+            }
+        },
+        "speed <changement>: Change la vitesse de lecture (+/- 0.25 par exemple)."
+    }},
+    {"delay", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                drum->toggleDelay();
+            }
+        },
+        "delay: Active/désactive l'effet de délai."
+    }},
+    {"clear", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                drum->clearCurrentSound();
+            }
+        },
+        "clear: Efface tous les pas du son courant."
+    }},
+    {"record", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                drum->toggleRecord();
+            }
+        },
+        "record: Active/désactive le mode d'enregistrement."
+    }},
+    {"load", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                // drum->loadPattern(args[0]); // Supposons que loadPattern prend un nom de fichier
+            } else if (drum && args.empty()) {
+                drum->loadPattern(); // S'il y a une version sans argument (par défaut/dernier)
+            }
+        },
+        "load [fichier]: Charge un pattern depuis un fichier ou le dernier chargé."
+    }},
+    {"save", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                // drum->savePattern(args[0]); // Supposons que savePattern prend un nom de fichier
+            } else if (drum && args.empty()) {
+                // drum->savePattern(); // S'il y a une version sans argument (sauvegarde par défaut)
+            }
+        },
+        "save [fichier]: Sauvegarde le pattern dans un fichier ou le dernier utilisé."
+    }},
+    {"help", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum) {
+                drum->toggleHelp(); // Ou une fonction showHelp(const std::vector<std::string>& args) pour filtrer
+            }
+        },
+        "help: Affiche/masque l'aide."
+    }}
+    // Ajoute d'autres commandes ici...
+};
 
 // Fonction utilitaire pour supprimer les espaces blancs de début/fin
 // (trim leading/trailing whitespace)
@@ -49,6 +228,7 @@ CommandInput parseCommandString(const std::string& inputString) {
 
     return result;
 }
+
 
 } // namespace adikdrum
 

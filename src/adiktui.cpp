@@ -371,51 +371,34 @@ void AdikTUI::drawCommandInputLine() {
 }
 //----------------------------------------
 
-// --- La fonction executeCommand (à implémenter plus en détail) ---
 void AdikTUI::executeCommand(const CommandInput& cmd) {
     if (cmd.commandName.empty()) {
         displayMessage("Commande vide. Annulé.");
         return;
     }
 
-    // Exemple simple: affiche la commande et ses args
-    std::string msg = "Exécution commande: " + cmd.commandName;
-    for (const auto& arg : cmd.args) {
-        msg += " '" + arg + "'";
-    }
-    displayMessage(msg); // Utilise ta fonction existante displayMessage
+    // Recherche de la commande dans la COMMAND_MAP
+    auto it = COMMAND_MAP.find(cmd.commandName);
 
-    /*
-    // TODO: Ici, tu mettras la logique pour mapper cmd.commandName
-    // aux fonctions de adikDrum_ et passer les arguments.
-    // Utilise un switch ou une map de std::function pour dispatcher les commandes.
-    if (cmd.commandName == "bpm" && cmd.args.size() == 1) {
+    if (it != COMMAND_MAP.end()) {
+        // Commande trouvée, exécute l'action associée
         try {
-            float bpm = std::stof(cmd.args[0]);
-            adikDrum_->setBpm(bpm);
-            displayMessage("BPM réglé à " + std::to_string(bpm));
+            it->second.action(adikDrum_, cmd.args);
+            // Si la commande s'exécute sans erreur, on peut afficher un message de succès
+            // ou laisser la fonction du drum mettre à jour le messageText.
+            // Si la fonction du drum met à jour msgText_, on peut faire:
+            displayMessage(adikDrum_->getMsgText());
         } catch (const std::invalid_argument& e) {
-            displayMessage("Erreur: Argument BPM invalide. " + std::string(e.what()));
+            displayMessage("Erreur d'argument pour '" + cmd.commandName + "': " + e.what());
         } catch (const std::out_of_range& e) {
-            displayMessage("Erreur: BPM hors de portée. " + std::string(e.what()));
+            displayMessage("Argument hors de portée pour '" + cmd.commandName + "': " + e.what());
+        } catch (const std::exception& e) {
+            displayMessage("Erreur lors de l'exécution de '" + cmd.commandName + "': " + e.what());
         }
-    } else if (cmd.commandName == "quantplayreso" && cmd.args.size() == 1) {
-        try {
-            int reso = std::stoi(cmd.args[0]);
-            adikDrum_->setPlayQuantizeResolution(reso);
-            displayMessage("Résolution de quantification réglée à " + std::to_string(reso));
-        } catch (const std::invalid_argument& e) {
-            displayMessage("Erreur: Argument de résolution invalide. " + std::string(e.what()));
-        } catch (const std::out_of_range& e) {
-            displayMessage("Erreur: Résolution hors de portée. " + std::string(e.what()));
-        }
-    }
-    // ... ajoute d'autres commandes ici ...
-    else {
+    } else {
+        // Commande non trouvée
         displayMessage("Commande inconnue: " + cmd.commandName);
     }
-    */
-
 }
 //----------------------------------------
 
