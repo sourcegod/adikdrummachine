@@ -311,6 +311,7 @@ void AdikTUI::run() {
                         curs_set(0); // Masque le curseur (Ncurses)
                         clearCommandInputLine(); // Nettoie la ligne de commande
                         displayMessage("Mode commande annulé.");
+                        beep();
                         break;
 
                     default:
@@ -333,7 +334,7 @@ void AdikTUI::run() {
             // Le message a déjà été mis à jour par displayMessage si une action normale a eu lieu.
             const auto& updatedPattern = adikDrum_->getDrumPlayer().curPattern_ ? adikDrum_->getDrumPlayer().curPattern_->getPatternBar(adikDrum_->getDrumPlayer().curPattern_->getCurrentBar()) : std::vector<std::vector<bool>>();
             displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
-            // displayMessage(adikDrum_->msgText_); // Non nécessaire si displayMessage est appelé après chaque action.
+            displayMessage(adikDrum_->getMsgText()); // Non nécessaire si displayMessage est appelé après chaque action.
                                                   // Il est déjà appelé quand on quitte le mode commande aussi.
         }
         // Si l'aide est affichée, le contenu de gridWindow_ et messageWindow_ est déjà géré par toggleHelp()
