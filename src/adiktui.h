@@ -50,6 +50,8 @@ private:
 
     // Une fonction pour gérer l'exécution des commandes (à implémenter plus tard)
     void executeCommand(const CommandInput& cmd);
+    void handleCommandInput(int key);
+
 };
 
 } // namespace adikdrum

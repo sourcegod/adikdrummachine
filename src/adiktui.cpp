@@ -89,7 +89,6 @@ void AdikTUI::destroyWindows() {
     }
 }
 //----------------------------------------
-
 void AdikTUI::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg); // Affiche le message initial
@@ -99,20 +98,13 @@ void AdikTUI::run() {
         return;
     }
 
-    // Ces variables sont utilisées pour l'affichage de la grille
     auto numSounds = adikDrum_->getNumSounds();
     auto numSteps = adikDrum_->getNumSteps();
 
     int key;
-    // Utilise wgetch pour lire spécifiquement de gridWindow_ en mode normal,
-    // car c'est là que le curseur de navigation est pertinent.
-    // Cependant, pour le mode commande, on lira de messageWindow_ ou stdscr.
-    // Pour simplifier l'exemple, je vais garder getch() qui lit de stdscr par défaut.
-    // Si tu utilises des sous-fenêtres pour les entrées, il faut être vigilant.
-    // Le plus simple pour gérer les modes est souvent de lire de stdscr.
     while ((key = getch()) != 'Q') { // 'Q' pour quitter
         // Mettre à jour l'état de l'application (playback, etc.) en continu
-        // adikDrum_->update();
+        // adikDrum_->update(); // Le update() est important pour que le séquenceur continue de fonctionner
 
         // Gérer les entrées clavier selon le mode de l'UI
         switch (currentUIMode_) {
@@ -266,83 +258,22 @@ void AdikTUI::run() {
             } // Fin du case UIMode::NORMAL
 
             case UIMode::COMMAND_INPUT: {
-                // --- GESTION DES TOUCHES EN MODE SAISIE DE COMMANDE ---
-                switch (key) {
-                    case KEY_BACKSPACE: // Gère la touche Retour arrière
-                    case 127:           // Code ASCII pour Backspace
-                    case '\b':          // Code ASCII pour Backspace
-                        if (commandCursorPos_ > 0) {
-                            commandInputBuffer_.erase(commandInputBuffer_.begin() + commandCursorPos_ - 1);
-                            commandCursorPos_--;
-                        }
-                        break;
-
-                    case KEY_LEFT: // Gère la flèche gauche
-                        if (commandCursorPos_ > 0) {
-                            commandCursorPos_--;
-                        }
-                        break;
-
-                    case KEY_RIGHT: // Gère la flèche droite
-                        if (commandCursorPos_ < commandInputBuffer_.length()) {
-                            commandCursorPos_++;
-                        }
-                        break;
-
-                    case '\n': // Gère la touche Entrée (validation)
-                    case '\r':
-                        {
-                            CommandInput cmd = parseCommandString(commandInputBuffer_);
-                            executeCommand(cmd); // Exécute la commande
-                        }
-                        // Réinitialise le mode d'interface
-                        currentUIMode_ = UIMode::NORMAL;
-                        noecho();    // Désactive l'écho (Ncurses)
-                        curs_set(0); // Masque le curseur (Ncurses)
-                        // Nettoie la ligne de commande, puis réaffiche le message normal du drum
-                        clearCommandInputLine();
-                        // displayMessage(adikDrum_->msgText_);
-                        break;
-
-                    case 27: // Code ASCII pour ESC (Escape)
-                        // Quitte le mode commande sans valider
-                        currentUIMode_ = UIMode::NORMAL;
-                        noecho();    // Désactive l'écho (Ncurses)
-                        curs_set(0); // Masque le curseur (Ncurses)
-                        clearCommandInputLine(); // Nettoie la ligne de commande
-                        displayMessage("Mode commande annulé.");
-                        beep();
-                        break;
-
-                    default:
-                        // Si c'est un caractère imprimable, l'ajouter au buffer
-                        if (key >= 32 && key <= 126) { // Caractères ASCII imprimables
-                            commandInputBuffer_.insert(commandInputBuffer_.begin() + commandCursorPos_, static_cast<char>(key));
-                            commandCursorPos_++;
-                        }
-                        break;
-                }
-                drawCommandInputLine(); // Redessine le champ après chaque touche en mode commande
+                // APPEL À LA NOUVELLE FONCTION SÉPARÉE
+                handleCommandInput(key);
                 break;
             } // Fin du case UIMode::COMMAND_INPUT
         } // Fin du switch (currentUIMode_)
 
         // --- Section de rafraîchissement de l'affichage principal ---
-        // Cette section est exécutée à chaque tour de boucle, mais son contenu dépend du mode UI.
         if (!adikDrum_->isHelpDisplayed() && currentUIMode_ == UIMode::NORMAL) {
-            // Seule la grille est mise à jour si l'aide n'est pas affichée et que nous sommes en mode normal.
-            // Le message a déjà été mis à jour par displayMessage si une action normale a eu lieu.
             const auto& updatedPattern = adikDrum_->getDrumPlayer().curPattern_ ? adikDrum_->getDrumPlayer().curPattern_->getPatternBar(adikDrum_->getDrumPlayer().curPattern_->getCurrentBar()) : std::vector<std::vector<bool>>();
             displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
-            displayMessage(adikDrum_->getMsgText()); // Non nécessaire si displayMessage est appelé après chaque action.
-                                                  // Il est déjà appelé quand on quitte le mode commande aussi.
+            // On affiche le message du drum si on est en mode normal et que l'aide n'est pas affichée.
+            displayMessage(adikDrum_->getMsgText());
         }
-        // Si l'aide est affichée, le contenu de gridWindow_ et messageWindow_ est déjà géré par toggleHelp()
-        // et n'a pas besoin d'être rafraîchi ici.
-        // Si on est en mode COMMAND_INPUT, drawCommandInputLine() gère le messageWindow_.
-        // gridWindow_ n'a pas besoin d'être rafraîchi non plus pendant la saisie.
     } // Fin de la boucle while
 }
+
 
 /*
 void AdikTUI::run() {
@@ -697,6 +628,68 @@ void AdikTUI::executeCommand(const CommandInput& cmd) {
     */
 
 }
+
+void AdikTUI::handleCommandInput(int key) {
+    switch (key) {
+        case KEY_BACKSPACE: // Gère la touche Retour arrière
+        case 127:           // Code ASCII pour Backspace
+        case '\b':          // Code ASCII pour Backspace
+            if (commandCursorPos_ > 0) {
+                commandInputBuffer_.erase(commandInputBuffer_.begin() + commandCursorPos_ - 1);
+                commandCursorPos_--;
+            }
+            break;
+
+        case KEY_LEFT: // Gère la flèche gauche
+            if (commandCursorPos_ > 0) {
+                commandCursorPos_--;
+            }
+            break;
+
+        case KEY_RIGHT: // Gère la flèche droite
+            if (commandCursorPos_ < commandInputBuffer_.length()) {
+                commandCursorPos_++;
+            }
+            break;
+
+        case '\n': // Gère la touche Entrée (validation)
+        case '\r':
+            {
+                // Utilise la fonction parseCommandString qui est maintenant globale dans adikcommands.h
+                CommandInput cmd = parseCommandString(commandInputBuffer_);
+                executeCommand(cmd); // Exécute la commande
+            }
+            // Réinitialise le mode d'interface
+            currentUIMode_ = UIMode::NORMAL;
+            noecho();    // Désactive l'écho (Ncurses)
+            curs_set(0); // Masque le curseur (Ncurses)
+            // Nettoie la ligne de commande, puis réaffiche le message normal du drum
+            clearCommandInputLine();
+            displayMessage(adikDrum_->getMsgText()); // Utilise getMsgText() si msgText_ est privé
+            break;
+
+        case 27: // Code ASCII pour ESC (Escape)
+            // Quitte le mode commande sans valider
+            currentUIMode_ = UIMode::NORMAL;
+            noecho();    // Désactive l'écho (Ncurses)
+            curs_set(0); // Masque le curseur (Ncurses)
+            clearCommandInputLine(); // Nettoie la ligne de commande
+            displayMessage("Mode commande annulé.");
+            beep(); // Joue un son pour indiquer l'annulation
+            break;
+
+        default:
+            // Si c'est un caractère imprimable, l'ajouter au buffer
+            if (key >= 32 && key <= 126) { // Caractères ASCII imprimables
+                commandInputBuffer_.insert(commandInputBuffer_.begin() + commandCursorPos_, static_cast<char>(key));
+                commandCursorPos_++;
+            }
+            break;
+    }
+    // Redessine toujours le champ après chaque touche en mode commande
+    drawCommandInputLine();
+}
+
 
 } // namespace adikdrum
 
