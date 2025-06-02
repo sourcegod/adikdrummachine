@@ -14,6 +14,8 @@ namespace adikdrum {
 
 enum class UIMode {
     NORMAL,        // Mode normal de navigation et de lecture
+    KEY_SOUND, 
+
     COMMAND_INPUT  // Mode de saisie de commande (après avoir tapé ':')
 };
 
@@ -51,6 +53,7 @@ private:
     // Une fonction pour gérer l'exécution des commandes (à implémenter plus tard)
     void executeCommand(const CommandInput& cmd);
     void handleCommandInput(int key);
+    void handleKeySound(int key);
 
 };
 

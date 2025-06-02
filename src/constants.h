@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <ncurses.h>
 
 namespace adikdrum { // Ajout du namespace pour entourer les constantes
 
@@ -18,12 +19,31 @@ const std::map<char, int> KEY_TO_SOUND_MAP = {
     {'t', 12}, {'y', 13}, {'u', 14}, {'i', 15},
 };
 
-
+// /*
 const std::map<char, int> KEYPAD_TO_SOUND_MAP = {
     {'1', 0}, {'2', 1}, {'3', 2}, {'4', 3},
     {'5', 4}, {'6', 5}, {'7', 6}, {'8', 7},
 
 };
+// */
+
+/*
+// Définition de la map pavé numérique -> son (si tu l'utilises)
+const std::map<int, int> KEYPAD_TO_SOUND_MAP = {
+    // Exemple pour ncurses (KEY_C1, KEY_C2, etc. sont des macros ncurses pour le pavé numérique)
+    // Tu devras t'assurer que ces macros sont définies ou que tu utilises les valeurs numériques brutes
+    // #include <ncurses.h> pour KEY_C1, KEY_C2 etc.
+    {KEY_C1, 0}, {KEY_C2, 1}, {KEY_C3, 2}, {KEY_C4, 3},
+    {KEY_C5, 4}, {KEY_C6, 5}, {KEY_C7, 6}, {KEY_C8, 7},
+    {KEY_C9, 8}, {KEY_C0, 9}, {KEY_C_PERIOD, 10}, {KEY_C_PLUS, 11},
+    {KEY_C_MINUS, 12}, {KEY_C_MULTIPLY, 13}, {KEY_C_DIVIDE, 14}, {KEY_C_ENTER, 15}
+    // Note: KEY_C1 à KEY_C9 sont souvent 49 à 57 (chiffres ASCII) sur certains terminaux
+    // Si tu veux les chiffres du pavé numérique spécifiquement, utilise les macros ncurses
+    // ou gère les chiffres ASCII si tu n'utilises pas keypad(stdscr, TRUE) pour stdscr.
+    // Pour l'instant, je les laisse avec KEY_C* comme si tu utilisais le pavé numérique Ncurses.
+};
+*/
+
 
 // Configuration des fichiers audio
 const std::string MEDIA_DIR = "./media";

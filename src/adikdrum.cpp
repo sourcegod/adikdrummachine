@@ -33,12 +33,13 @@
 
 volatile int callbackCounter =0;
 
+namespace adikdrum {
+
 void beep() {
     std::cout << '\a' << std::flush;
 }
 //----------------------------------------
 
-namespace adikdrum {
 
 AdikDrum::AdikDrum(UIApp* uiApp)
     : uiApp_(uiApp),
