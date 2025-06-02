@@ -89,7 +89,113 @@ void AdikTUI::destroyWindows() {
     }
 }
 //----------------------------------------
+void AdikTUI::run() {
+    std::string msg = "Le clavier est initialisé.";
+    displayMessage(msg);
 
+    if (!adikDrum_) {
+        displayMessage("Erreur: AdikDrum n'est pas initialisé.");
+        return;
+    }
+
+    auto numSounds = adikDrum_->getNumSounds();
+    auto numSteps = adikDrum_->getNumSteps();
+
+    int key;
+    while ((key = getch()) != 'Q') {
+        // adikDrum_->update();
+
+        switch (currentUIMode_) {
+            case UIMode::NORMAL: {
+                switch (key) {
+                    case ':': // Bascule en mode commande
+                        currentUIMode_ = UIMode::COMMAND_INPUT;
+                        commandInputBuffer_.clear();
+                        commandCursorPos_ = 0;
+                        echo();
+                        curs_set(1);
+                        drawCommandInputLine();
+                        break;
+                    // Ajoutez ici d'autres raccourcis clavier qui ne sont PAS des déclencheurs de sons
+                    // et qui doivent fonctionner en mode NORMAL.
+                    case '\n': adikDrum_->selectStep(); break;
+                    case KEY_BACKSPACE: adikDrum_->unselectStep(); break;
+                    case ' ':
+                    case '0': adikDrum_->playPause(); break;
+                    case 'c': adikDrum_->toggleClick(); break;
+                    case 'p': adikDrum_->demo(); break;
+                    case 'v':
+                    case '.': adikDrum_->stopAllSounds(); break;
+                    case 'x': adikDrum_->toggleMute(); break;
+                    case 'X': adikDrum_->resetMute(); break;
+                    case '+': adikDrum_->changeVolume(0.1f); break;
+                    case '-': adikDrum_->changeVolume(-0.1f); break;
+                    case '(': adikDrum_->changeBpm(-5.0f); break;
+                    case ')': adikDrum_->changeBpm(5.0f); break;
+                    case '[': adikDrum_->changePan(-0.1f); break;
+                    case ']': adikDrum_->changePan(0.1f); break;
+                    case '{': adikDrum_->changeSpeed(-0.25f); break;
+                    case '}': adikDrum_->changeSpeed(0.25f); break;
+                    case 'D': adikDrum_->toggleDelay(); break;
+                    case 'l':
+                    case '9': adikDrum_->triggerLastSound(); break;
+                    case 'm': adikDrum_->playCurrentSound(); break;
+                    case '/': adikDrum_->changeShiftPad(-8); break;
+                    case '*': adikDrum_->changeShiftPad(8); break;
+                    case '<': adikDrum_->gotoStart(); break;
+                    case '>': adikDrum_->gotoEnd(); break;
+                    case 4: adikDrum_->clearCurrentSound(); break; // Ctrl+D
+                    case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
+                    case 11: adikDrum_->clearLastPlayedSound(); break; // Ctrl+K
+                    case 16: adikDrum_->loadPattern(); break; // Ctrl+P
+                    case 18: adikDrum_->toggleRecord(); break; // Ctrl+R
+                    case 20: adikDrum_->test(); break; // Ctrl+T
+                    case 21: adikDrum_->showStatus(); break; // Ctrl+U
+                    case KEY_UP: adikDrum_->moveCursorUp(); break;
+                    case KEY_DOWN: adikDrum_->moveCursorDown(); break;
+                    case KEY_LEFT: adikDrum_->moveCursorLeft(); break;
+                    case KEY_RIGHT: adikDrum_->moveCursorRight(); break;
+                    case KEY_PPAGE: adikDrum_->changeBar(-1); break;
+                    case KEY_NPAGE: adikDrum_->changeBar(1); break;
+                    case KEY_DC: adikDrum_->deleteLastPlayedStep(); break;
+
+                    default: // Si la touche n'est pas un raccourci de mode NORMAL
+                        // Tente de la gérer comme une touche de son.
+                        handleKeySound(key);
+                        break;
+                }
+                break;
+            } // Fin du case UIMode::NORMAL
+
+            case UIMode::KEY_SOUND: {
+                // Ce mode n'est pas activé par une touche spécifique dans `run()`.
+                // Il est géré comme le `default` du mode `NORMAL`.
+                // Cependant, si tu avais une touche pour passer *explicitement* en mode KEY_SOUND,
+                // alors la logique de handleKeySound(key) irait ici.
+                // Pour l'instant, c'est le "catch-all" du mode NORMAL.
+                handleKeySound(key); // Appelle la fonction de gestion des sons
+                break;
+            }
+
+            case UIMode::COMMAND_INPUT: {
+                handleCommandInput(key);
+                break;
+            }
+        } // Fin du switch (currentUIMode_)
+
+        // --- Section de rafraîchissement de l'affichage principal ---
+        // Ne rafraîchit que si l'aide n'est pas affichée et qu'on est en mode NORMAL ou KEY_SOUND
+        // (le mode KEY_SOUND étant implicitement le 'default' de NORMAL ici,
+        // cette condition suffit pour rafraîchir l'affichage normal).
+        if (!adikDrum_->isHelpDisplayed() && currentUIMode_ != UIMode::COMMAND_INPUT) {
+            const auto& updatedPattern = adikDrum_->getDrumPlayer().curPattern_ ? adikDrum_->getDrumPlayer().curPattern_->getPatternBar(adikDrum_->getDrumPlayer().curPattern_->getCurrentBar()) : std::vector<std::vector<bool>>();
+            displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
+            displayMessage(adikDrum_->getMsgText());
+        }
+    } // Fin de la boucle while
+}
+
+/*
 void AdikTUI::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg); // Affiche le message initial
@@ -275,6 +381,7 @@ void AdikTUI::run() {
     } // Fin de la boucle while
 }
 //----------------------------------------
+*/
 
 void AdikTUI::close() {
     destroyWindows();
@@ -463,6 +570,32 @@ void AdikTUI::handleCommandInput(int key) {
     drawCommandInputLine();
 }
 //----------------------------------------
+
+void AdikTUI::handleKeySound(int key) {
+    int soundIndex = -1;
+
+    // Tente de trouver le son dans la map des touches principales
+    auto it = KEY_TO_SOUND_MAP.find(key);
+    if (it != KEY_TO_SOUND_MAP.end()) {
+        soundIndex = it->second;
+    } else {
+        // Si non trouvé, tente de trouver le son dans la map du pavé numérique
+        auto it_num = KEYPAD_TO_SOUND_MAP.find(key);
+        if (it_num != KEYPAD_TO_SOUND_MAP.end()) {
+            soundIndex = it_num->second;
+        }
+    }
+
+    if (soundIndex != -1) {
+        if (adikDrum_->getDrumPlayer().isRecording()) {
+            adikDrum_->recordSound(soundIndex);
+        } else {
+            adikDrum_->playKey(soundIndex);
+        }
+    }
+}
+//----------------------------------------
+
 
 
 } // namespace adikdrum
