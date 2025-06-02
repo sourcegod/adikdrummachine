@@ -16,8 +16,12 @@ enum class UIMode {
     NORMAL,        // Mode normal de navigation et de lecture
     KEY_SOUND, 
 
-    COMMAND_INPUT  // Mode de saisie de commande (après avoir tapé ':')
+    COMMAND_INPUT,  // Mode de saisie de commande (après avoir tapé ':')
+    NUM_MODES // Un "compteur" de modes, toujours en dernière position
+
 };
+
+std::string getUIModeName(UIMode mode);
 
 class AdikTUI : public UIApp {
 public:

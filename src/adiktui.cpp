@@ -17,6 +17,17 @@
 
 namespace adikdrum {
 
+std::string getUIModeName(UIMode mode) {
+    switch (mode) {
+        case UIMode::NORMAL: return "NORMAL";
+        case UIMode::KEY_SOUND: return "KEY SOUND";
+        case UIMode::COMMAND_INPUT: return "COMMAND INPUT";
+        default: return "INCONNU";
+    }
+}
+//----------------------------------------
+
+
 AdikTUI::AdikTUI(AdikDrum* adikDrum) 
     : adikDrum_(adikDrum),
     screenWidth_(0), 
@@ -89,6 +100,7 @@ void AdikTUI::destroyWindows() {
     }
 }
 //----------------------------------------
+
 void AdikTUI::run() {
     std::string msg = "Le clavier est initialisé.";
     displayMessage(msg);
@@ -104,6 +116,30 @@ void AdikTUI::run() {
     int key;
     while ((key = getch()) != 'Q') {
         // adikDrum_->update();
+
+        if (key == '\t') { // Touche Tab
+            int nextMode = static_cast<int>(currentUIMode_) + 1;
+            // Assurez-vous que UIMode::NUM_MODES est bien la dernière entrée de votre enum UIMode
+            if (nextMode < static_cast<int>(UIMode::NUM_MODES)) {
+                currentUIMode_ = static_cast<UIMode>(nextMode);
+                displayMessage("Mode : " + getUIModeName(currentUIMode_));
+            } else {
+                beep(); // Dernier mode, émet un son
+                displayMessage("Déjà au dernier mode (" + getUIModeName(currentUIMode_) + ").");
+            }
+            continue; // Important: Traite la touche et passe à la prochaine itération
+                      // pour éviter qu'elle soit traitée par le switch des modes.
+        } else if (key == KEY_BTAB) { // Touche Shift+Tab
+            int prevMode = static_cast<int>(currentUIMode_) - 1;
+            if (prevMode >= static_cast<int>(UIMode::NORMAL)) { // UIMode::NORMAL est censé être le premier
+                currentUIMode_ = static_cast<UIMode>(prevMode);
+                displayMessage("Mode : " + getUIModeName(currentUIMode_));
+            } else {
+                beep(); // Premier mode, émet un son
+                displayMessage("Déjà au premier mode (" + getUIModeName(currentUIMode_) + ").");
+            }
+            continue; // Important: Traite la touche et passe à la prochaine itération
+        }
 
         switch (currentUIMode_) {
             case UIMode::NORMAL: {
@@ -151,6 +187,7 @@ void AdikTUI::run() {
                     case 18: adikDrum_->toggleRecord(); break; // Ctrl+R
                     case 20: adikDrum_->test(); break; // Ctrl+T
                     case 21: adikDrum_->showStatus(); break; // Ctrl+U
+
                     case KEY_UP: adikDrum_->moveCursorUp(); break;
                     case KEY_DOWN: adikDrum_->moveCursorDown(); break;
                     case KEY_LEFT: adikDrum_->moveCursorLeft(); break;
@@ -161,7 +198,7 @@ void AdikTUI::run() {
 
                     default: // Si la touche n'est pas un raccourci de mode NORMAL
                         // Tente de la gérer comme une touche de son.
-                        handleKeySound(key);
+                        // handleKeySound(key);
                         break;
                 }
                 break;
@@ -189,8 +226,8 @@ void AdikTUI::run() {
         // cette condition suffit pour rafraîchir l'affichage normal).
         if (!adikDrum_->isHelpDisplayed() && currentUIMode_ != UIMode::COMMAND_INPUT) {
             const auto& updatedPattern = adikDrum_->getDrumPlayer().curPattern_ ? adikDrum_->getDrumPlayer().curPattern_->getPatternBar(adikDrum_->getDrumPlayer().curPattern_->getCurrentBar()) : std::vector<std::vector<bool>>();
-            displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
-            displayMessage(adikDrum_->getMsgText());
+            // displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
+            // displayMessage(adikDrum_->getMsgText());
         }
     } // Fin de la boucle while
 }
