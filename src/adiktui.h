@@ -52,6 +52,8 @@ private:
 
     // Fonctions utilitaires internes pour la gestion de la ligne de commande
     void printKeyCode(int key);
+    std::string getUIModeName(UIMode mode);
+
     void clearCommandInputLine();
     void drawCommandInputLine();
 

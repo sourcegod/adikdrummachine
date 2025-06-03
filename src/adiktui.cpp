@@ -17,24 +17,6 @@
 
 namespace adikdrum {
 
-std::string getUIModeName(UIMode mode) {
-    switch (mode) {
-        case UIMode::NORMAL: return "NORMAL";
-        case UIMode::KEY_SOUND: return "KEY SOUND";
-        case UIMode::COMMAND_INPUT: return "COMMAND INPUT";
-        default: return "INCONNU";
-    }
-}
-//----------------------------------------
-
-void AdikTUI::printKeyCode(int key) {
-    // Affiche le code de la touche pressée
-    mvprintw(0, 0, "Key Code: %d (Char: '%c')  ", key, key);
-    refresh(); // Rafraîchit l'écran pour montrer le code
-
-}
-//----------------------------------------
-
 AdikTUI::AdikTUI(AdikDrum* adikDrum) 
     : adikDrum_(adikDrum),
     screenWidth_(0), 
@@ -174,8 +156,7 @@ void AdikTUI::run() {
                     // et qui doivent fonctionner en mode NORMAL.
                     case '\n': adikDrum_->selectStep(); break;
                     case KEY_BACKSPACE: adikDrum_->unselectStep(); break;
-                    case ' ':
-                    case '0': adikDrum_->playPause(); break;
+                    case ' ': adikDrum_->playPause(); break;
                     case 'c': adikDrum_->toggleClick(); break;
                     case 'p': adikDrum_->demo(); break;
                     case 'v':
@@ -191,11 +172,6 @@ void AdikTUI::run() {
                     case '{': adikDrum_->changeSpeed(-0.25f); break;
                     case '}': adikDrum_->changeSpeed(0.25f); break;
                     case 'D': adikDrum_->toggleDelay(); break;
-                    case 'l':
-                    case '9': adikDrum_->triggerLastSound(); break;
-                    case 'm': adikDrum_->playCurrentSound(); break;
-                    case '/': adikDrum_->changeShiftPad(-8); break;
-                    case '*': adikDrum_->changeShiftPad(8); break;
                     case '<': adikDrum_->gotoStart(); break;
                     case '>': adikDrum_->gotoEnd(); break;
                     case 4: adikDrum_->clearCurrentSound(); break; // Ctrl+D
@@ -249,194 +225,7 @@ void AdikTUI::run() {
         }
     } // Fin de la boucle while
 }
-
-/*
-void AdikTUI::run() {
-    std::string msg = "Le clavier est initialisé.";
-    displayMessage(msg); // Affiche le message initial
-
-    if (!adikDrum_) {
-        displayMessage("Erreur: AdikDrum n'est pas initialisé.");
-        return;
-    }
-
-    auto numSounds = adikDrum_->getNumSounds();
-    auto numSteps = adikDrum_->getNumSteps();
-
-    int key;
-    while ((key = getch()) != 'Q') { // 'Q' pour quitter
-        // Mettre à jour l'état de l'application (playback, etc.) en continu
-        // adikDrum_->update(); // Le update() est important pour que le séquenceur continue de fonctionner
-
-        // Gérer les entrées clavier selon le mode de l'UI
-        switch (currentUIMode_) {
-            case UIMode::NORMAL: {
-                // --- GESTION DES TOUCHES EN MODE NORMAL ---
-                switch (key) {
-                    case ':': // Bascule en mode commande
-                        currentUIMode_ = UIMode::COMMAND_INPUT;
-                        commandInputBuffer_.clear();
-                        commandCursorPos_ = 0;
-                        echo();      // Active l'écho temporairement pour la saisie (Ncurses)
-                        curs_set(1); // Affiche le curseur (Ncurses)
-                        drawCommandInputLine(); // Affiche le prompt vide sur messageWindow_
-                        break;
-                    case '\n': // Entrée
-                        adikDrum_->selectStep();
-                        break;
-                    case KEY_BACKSPACE: // Backspace
-                        adikDrum_->unselectStep();
-                        break;
-                    case ' ': // Espace
-                    case '0': // '0'
-                        adikDrum_->playPause();
-                        break;
-                    case 'c': // Metronome
-                        adikDrum_->toggleClick();
-                        break;
-                    case 'p': // Demo
-                        adikDrum_->demo();
-                        break;
-                    case 'v': // Stop all sounds
-                    case '.': // '.'
-                        adikDrum_->stopAllSounds();
-                        break;
-                    case 'x': // Mute current sound
-                        adikDrum_->toggleMute();
-                        break;
-                    case 'X': // Reset all mute
-                        adikDrum_->resetMute();
-                        break;
-                    case '+': // Increase volume
-                        adikDrum_->changeVolume(0.1f);
-                        break;
-                    case '-': // Decrease volume
-                        adikDrum_->changeVolume(-0.1f);
-                        break;
-                    case '(': // Decrease BPM
-                        adikDrum_->changeBpm(-5.0f);
-                        break;
-                    case ')': // Increase BPM
-                        adikDrum_->changeBpm(5.0f);
-                        break;
-                    case '[': // Pan left
-                        adikDrum_->changePan(-0.1f);
-                        break;
-                    case ']': // Pan right
-                        adikDrum_->changePan(0.1f);
-                        break;
-                    case '{': // Decrease speed
-                        adikDrum_->changeSpeed(-0.25f);
-                        break;
-                    case '}': // Increase speed
-                        adikDrum_->changeSpeed(0.25f);
-                        break;
-                    case 'D': // Toggle Delay
-                        adikDrum_->toggleDelay();
-                        break;
-                    case 'l': // 'l'
-                    case '9': // '9'
-                        adikDrum_->triggerLastSound();
-                        break;
-                    case 'm': // 'm'
-                        adikDrum_->playCurrentSound();
-                        break;
-                    case '/': // '/'
-                        adikDrum_->changeShiftPad(-8);
-                        break;
-                    case '*': // '*'
-                        adikDrum_->changeShiftPad(8);
-                        break;
-                    case '<': // Go to start of pattern
-                        adikDrum_->gotoStart();
-                        break;
-                    case '>': // Go to end of pattern
-                        adikDrum_->gotoEnd();
-                        break;
-                    case 4: // Ctrl+D
-                        adikDrum_->clearCurrentSound();
-                        break;
-                    case 8: // Ctrl+H
-                        adikDrum_->toggleHelp();
-                        break;
-                    case 11: // Ctrl+K
-                        adikDrum_->clearLastPlayedSound();
-                        break;
-                    case 16: // Ctrl+P
-                        adikDrum_->loadPattern();
-                        break;
-                    case 18: // Ctrl+R
-                        adikDrum_->toggleRecord();
-                        break;
-                    case 20: // Ctrl+T
-                        adikDrum_->test();
-                        break;
-                    case 21: // Ctrl+U
-                        adikDrum_->showStatus();
-                        break;
-                    case KEY_UP:
-                        adikDrum_->moveCursorUp();
-                        break;
-                    case KEY_DOWN:
-                        adikDrum_->moveCursorDown();
-                        break;
-                    case KEY_LEFT:
-                        adikDrum_->moveCursorLeft();
-                        break;
-                    case KEY_RIGHT:
-                        adikDrum_->moveCursorRight();
-                        break;
-                    case KEY_PPAGE: // PageUp
-                        adikDrum_->changeBar(-1);
-                        break;
-                    case KEY_NPAGE: // PageDown
-                        adikDrum_->changeBar(1);
-                        break;
-                    case KEY_DC: // Delete
-                        adikDrum_->deleteLastPlayedStep();
-                        break;
-                    default: {
-                        int soundIndex = -1;
-                        auto it = KEY_TO_SOUND_MAP.find(key);
-                        if (it != KEY_TO_SOUND_MAP.end()) {
-                            soundIndex = it->second;
-                        } else {
-                            auto it_num = KEYPAD_TO_SOUND_MAP.find(key);
-                            if (it_num != KEYPAD_TO_SOUND_MAP.end()) {
-                                soundIndex = it_num->second;
-                            }
-                        }
-                        if (soundIndex != -1) {
-                            if (adikDrum_->getDrumPlayer().isRecording()) {
-                                adikDrum_->recordSound(soundIndex);
-                            } else {
-                                adikDrum_->playKey(soundIndex);
-                            }
-                        }
-                        break;
-                    }
-                } // Fin du switch (key) en mode NORMAL
-                break;
-            } // Fin du case UIMode::NORMAL
-
-            case UIMode::COMMAND_INPUT: {
-                // APPEL À LA NOUVELLE FONCTION SÉPARÉE
-                handleCommandInput(key);
-                break;
-            } // Fin du case UIMode::COMMAND_INPUT
-        } // Fin du switch (currentUIMode_)
-
-        // --- Section de rafraîchissement de l'affichage principal ---
-        if (!adikDrum_->isHelpDisplayed() && currentUIMode_ == UIMode::NORMAL) {
-            const auto& updatedPattern = adikDrum_->getDrumPlayer().curPattern_ ? adikDrum_->getDrumPlayer().curPattern_->getPatternBar(adikDrum_->getDrumPlayer().curPattern_->getCurrentBar()) : std::vector<std::vector<bool>>();
-            displayGrid(updatedPattern, adikDrum_->cursorPos, numSounds, numSteps);
-            // On affiche le message du drum si on est en mode normal et que l'aide n'est pas affichée.
-            displayMessage(adikDrum_->getMsgText());
-        }
-    } // Fin de la boucle while
-}
 //----------------------------------------
-*/
 
 void AdikTUI::close() {
     destroyWindows();
@@ -512,6 +301,23 @@ void AdikTUI::displayGrid(const std::vector<std::vector<bool>>& grid, std::pair<
 }
 //----------------------------------------
 
+std::string AdikTUI::getUIModeName(UIMode mode) {
+    switch (mode) {
+        case UIMode::NORMAL: return "NORMAL";
+        case UIMode::KEY_SOUND: return "KEY SOUND";
+        case UIMode::COMMAND_INPUT: return "COMMAND INPUT";
+        default: return "INCONNU";
+    }
+}
+//----------------------------------------
+
+void AdikTUI::printKeyCode(int key) {
+    // Affiche le code de la touche pressée
+    mvprintw(0, 0, "Key Code: %d (Char: '%c')  ", key, key);
+    refresh(); // Rafraîchit l'écran pour montrer le code
+
+}
+//----------------------------------------
 
 void AdikTUI::clearCommandInputLine() {
     if (messageWindow_) {
@@ -627,27 +433,42 @@ void AdikTUI::handleCommandInput(int key) {
 //----------------------------------------
 
 void AdikTUI::handleKeySound(int key) {
-    int soundIndex = -1;
+    switch(key) {
+        case '0': adikDrum_->playPause(); break;
+        case 'l':
+        case '9': adikDrum_->triggerLastSound(); break;
+        case 'm': adikDrum_->playCurrentSound(); break;
+        case '.': adikDrum_->stopAllSounds(); break;
+        case '-': adikDrum_->changeShiftPad(-8); break;
+        case '+': adikDrum_->changeShiftPad(8); break;
+        
+        default:
 
-    // Tente de trouver le son dans la map des touches principales
-    auto it = KEY_TO_SOUND_MAP.find(key);
-    if (it != KEY_TO_SOUND_MAP.end()) {
-        soundIndex = it->second;
-    } else {
-        // Si non trouvé, tente de trouver le son dans la map du pavé numérique
-        auto it_num = KEYPAD_TO_SOUND_MAP.find(key);
-        if (it_num != KEYPAD_TO_SOUND_MAP.end()) {
-            soundIndex = it_num->second;
-        }
-    }
+            int soundIndex = -1;
 
-    if (soundIndex != -1) {
-        if (adikDrum_->getDrumPlayer().isRecording()) {
-            adikDrum_->recordSound(soundIndex);
-        } else {
-            adikDrum_->playKey(soundIndex);
-        }
-    }
+            // Tente de trouver le son dans la map des touches principales
+            auto it = KEY_TO_SOUND_MAP.find(key);
+            if (it != KEY_TO_SOUND_MAP.end()) {
+                soundIndex = it->second;
+            } else {
+                // Si non trouvé, tente de trouver le son dans la map du pavé numérique
+                auto it_num = KEYPAD_TO_SOUND_MAP.find(key);
+                if (it_num != KEYPAD_TO_SOUND_MAP.end()) {
+                    soundIndex = it_num->second;
+                }
+            }
+
+            if (soundIndex != -1) {
+                if (adikDrum_->getDrumPlayer().isRecording()) {
+                    adikDrum_->recordSound(soundIndex);
+                } else {
+                    adikDrum_->playKey(soundIndex);
+                }
+            }
+        break;
+    } // Fin du switch
+
+
 }
 //----------------------------------------
 
