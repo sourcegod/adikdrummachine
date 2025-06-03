@@ -117,7 +117,19 @@ void AdikTUI::run() {
     while ((key = getch()) != 'Q') {
         // adikDrum_->update();
 
-        if (key == '\t') { // Touche Tab
+        if (key == 27) { // Code ASCII pour ESC (Escape)
+            if (currentUIMode_ != UIMode::NORMAL) {
+                currentUIMode_ = UIMode::NORMAL;
+                noecho();    // Désactive l'écho (Ncurses) si on était en mode commande
+                curs_set(0); // Masque le curseur (Ncurses) si on était en mode commande
+                clearCommandInputLine(); // Nettoie la ligne de commande si on était en mode commande
+                displayMessage("Retour au mode : " + getUIModeName(currentUIMode_));
+            } else {
+                beep(); // Déjà en mode NORMAL, émet un son
+                displayMessage("Déjà en mode : " + getUIModeName(currentUIMode_));
+            }
+            continue; // Important: Traite la touche et passe à la prochaine itération
+        } else if (key == '\t') { // Touche Tab
             int nextMode = static_cast<int>(currentUIMode_) + 1;
             // Assurez-vous que UIMode::NUM_MODES est bien la dernière entrée de votre enum UIMode
             if (nextMode < static_cast<int>(UIMode::NUM_MODES)) {
