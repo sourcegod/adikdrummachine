@@ -20,7 +20,7 @@ namespace adikdrum {
 // Définition de la COMMAND_MAP
 const std::map<std::string, CommandAction> COMMAND_MAP = {
     {"playpause", {
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 drum->playPause();
             }
@@ -28,7 +28,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "playpause / pp: Démarre ou met en pause la lecture du séquenceur."
     }},
     {"pp", { // Alias pour playpause
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 drum->playPause();
             }
@@ -54,7 +54,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         [](AdikDrum* drum, const std::vector<std::string>& args) {
             if (drum && args.size() == 1) {
                 try {
-                    int reso = std::stoi(args[0]);
+                    // int reso = std::stoi(args[0]);
                     // drum->setPlayQuantizeResolution(reso);
                 } catch (const std::exception& e) {
                     std::cerr << "Erreur Quantize: " << e.what() << std::endl;
@@ -70,7 +70,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
                     drum->toggleMute(); // Mute le son courant si pas d'argument
                 } else if (args.size() == 1) {
                     try {
-                        int soundIndex = std::stoi(args[0]);
+                        // int soundIndex = std::stoi(args[0]);
                         // drum->muteSound(soundIndex); // Mute un son spécifique par index
                     } catch (const std::exception& e) {
                          std::cerr << "Erreur Mute: " << e.what() << std::endl;
@@ -84,7 +84,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         [](AdikDrum* drum, const std::vector<std::string>& args) {
             if (drum && args.size() == 1) {
                 try {
-                    int soundIndex = std::stoi(args[0]);
+                    // int soundIndex = std::stoi(args[0]);
                     // drum->unmuteSound(soundIndex); // Unmute un son spécifique par index
                 } catch (const std::exception& e) {
                      std::cerr << "Erreur Unmute: " << e.what() << std::endl;
@@ -94,7 +94,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "unmute <index>: Réactive le son à l'index spécifié."
     }},
     {"resetmute", {
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 // drum->resetMute();
             }
@@ -141,7 +141,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "speed <changement>: Change la vitesse de lecture (+/- 0.25 par exemple)."
     }},
     {"delay", {
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 drum->toggleDelay();
             }
@@ -149,7 +149,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "delay: Active/désactive l'effet de délai."
     }},
     {"clear", {
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 drum->clearCurrentSound();
             }
@@ -157,7 +157,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "clear: Efface tous les pas du son courant."
     }},
     {"record", {
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 drum->toggleRecord();
             }
@@ -185,7 +185,7 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "save [fichier]: Sauvegarde le pattern dans un fichier ou le dernier utilisé."
     }},
     {"help", {
-        [](AdikDrum* drum, const std::vector<std::string>& args) {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
             if (drum) {
                 drum->toggleHelp(); // Ou une fonction showHelp(const std::vector<std::string>& args) pour filtrer
             }

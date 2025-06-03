@@ -99,8 +99,6 @@ void AdikTUI::run() {
         return;
     }
 
-    auto numSounds = adikDrum_->getNumSounds();
-    auto numSteps = adikDrum_->getNumSteps();
 
     int key;
     while (1) {
@@ -179,6 +177,7 @@ void AdikTUI::run() {
             case UIMode::COMMAND_INPUT: {
                 handleCommandInput(key);
                 break;
+            default: break;
             }
         } // Fin du switch (currentUIMode_)
 
