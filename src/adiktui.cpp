@@ -103,7 +103,10 @@ void AdikTUI::run() {
     auto numSteps = adikDrum_->getNumSteps();
 
     int key;
-    while ((key = getch()) != 'Q') {
+    while (1) {
+        key = getch(); 
+        // Quit the Game
+        if (key == 'Q' && currentUIMode_ == UIMode::NORMAL) break;
         // adikDrum_->update();
         if (key == 27) { // Code ASCII pour ESC (Escape)
             if (currentUIMode_ != UIMode::NORMAL) {
@@ -152,47 +155,12 @@ void AdikTUI::run() {
                         curs_set(1);
                         drawCommandInputLine();
                         break;
+
                     // Ajoutez ici d'autres raccourcis clavier qui ne sont PAS des déclencheurs de sons
                     // et qui doivent fonctionner en mode NORMAL.
-                    case '\n': adikDrum_->selectStep(); break;
-                    case KEY_BACKSPACE: adikDrum_->unselectStep(); break;
-                    case ' ': adikDrum_->playPause(); break;
-                    case 'c': adikDrum_->toggleClick(); break;
-                    case 'p': adikDrum_->demo(); break;
-                    case 'v':
-                    case '.': adikDrum_->stopAllSounds(); break;
-                    case 'x': adikDrum_->toggleMute(); break;
-                    case 'X': adikDrum_->resetMute(); break;
-                    case '+': adikDrum_->changeVolume(0.1f); break;
-                    case '-': adikDrum_->changeVolume(-0.1f); break;
-                    case '(': adikDrum_->changeBpm(-5.0f); break;
-                    case ')': adikDrum_->changeBpm(5.0f); break;
-                    case '[': adikDrum_->changePan(-0.1f); break;
-                    case ']': adikDrum_->changePan(0.1f); break;
-                    case '{': adikDrum_->changeSpeed(-0.25f); break;
-                    case '}': adikDrum_->changeSpeed(0.25f); break;
-                    case 'D': adikDrum_->toggleDelay(); break;
-                    case '<': adikDrum_->gotoStart(); break;
-                    case '>': adikDrum_->gotoEnd(); break;
-                    case 4: adikDrum_->clearCurrentSound(); break; // Ctrl+D
-                    case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
-                    case 11: adikDrum_->clearLastPlayedSound(); break; // Ctrl+K
-                    case 16: adikDrum_->loadPattern(); break; // Ctrl+P
-                    case 18: adikDrum_->toggleRecord(); break; // Ctrl+R
-                    case 20: adikDrum_->test(); break; // Ctrl+T
-                    case 21: adikDrum_->showStatus(); break; // Ctrl+U
-
-                    case KEY_UP: adikDrum_->moveCursorUp(); break;
-                    case KEY_DOWN: adikDrum_->moveCursorDown(); break;
-                    case KEY_LEFT: adikDrum_->moveCursorLeft(); break;
-                    case KEY_RIGHT: adikDrum_->moveCursorRight(); break;
-                    case KEY_PPAGE: adikDrum_->changeBar(-1); break;
-                    case KEY_NPAGE: adikDrum_->changeBar(1); break;
-                    case KEY_DC: adikDrum_->deleteLastPlayedStep(); break;
-
                     default: // Si la touche n'est pas un raccourci de mode NORMAL
                         // Tente de la gérer comme une touche de son.
-                        // handleKeySound(key);
+                        handleGlobalKey(key);
                         break;
                 }
                 break;
@@ -434,14 +402,24 @@ void AdikTUI::handleCommandInput(int key) {
 
 void AdikTUI::handleKeySound(int key) {
     switch(key) {
+        case '\n': adikDrum_->selectStep(); break;
+        case KEY_BACKSPACE: adikDrum_->unselectStep(); break;
         case '0': adikDrum_->playPause(); break;
         case 'l':
         case '9': adikDrum_->triggerLastSound(); break;
         case 'm': adikDrum_->playCurrentSound(); break;
         case '.': adikDrum_->stopAllSounds(); break;
+        case 'x': adikDrum_->toggleMute(); break;
+        case 'X': adikDrum_->resetMute(); break;
+
         case '-': adikDrum_->changeShiftPad(-8); break;
         case '+': adikDrum_->changeShiftPad(8); break;
-        
+
+        case KEY_UP: adikDrum_->moveCursorUp(); break;
+        case KEY_DOWN: adikDrum_->moveCursorDown(); break;
+        case KEY_LEFT: adikDrum_->moveCursorLeft(); break;
+        case KEY_RIGHT: adikDrum_->moveCursorRight(); break;
+
         default:
 
             int soundIndex = -1;
@@ -464,7 +442,11 @@ void AdikTUI::handleKeySound(int key) {
                 } else {
                     adikDrum_->playKey(soundIndex);
                 }
+            
+            } else {
+                handleGlobalKey(key);
             }
+
         break;
     } // Fin du switch
 
@@ -476,11 +458,40 @@ void AdikTUI::handleKeySound(int key) {
 
 void AdikTUI::handleGlobalKey(int key) {
     switch(key) {
-        case '0': adikDrum_->playPause(); break;
-       
+        case ' ': adikDrum_->playPause(); break;
+        case 'c': adikDrum_->toggleClick(); break;
+        case 'p': adikDrum_->demo(); break;
+        case 'v':
+        // case '.': adikDrum_->stopAllSounds(); break;
+        case '+': adikDrum_->changeVolume(0.1f); break;
+        case '-': adikDrum_->changeVolume(-0.1f); break;
+        case '(': adikDrum_->changeBpm(-5.0f); break;
+        case ')': adikDrum_->changeBpm(5.0f); break;
+        case '[': adikDrum_->changePan(-0.1f); break;
+        case ']': adikDrum_->changePan(0.1f); break;
+        case '{': adikDrum_->changeSpeed(-0.25f); break;
+        case '}': adikDrum_->changeSpeed(0.25f); break;
+        case 'D': adikDrum_->toggleDelay(); break;
+        case '<': adikDrum_->gotoStart(); break;
+        case '>': adikDrum_->gotoEnd(); break;
+        case 4: adikDrum_->clearCurrentSound(); break; // Ctrl+D
+        case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
+        case 11: adikDrum_->clearLastPlayedSound(); break; // Ctrl+K
+        case 16: adikDrum_->loadPattern(); break; // Ctrl+P
+        case 18: adikDrum_->toggleRecord(); break; // Ctrl+R
+        case 20: adikDrum_->test(); break; // Ctrl+T
+        case 21: adikDrum_->showStatus(); break; // Ctrl+U
+
+        case KEY_PPAGE: adikDrum_->changeBar(-1); break;
+        case KEY_NPAGE: adikDrum_->changeBar(1); break;
+        case KEY_DC: adikDrum_->deleteLastPlayedStep(); break;
+
+
         default:
 
+            beep();
         break;
+
     } // Fin du switch
 
 
