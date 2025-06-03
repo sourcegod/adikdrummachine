@@ -474,6 +474,20 @@ void AdikTUI::handleKeySound(int key) {
 
 
 
+void AdikTUI::handleGlobalKey(int key) {
+    switch(key) {
+        case '0': adikDrum_->playPause(); break;
+       
+        default:
+
+        break;
+    } // Fin du switch
+
+
+}
+//----------------------------------------
+
+
 } // namespace adikdrum
 
 int main() {

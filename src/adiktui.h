@@ -61,6 +61,7 @@ private:
     void executeCommand(const CommandInput& cmd);
     void handleCommandInput(int key);
     void handleKeySound(int key);
+    void handleGlobalKey(int key);
 
 };
 
