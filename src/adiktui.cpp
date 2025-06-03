@@ -462,7 +462,12 @@ void AdikTUI::handleGlobalKey(int key) {
         case 'c': adikDrum_->toggleClick(); break;
         case 'p': adikDrum_->demo(); break;
         case 'v':
-        // case '.': adikDrum_->stopAllSounds(); break;
+        case '0': adikDrum_->playPause(); break;
+        case '9': adikDrum_->triggerLastSound(); break;
+        case '.': adikDrum_->stopAllSounds(); break;
+        case '/': adikDrum_->changeShiftPad(-8); break;
+        case '*': adikDrum_->changeShiftPad(8); break;
+
         case '+': adikDrum_->changeVolume(0.1f); break;
         case '-': adikDrum_->changeVolume(-0.1f); break;
         case '(': adikDrum_->changeBpm(-5.0f); break;
@@ -478,7 +483,8 @@ void AdikTUI::handleGlobalKey(int key) {
         case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
         case 11: adikDrum_->clearLastPlayedSound(); break; // Ctrl+K
         case 16: adikDrum_->loadPattern(); break; // Ctrl+P
-        case 18: adikDrum_->toggleRecord(); break; // Ctrl+R
+        case 18: 
+        case 'r': adikDrum_->toggleRecord(); break; // Ctrl+R
         case 20: adikDrum_->test(); break; // Ctrl+T
         case 21: adikDrum_->showStatus(); break; // Ctrl+U
 
@@ -488,8 +494,23 @@ void AdikTUI::handleGlobalKey(int key) {
 
 
         default:
+            int soundIndex = -1;
 
-            beep();
+            // Tente de trouver le son dans la map des touches du pavé numérique
+            auto it = KEYPAD_TO_SOUND_MAP.find(key);
+            if (it != KEYPAD_TO_SOUND_MAP.end()) {
+                soundIndex = it->second;
+            }
+
+            if (soundIndex != -1) {
+                if (adikDrum_->getDrumPlayer().isRecording()) {
+                    adikDrum_->recordSound(soundIndex);
+                } else {
+                    adikDrum_->playKey(soundIndex);
+                }
+            } else {
+                beep();
+            }
         break;
 
     } // Fin du switch
