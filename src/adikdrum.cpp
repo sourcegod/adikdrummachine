@@ -475,7 +475,12 @@ void AdikDrum::playKeyPad(int soundIndex) {
 
 
 void AdikDrum::triggerLastSound() {
-    drumPlayer_.playLastSound();
+    if (drumPlayer_.isRecording()) {
+        auto soundIndex = drumPlayer_.getLastSoundIndex();
+        recordSound(soundIndex);
+    } else {
+        drumPlayer_.playLastSound();
+    }
     // msgText_ = "Rejouer le dernier son sur le canal 17.";
     // displayMessage(msgText_);
 }
