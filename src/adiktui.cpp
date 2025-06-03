@@ -27,6 +27,13 @@ std::string getUIModeName(UIMode mode) {
 }
 //----------------------------------------
 
+void AdikTUI::printKeyCode(int key) {
+    // Affiche le code de la touche pressée
+    mvprintw(0, 0, "Key Code: %d (Char: '%c')  ", key, key);
+    refresh(); // Rafraîchit l'écran pour montrer le code
+
+}
+//----------------------------------------
 
 AdikTUI::AdikTUI(AdikDrum* adikDrum) 
     : adikDrum_(adikDrum),
@@ -116,7 +123,6 @@ void AdikTUI::run() {
     int key;
     while ((key = getch()) != 'Q') {
         // adikDrum_->update();
-
         if (key == 27) { // Code ASCII pour ESC (Escape)
             if (currentUIMode_ != UIMode::NORMAL) {
                 currentUIMode_ = UIMode::NORMAL;

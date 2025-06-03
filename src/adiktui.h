@@ -51,6 +51,7 @@ private:
     size_t commandCursorPos_ = 0;         // Position du curseur dans le buffer de commande
 
     // Fonctions utilitaires internes pour la gestion de la ligne de commande
+    void printKeyCode(int key);
     void clearCommandInputLine();
     void drawCommandInputLine();
 

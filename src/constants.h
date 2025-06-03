@@ -23,6 +23,7 @@ const std::map<char, int> KEY_TO_SOUND_MAP = {
 const std::map<char, int> KEYPAD_TO_SOUND_MAP = {
     {'1', 0}, {'2', 1}, {'3', 2}, {'4', 3},
     {'5', 4}, {'6', 5}, {'7', 6}, {'8', 7},
+    // {KEY_PLUS, 11}, {KEY_MINUS, 12},
 
 };
 // */
