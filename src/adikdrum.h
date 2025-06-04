@@ -83,6 +83,10 @@ public:
     bool isHelpDisplayed() const { return helpDisplayed_; }
     void showStatus();
     const std::string& getMsgText() const { return msgText_; }
+    void setPlayQuantizeResolution(size_t reso);
+    void setRecQuantizeResolution(size_t reso);
+    void quantizePlayedSteps();
+
 
     void test();
 

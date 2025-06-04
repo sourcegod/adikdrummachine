@@ -784,6 +784,30 @@ void AdikDrum::showStatus() {
 }
 //----------------------------------------
 
+void AdikDrum::setPlayQuantizeResolution(size_t reso) {
+    drumPlayer_.setPlayQuantizeResolution(reso);
+    msgText_ = "Résolution de la quantisation en lecture: " + std::to_string(reso);
+    displayMessage(msgText_);
+
+}
+//----------------------------------------
+
+void AdikDrum::setRecQuantizeResolution(size_t reso) {
+    drumPlayer_.setRecQuantizeResolution(reso);
+    msgText_ = "Résolution de la quantisation en enregistrement: " + std::to_string(reso);
+    displayMessage(msgText_);
+
+}
+//----------------------------------------
+
+void AdikDrum::quantizePlayedSteps() {
+    drumPlayer_.quantizePlayedSteps();
+    msgText_ = "Quantisation en Lecture...";
+    displayMessage(msgText_);
+
+}
+//----------------------------------------
+
 
 void AdikDrum::test() {
     drumPlayer_.setPlayQuantizeResolution(8);
