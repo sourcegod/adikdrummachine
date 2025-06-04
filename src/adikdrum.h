@@ -80,6 +80,7 @@ public:
     void clearCurrentSound();
     void clearLastPlayedSound();
     void clearPattern();
+    void genStepsFromSound();
 
     void toggleHelp(); // Pour basculer l'affichage de l'aide
     bool isHelpDisplayed() const { return helpDisplayed_; }
