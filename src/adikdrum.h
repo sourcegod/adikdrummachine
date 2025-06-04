@@ -79,6 +79,8 @@ public:
     void deleteLastPlayedStep(); // Renommée pour être plus générique
     void clearCurrentSound();
     void clearLastPlayedSound();
+    void clearPattern();
+
     void toggleHelp(); // Pour basculer l'affichage de l'aide
     bool isHelpDisplayed() const { return helpDisplayed_; }
     void showStatus();

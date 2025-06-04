@@ -757,6 +757,26 @@ void AdikDrum::clearLastPlayedSound() {
 }
 //----------------------------------------
 
+void AdikDrum::clearPattern() {
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour effacer des sons.";
+        displayMessage(msgText_);
+        return;
+    }
+
+
+    bool changed = drumPlayer_.clearPattern();
+    if (changed) {
+        msgText_ = "Effacé: Tout le Pattern";
+        displayMessage(msgText_);
+        // Mettre à jour l'affichage de la grille
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
+    } 
+
+}
+//----------------------------------------
+
+
 void AdikDrum::toggleHelp() {
     helpDisplayed_ = !helpDisplayed_; // Inverse l'état d'affichage de l'aide
 
