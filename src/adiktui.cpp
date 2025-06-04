@@ -459,6 +459,7 @@ void AdikTUI::handleGlobalKey(int key) {
     switch(key) {
         case ' ': adikDrum_->playPause(); break;
         case 'c': adikDrum_->toggleClick(); break;
+        case 'K': adikDrum_->clearPattern(); break; // 'K'
         case 'p': adikDrum_->demo(16); break;
         case 'v':
         case '0': adikDrum_->playPause(); break;
