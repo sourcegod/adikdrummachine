@@ -204,6 +204,17 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         "rec / record: Active/désactive le mode d'enregistrement."
     }},
 
+    {"demo", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                int numSound = std::stoi(args[0]);
+                drum->demo(numSound); // Supposons que loadPattern prend un nom de fichier
+            } else if (drum && args.empty()) {
+                drum->demo(); // S'il y a une version sans argument (par défaut/dernier)
+            }
+        },
+        "demo [numSound]: joue le son ou tous les sons"
+    }},
 
     {"load", {
         [](AdikDrum* drum, const std::vector<std::string>& args) {
