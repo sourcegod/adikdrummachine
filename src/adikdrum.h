@@ -80,7 +80,6 @@ public:
     void clearCurrentSound();
     void clearLastPlayedSound();
     void clearPattern();
-    void genStepsFromSound();
 
     void toggleHelp(); // Pour basculer l'affichage de l'aide
     bool isHelpDisplayed() const { return helpDisplayed_; }
@@ -89,6 +88,7 @@ public:
     void setPlayQuantizeResolution(size_t reso);
     void setRecQuantizeResolution(size_t reso);
     void quantizePlayedSteps();
+    void genStepsFromSound();
 
 
     void test();

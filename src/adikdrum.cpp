@@ -776,27 +776,6 @@ void AdikDrum::clearPattern() {
 }
 //----------------------------------------
 
-void AdikDrum::genStepsFromSound() {
-    if (!drumPlayer_.curPattern_) {
-        msgText_ = "Erreur: Aucun pattern chargé pour effacer des sons.";
-        displayMessage(msgText_);
-        return;
-    }
-
-
-    bool changed = drumPlayer_.genStepsFromSound();
-    if (changed) {
-        msgText_ = "Génération de Pas, dans la mesure courante";
-        displayMessage(msgText_);
-        // Mettre à jour l'affichage de la grille
-        displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
-    } 
-
-}
-//----------------------------------------
-
-
-
 void AdikDrum::toggleHelp() {
     helpDisplayed_ = !helpDisplayed_; // Inverse l'état d'affichage de l'aide
 
@@ -855,6 +834,28 @@ void AdikDrum::quantizePlayedSteps() {
 
 }
 //----------------------------------------
+
+void AdikDrum::genStepsFromSound() {
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour effacer des sons.";
+        displayMessage(msgText_);
+        return;
+    }
+
+
+    bool changed = drumPlayer_.genStepsFromSound();
+    if (changed) {
+        msgText_ = "Génération de Pas, dans la mesure courante";
+        displayMessage(msgText_);
+        // Mettre à jour l'affichage de la grille
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
+    } 
+
+}
+//----------------------------------------
+
+
+
 
 
 void AdikDrum::test() {
