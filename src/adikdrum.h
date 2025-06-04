@@ -35,7 +35,7 @@ public:
     void closeApp();
     void loadSounds();
     const std::vector<SoundPtr>& getDrumSounds() const;
-    void demo();
+    void demo(int numSound=16);
     void loadPattern();
 
     void displayMessage(const std::string& message); 

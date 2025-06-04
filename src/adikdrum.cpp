@@ -239,15 +239,22 @@ const std::vector<SoundPtr>& AdikDrum::getDrumSounds() const {
 }
 //----------------------------------------
 
-void AdikDrum::demo() {
+void AdikDrum::demo(int numSound) {
     // Tester les sons
     msgText_ = "Demo en train de jouer";
     displayMessage(msgText_);
-    for (size_t i = 0; i < NUM_SOUNDS; ++i) {
-        drumPlayer_.playSound(i);
-        long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
+    if (numSound == -1) {
+        for (size_t i = 0; i < NUM_SOUNDS; ++i) {
+            drumPlayer_.playSound(i);
+            long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[i]->getSize() * 1000.0 / sampleRate_ * 1.0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
+        }
+    } else {
+        drumPlayer_.playSound(numSound);
+        long long sleepDurationMs = static_cast<long long>(drumPlayer_.drumSounds_[numSound]->getSize() * 1000.0 / sampleRate_ * 1.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepDurationMs));
     }
+    
     msgText_ = "Demo terminée.";
     displayMessage(msgText_);
 
