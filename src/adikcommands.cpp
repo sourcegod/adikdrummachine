@@ -50,19 +50,50 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
         },
         "bpm <valeur>: Règle le tempo en BPM."
     }},
-    {"quantplayreso", {
+    {"playreso", {
         [](AdikDrum* drum, const std::vector<std::string>& args) {
             if (drum && args.size() == 1) {
                 try {
-                    // int reso = std::stoi(args[0]);
-                    // drum->setPlayQuantizeResolution(reso);
+                    int reso = std::stoi(args[0]);
+                    drum->setPlayQuantizeResolution(reso);
                 } catch (const std::exception& e) {
                     std::cerr << "Erreur Quantize: " << e.what() << std::endl;
                 }
             }
         },
-        "quantplayreso <résolution>: Règle la résolution de quantification de lecture."
+        "playreso <résolution>: Règle la résolution de la quantisation en lecture."
     }},
+    {"recreso", {
+        [](AdikDrum* drum, const std::vector<std::string>& args) {
+            if (drum && args.size() == 1) {
+                try {
+                    int reso = std::stoi(args[0]);
+                    drum->setRecQuantizeResolution(reso);
+                } catch (const std::exception& e) {
+                    std::cerr << "Erreur Quantize: " << e.what() << std::endl;
+                }
+            }
+        },
+        "recreso <résolution>: Règle la résolution de la quantisation en lecture."
+    }},
+    
+    {"quantize", { // Pour quantize
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
+            if (drum) {
+                drum->quantizePlayedSteps();
+            }
+        },
+        "quantize / qu: Quantise les Pas en lecture"
+    }},
+    {"qu", { // Alias pour quantize
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
+            if (drum) {
+                drum->quantizePlayedSteps();
+            }
+        },
+        "quantize / qu: Quantise les Pas en lecture"
+    }},
+  
     {"mute", {
         [](AdikDrum* drum, const std::vector<std::string>& args) {
             if (drum) {
