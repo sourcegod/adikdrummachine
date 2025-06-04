@@ -743,6 +743,7 @@ void AdikDrum::clearLastPlayedSound() {
         return;
     }
 
+
     bool changed = drumPlayer_.clearSoundFromPattern(lastSoundIndex);
     if (changed) {
         msgText_ = "Effacé: Toutes les occurrences du dernier son joué (" + std::to_string(lastSoundIndex + 1) + ").";

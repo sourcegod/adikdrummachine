@@ -566,6 +566,46 @@ bool DrumPlayer::clearSoundFromPattern(int soundIndex) {
     return changed; // Indique si des modifications ont été apportées
 }
 //----------------------------------------
+bool DrumPlayer::clearPattern() {
+    if (!curPattern_) {
+        std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::clearPattern." << std::endl;
+        return false;
+    }
+
+    // Récupérer le nombre total de mesures, de sons et de pas par mesure
+    size_t totalBars = curPattern_->getNumBars();
+    size_t totalSounds = numSounds_; // curPattern_->getNumSounds();
+    size_t totalSteps = curPattern_->getNumSteps();
+
+    bool changed = false;
+
+    // Parcourir toutes les mesures
+    for (size_t barIdx = 0; barIdx < totalBars; ++barIdx) {
+        // Obtenir la référence à la barre de pattern actuelle pour éviter de la copier
+        // Assurez-vous que getPatternBar() renvoie une référence ou un moyen modifiable.
+        // Si getPatternBar() renvoie const, vous aurez besoin d'une version non-const ou d'une autre approche.
+        // Supposons que getPatternBar(barIdx) renvoie un std::vector<std::vector<bool>>&
+        auto& currentBar = curPattern_->getPatternBar(barIdx);
+
+        // Parcourir tous les sons dans cette mesure
+        for (size_t soundIdx = 0; soundIdx < totalSounds; ++soundIdx) {
+            // Parcourir tous les pas pour ce son
+            for (size_t stepIdx = 0; stepIdx < totalSteps; ++stepIdx) {
+                // Si le step est actif, le désactiver et marquer qu'un changement a eu lieu
+                if (currentBar[soundIdx][stepIdx]) {
+                    currentBar[soundIdx][stepIdx] = false;
+                    changed = true;
+                }
+            }
+        }
+    }
+
+    // Le pattern a été modifié, donc l'interface utilisateur devra peut-être être rafraîchie.
+    // Vous pouvez déclencher un événement ou mettre à jour un flag si nécessaire.
+    return changed; // Indique si le pattern a été effacé (si quelque chose était actif)
+}
+//----------------------------------------
+
 
 void DrumPlayer::addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex) {
     // Il est important de s'assurer que curPattern_ est valide ici

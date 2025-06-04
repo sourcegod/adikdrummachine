@@ -78,6 +78,7 @@ public:
     void recordStep(size_t soundIndex);
     bool deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar); 
     bool clearSoundFromPattern(int soundIndex);
+    bool clearPattern();
 
     // Fonction pour ajouter un enregistrement en attente
     void addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex);
