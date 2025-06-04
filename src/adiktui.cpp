@@ -480,7 +480,8 @@ void AdikTUI::handleGlobalKey(int key) {
         case '<': adikDrum_->gotoStart(); break;
         case '>': adikDrum_->gotoEnd(); break;
         case 4: adikDrum_->clearCurrentSound(); break; // Ctrl+D
-        case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
+        case 8: adikDrum_->genStepsFromSound(); break; // Ctrl+H
+        // case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
         case 11: adikDrum_->clearLastPlayedSound(); break; // Ctrl+K
         case 16: adikDrum_->loadPattern(); break; // Ctrl+P
         case 18: 
