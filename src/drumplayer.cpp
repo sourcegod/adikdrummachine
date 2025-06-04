@@ -566,6 +566,7 @@ bool DrumPlayer::clearSoundFromPattern(int soundIndex) {
     return changed; // Indique si des modifications ont été apportées
 }
 //----------------------------------------
+
 bool DrumPlayer::clearPattern() {
     if (!curPattern_) {
         std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::clearPattern." << std::endl;
@@ -606,6 +607,79 @@ bool DrumPlayer::clearPattern() {
 }
 //----------------------------------------
 
+bool DrumPlayer::genStepsFromSound() {
+    if (!curPattern_) {
+        std::cerr << "Erreur interne: Aucun pattern chargé dans DrumPlayer::genStepsFromSound." << std::endl;
+        return false;
+    }
+
+    // Utilisation de lastSoundIndex_
+    if (lastSoundIndex_ >= curPattern_->getNumSoundsPerBar()) {
+        std::cerr << "Erreur: Aucun son valide n'a été joué récemment pour générer des pas." << std::endl;
+        return false;
+    }
+
+    int soundIndex = lastSoundIndex_;
+
+    // Récupérer la mesure courante du pattern
+    size_t currentBarIdx = curPattern_->getCurrentBar();
+    if (currentBarIdx >= curPattern_->getNumBars()) {
+         std::cerr << "Erreur interne: Mesure courante invalide dans DrumPlayer::genStepsFromSound." << std::endl;
+         return false;
+    }
+
+    // Obtenir la référence à la barre de pattern actuelle pour la modifier
+    // Assurez-vous que getPatternBar() renvoie une référence modifiable (non-const)
+    auto& currentBar = curPattern_->getPatternBar(currentBarIdx);
+
+    size_t totalSteps = curPattern_->getNumSteps(); // Nombre de pas par mesure (ex: 16)
+
+    // --- Logique de détermination de quantUnitSteps basée sur quantizePlayedSteps ---
+    size_t quantUnitSteps = 0;
+    auto it = quantResolutionMap.find(quantPlayReso_); // Utilisation de la map
+
+    if (it != quantResolutionMap.end()) {
+        quantUnitSteps = it->second;
+    } else {
+        std::cerr << "AVERTISSEMENT: Résolution de quantification en lecture inconnue : " << quantPlayReso_ << ". Utilisation de 1/16ème (tous les pas)." << std::endl;
+        quantUnitSteps = 1; // Si résolution inconnue, par défaut 1/16ème (tous les pas)
+    }
+
+    if (quantUnitSteps == 0) { // Si la résolution est 0 (ex: quantPlayReso_ == 0)
+        // Ce cas est pour désactiver la quantification, mais pour genStepsFromSound,
+        // nous devons générer quelque chose. Si quantUnitSteps est 0, c'est un problème.
+        // On pourrait décider d'activer tous les pas ou de ne rien faire.
+        // Pour être sécuritaire, si 0 est une valeur possible issue de la map,
+        // on peut la traiter comme "tous les pas" (1/16e).
+        std::cerr << "AVERTISSEMENT: quantUnitSteps est 0, cela indique potentiellement une quantification désactivée ou une erreur. Activation de tous les pas." << std::endl;
+        quantUnitSteps = 1;
+        return 0;
+    }
+    // --- Fin de la logique de détermination de quantUnitSteps ---
+
+    bool changed = false;
+
+    // 1. Désactiver TOUS les pas pour ce son dans la mesure courante
+    for (size_t stepIdx = 0; stepIdx < totalSteps; ++stepIdx) {
+        if (currentBar[soundIndex][stepIdx]) { // Si le step est actif
+            currentBar[soundIndex][stepIdx] = false; // Désactiver
+            changed = true;
+        }
+    }
+
+    // 2. Activer les pas pertinents selon la résolution quantifiée
+    for (size_t stepIdx = 0; stepIdx < totalSteps; stepIdx += quantUnitSteps) {
+        // Le `quantUnitSteps` ici représente l'intervalle entre les pas actifs.
+        // Exemple: si quantUnitSteps est 4 (pour 1/4), on active 0, 4, 8, 12.
+        if (!currentBar[soundIndex][stepIdx]) { // Si le step n'est PAS actif
+            currentBar[soundIndex][stepIdx] = true; // L'activer
+            changed = true;
+        }
+    }
+
+    return changed;
+}
+//----------------------------------------
 
 void DrumPlayer::addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex) {
     // Il est important de s'assurer que curPattern_ est valide ici
