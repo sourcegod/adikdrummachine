@@ -193,8 +193,18 @@ const std::map<std::string, CommandAction> COMMAND_MAP = {
                 drum->toggleRecord();
             }
         },
-        "record: Active/désactive le mode d'enregistrement."
+        "rec / record: Active/désactive le mode d'enregistrement."
     }},
+    {"rec", {
+        [](AdikDrum* drum, [[maybe_unused]] const std::vector<std::string>& args) {
+            if (drum) {
+                drum->toggleRecord();
+            }
+        },
+        "rec / record: Active/désactive le mode d'enregistrement."
+    }},
+
+
     {"load", {
         [](AdikDrum* drum, const std::vector<std::string>& args) {
             if (drum && args.size() == 1) {
