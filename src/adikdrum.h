@@ -89,6 +89,7 @@ public:
     void setRecQuantizeResolution(size_t reso);
     void quantizePlayedSteps();
     void genStepsFromSound();
+    void quantizeStepsFromSound();
 
 
     void test();

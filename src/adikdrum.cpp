@@ -854,7 +854,24 @@ void AdikDrum::genStepsFromSound() {
 }
 //----------------------------------------
 
+void AdikDrum::quantizeStepsFromSound() {
+    if (!drumPlayer_.curPattern_) {
+        msgText_ = "Erreur: Aucun pattern chargé pour effacer des sons.";
+        displayMessage(msgText_);
+        return;
+    }
 
+
+    bool changed = drumPlayer_.quantizeStepsFromSound();
+    if (changed) {
+        msgText_ = "Quantisation du dernier son joué, dans la mesure courante";
+        displayMessage(msgText_);
+        // Mettre à jour l'affichage de la grille
+        displayGrid(drumPlayer_.curPattern_->getPatternBar(drumPlayer_.curPattern_->getCurrentBar()), cursorPos);
+    } 
+
+}
+//----------------------------------------
 
 
 
