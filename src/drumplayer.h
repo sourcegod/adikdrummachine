@@ -79,14 +79,12 @@ public:
     bool deleteStepAtPos(int soundIndex, size_t currentStep, size_t currentBar); 
     bool clearSoundFromPattern(int soundIndex);
     bool clearPattern();
-    bool genStepsFromSound();
 
     // Fonction pour ajouter un enregistrement en attente
     void addPendingRecording(int soundIndex, size_t barIndex, size_t stepIndex);
     
     // Fonction pour fusionner les enregistrements en attente dans le pattern courant
     bool mergePendingRecordings();
-    // void updatePlayback();
 
     // Assurez-vous d'avoir des getters pour currentBar_ et currentStep_
     size_t getCurrentBar() const { return currentBar_; }
@@ -96,6 +94,8 @@ public:
     size_t quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime);
     void setPlayQuantizeResolution(size_t resolution); // --- NOUVEAU: Pour quantPlayReso_ (lecture/édition) ---
     void quantizePlayedSteps(); // --- NOUVEAU: Pour appliquer la quantification au pattern en mémoire ---
+    bool genStepsFromSound();
+    bool quantizeStepsFromSound();
 
 
 
