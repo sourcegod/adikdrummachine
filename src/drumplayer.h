@@ -96,6 +96,7 @@ public:
     void quantizePlayedSteps(); // --- NOUVEAU: Pour appliquer la quantification au pattern en mémoire ---
     bool genStepsFromSound();
     bool quantizeStepsFromSound();
+    bool isValidForSoundOperation(const std::string& functionName) const; 
 
 
 

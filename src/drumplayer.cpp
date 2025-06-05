@@ -1132,6 +1132,24 @@ bool DrumPlayer::quantizeStepsFromSound() {
 }
 //----------------------------------------
 
+bool DrumPlayer::isValidForSoundOperation(const std::string& functionName) const {
+    if (!curPattern_) {
+        std::cerr << "ERREUR: Aucun pattern chargé dans DrumPlayer::" << functionName << "." << std::endl;
+        return false;
+    }
+
+    // getLastPlayedSoundIndex() n'existe pas en tant que méthode séparée, mais lastSoundIndex_
+    // est un membre direct. Nous pouvons l'utiliser directement.
+    if (lastSoundIndex_ >= curPattern_->getNumSoundsPerBar()) {
+        std::cerr << "Erreur: Aucun son valide n'a été joué récemment dans DrumPlayer::" << functionName << "." << std::endl;
+        return false;
+    }
+    
+    return true;
+}
+//----------------------------------------
+
+
 
 //==== End of class DrumPlayer ====
 
