@@ -96,8 +96,6 @@ public:
     void quantizePlayedSteps(); // --- NOUVEAU: Pour appliquer la quantification au pattern en mémoire ---
     bool genStepsFromSound();
     bool quantizeStepsFromSound();
-    bool isValidForSoundOperation(const std::string& functionName) const; 
-
 
 
 
@@ -129,6 +127,9 @@ private:
 
 
     SoundPtr getSound(size_t soundIndex); 
+    bool isValidForSoundOperation(const std::string& functionName) const; 
+    size_t getQuantUnitSteps() const; 
+
 
 };
 //==== End of class DrumPlayer ====

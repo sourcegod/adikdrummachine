@@ -78,7 +78,24 @@ bool DrumPlayer::isValidForSoundOperation(const std::string& functionName) const
 }
 //----------------------------------------
 
+size_t DrumPlayer::getQuantUnitSteps() const {
+    size_t quantUnitSteps = 0;
+    auto it = quantResolutionMap.find(quantPlayReso_);
 
+    if (it != quantResolutionMap.end()) {
+        quantUnitSteps = it->second;
+    } else {
+        std::cerr << "AVERTISSEMENT: Résolution de quantification inconnue : " << quantPlayReso_ << ". Utilisation de 1/16ème (tous les pas)." << std::endl;
+        quantUnitSteps = 1; // Par défaut à 1/16ème (tous les pas) si inconnu
+    }
+
+    if (quantUnitSteps == 0) {
+        std::cerr << "AVERTISSEMENT: quantUnitSteps est 0, cela indique potentiellement une quantification désactivée ou une erreur. Activation de tous les pas." << std::endl;
+        quantUnitSteps = 1; // Si 0, cela signifie souvent "désactivé", mais pour la génération/quantification, on veut une valeur.
+    }
+    return quantUnitSteps;
+}
+//----------------------------------------
 
 
 /*
