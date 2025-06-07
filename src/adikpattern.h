@@ -72,6 +72,7 @@ public:
     // stepIndex: L'index du pas dans la mesure (0 à numStepsPerBar_ - 1).
     // Retourne true si l'opération a réussi, false si les indices sont invalides.
     bool toggleSoundStep(size_t barIndex, int soundIndex, size_t stepIndex);
+    void setSoundSteps(int soundIndex, const std::vector<bool>& newQuantizedSteps);
 
 private:
     size_t numBars_; // Nombre de barres dans le pattern

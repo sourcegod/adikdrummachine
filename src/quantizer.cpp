@@ -391,7 +391,7 @@ bool Quantizer::quantizeStepsFromSound(int soundIndex) {
 
     // Mettre à jour le pattern avec les nouveaux pas quantifiés.
     // C'est AdikPattern::setSoundSteps qui gérera la redistribution dans la structure interne.
-    // curPattern_->setSoundSteps(soundIndex, newQuantizedSteps);
+    curPattern_->setSoundSteps(soundIndex, newQuantizedSteps);
     return true;
 }
 
@@ -407,6 +407,7 @@ void Quantizer::quantizePlayedSteps() {
     }
     std::cout << "Quantification de tous les pas joués terminée." << std::endl;
 }
+
 
 //==== End of class Quantizer ====
 } // namespace adikdrum

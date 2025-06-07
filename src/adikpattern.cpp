@@ -243,6 +243,7 @@ bool AdikPattern::isValidIndex(size_t barIndex, int soundIndex, size_t stepIndex
     }
     return true;
 }
+//----------------------------------------
 
 // Implémentation de getSoundStep
 bool AdikPattern::getSoundStep(size_t barIndex, int soundIndex, size_t stepIndex) const {
@@ -252,6 +253,7 @@ bool AdikPattern::getSoundStep(size_t barIndex, int soundIndex, size_t stepIndex
     // Accède directement à la valeur booléenne et la retourne
     return patternData_[barIndex][soundIndex][stepIndex];
 }
+//----------------------------------------
 
 // Implémentation de toggleSoundStep
 bool AdikPattern::toggleSoundStep(size_t barIndex, int soundIndex, size_t stepIndex) {
@@ -262,6 +264,64 @@ bool AdikPattern::toggleSoundStep(size_t barIndex, int soundIndex, size_t stepIn
     patternData_[barIndex][soundIndex][stepIndex] = !patternData_[barIndex][soundIndex][stepIndex];
     return true; // L'opération a réussi
 }
+//----------------------------------------
+
+void AdikPattern::setSoundSteps(int soundIndex, const std::vector<bool>& newQuantizedSteps) {
+    // 1. Validation de l'index du son.
+    if (soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSoundsPerBar_) {
+        std::cerr << "Erreur dans setSoundSteps: Index de son invalide (" << soundIndex << ").\n";
+        return;
+    }
+
+    // 2. Validation de la taille du vecteur de pas fourni.
+    // Le vecteur 'newQuantizedSteps' doit correspondre à la taille totale du pattern
+    // pour ce son (numBars_ * numSteps_ si numSteps_ est le nombre de pas par barre,
+    // ou numSteps_ si numSteps_ est la taille totale du pattern comme votre déclaration le suggère).
+    // Basé sur votre AdikPattern.h, numSteps_ est la taille totale du pattern.
+    if (newQuantizedSteps.size() != numSteps_) {
+        std::cerr << "Erreur dans setSoundSteps: Taille de 'newQuantizedSteps' ("
+                  << newQuantizedSteps.size() << ") ne correspond pas à la taille totale du pattern ("
+                  << numSteps_ << ").\n";
+        return;
+    }
+
+    // 3. Effacer d'abord tous les pas existants pour ce son dans toutes les barres.
+    // C'est important pour éviter les restes de pas non quantifiés qui ne seraient
+    // pas réactivés par 'newQuantizedSteps' s'il est plus clairsemé.
+    for (size_t barIdx = 0; barIdx < numBars_; ++barIdx) {
+        // Redimensionner si la barre n'a pas été dimensionnée correctement
+        if (patternData_[barIdx].size() <= static_cast<size_t>(soundIndex)) {
+            patternData_[barIdx].resize(soundIndex + 1);
+        }
+        // Redimensionner le vecteur de pas si nécessaire et l'initialiser à false
+        if (patternData_[barIdx][soundIndex].size() != getBarLength(barIdx)) {
+             patternData_[barIdx][soundIndex].resize(getBarLength(barIdx), false);
+        } else {
+             // Si déjà de bonne taille, il suffit de mettre tout à false
+             std::fill(patternData_[barIdx][soundIndex].begin(), patternData_[barIdx][soundIndex].end(), false);
+        }
+    }
+
+
+    // 4. Remplir le pattern avec les nouveaux pas quantifiés.
+    // L'index global du vecteur plat doit être converti en (barIndex, stepInBar).
+    size_t globalStepCounter = 0;
+    for (size_t barIdx = 0; barIdx < numBars_; ++barIdx) {
+        size_t stepsInCurrentBar = getBarLength(barIdx); // Utilise la longueur réelle de la barre
+
+        for (size_t stepInBar = 0; stepInBar < stepsInCurrentBar; ++stepInBar) {
+            // S'assure que nous ne dépassons pas la taille du vecteur newQuantizedSteps
+            if (globalStepCounter < newQuantizedSteps.size()) {
+                // Utilise setNote ou accède directement si c'est plus simple
+                // setNote est préférable pour la validation intégrée
+                setNote(barIdx, soundIndex, stepInBar, newQuantizedSteps[globalStepCounter]);
+            }
+            globalStepCounter++;
+        }
+    }
+    // std::cout << "DEBUG: setSoundSteps pour le son " << soundIndex << " terminée.\n";
+}
+//----------------------------------------
 
 //==== End of class AdikPattern ====
 
