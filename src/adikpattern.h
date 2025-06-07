@@ -59,6 +59,20 @@ public:
     void setPosition(size_t bar=0, size_t step=0);
     void genData();
 
+    // Vérifie si un pas spécifique est activé pour un son donné dans une mesure donnée.
+    // barIndex: L'index de la mesure (0 à numBars_ - 1).
+    // soundIndex: L'index du son (0 à numSounds_ - 1).
+    // stepIndex: L'index du pas dans la mesure (0 à numStepsPerBar_ - 1).
+    // Retourne true si le pas est activé, false sinon.
+    bool getSoundStep(size_t barIndex, int soundIndex, size_t stepIndex) const;
+
+    // Active ou désactive (toggle) un pas spécifique pour un son donné dans une mesure donnée.
+    // barIndex: L'index de la mesure (0 à numBars_ - 1).
+    // soundIndex: L'index du son (0 à numSounds_ - 1).
+    // stepIndex: L'index du pas dans la mesure (0 à numStepsPerBar_ - 1).
+    // Retourne true si l'opération a réussi, false si les indices sont invalides.
+    bool toggleSoundStep(size_t barIndex, int soundIndex, size_t stepIndex);
+
 private:
     size_t numBars_; // Nombre de barres dans le pattern
     size_t currentBar_;
@@ -66,6 +80,10 @@ private:
     size_t numSteps_; 
     size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
     std::vector<std::vector<std::vector<bool>>> patternData_; // Structure pour stocker le pattern de batterie [barre][son][pas]
+
+    // Fonction utilitaire pour la validation des indices
+    bool isValidIndex(size_t barIndex, int soundIndex, size_t stepIndex) const;
+
 };
 //==== End of class AdikPattern ====
 

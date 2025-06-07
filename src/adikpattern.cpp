@@ -226,6 +226,43 @@ void AdikPattern::genData() {
 }
 //----------------------------------------
 
+
+// Fonction utilitaire pour valider les indices
+bool AdikPattern::isValidIndex(size_t barIndex, int soundIndex, size_t stepIndex) const {
+    if (barIndex >= numBars_) {
+        std::cerr << "Erreur d'index: barIndex (" << barIndex << ") est hors limites (max " << numBars_ - 1 << ")." << std::endl;
+        return false;
+    }
+    if (soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSoundsPerBar_) { // Conversion pour comparaison de taille_t
+        std::cerr << "Erreur d'index: soundIndex (" << soundIndex << ") est hors limites (max " << numSoundsPerBar_ - 1 << ")." << std::endl;
+        return false;
+    }
+    if (stepIndex >= numSteps_) {
+        std::cerr << "Erreur d'index: stepIndex (" << stepIndex << ") est hors limites (max " << numSteps_ - 1 << ")." << std::endl;
+        return false;
+    }
+    return true;
+}
+
+// Implémentation de getSoundStep
+bool AdikPattern::getSoundStep(size_t barIndex, int soundIndex, size_t stepIndex) const {
+    if (!isValidIndex(barIndex, soundIndex, stepIndex)) {
+        return false; // Retourne false si les indices sont invalides
+    }
+    // Accède directement à la valeur booléenne et la retourne
+    return patternData_[barIndex][soundIndex][stepIndex];
+}
+
+// Implémentation de toggleSoundStep
+bool AdikPattern::toggleSoundStep(size_t barIndex, int soundIndex, size_t stepIndex) {
+    if (!isValidIndex(barIndex, soundIndex, stepIndex)) {
+        return false; // L'opération a échoué si les indices sont invalides
+    }
+    // Inverse la valeur booléenne du pas
+    patternData_[barIndex][soundIndex][stepIndex] = !patternData_[barIndex][soundIndex][stepIndex];
+    return true; // L'opération a réussi
+}
+
 //==== End of class AdikPattern ====
 
 } // namespace adikdrum
