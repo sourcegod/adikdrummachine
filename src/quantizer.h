@@ -42,9 +42,9 @@ public:
     size_t quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime, std::chrono::high_resolution_clock::time_point lastUpdateTime);
     
     // Génère des pas pour un son donné selon la résolution de lecture/édition
-    bool genStepsFromSound(int soundIndex);
+    bool genStepsFromSound(size_t barIndex, size_t soundIndex);
     // Quantifie les pas existants pour un son donné selon la résolution de lecture/édition
-    bool quantizeStepsFromSound(int soundIndex);
+    bool quantizeStepsFromSound(size_t soundIndex);
     bool genStepsFromSound(int soundIndex, size_t barIndex);
     // Quantifie l'ensemble du pattern
     void quantizePlayedSteps();
@@ -77,7 +77,9 @@ private:
     // std::vector<double> recentLatencies_;
     // const size_t maxRecentLatencies_;
     // double calculateAverageLatency() const; // Si déplacé ici
-};
+
+}; 
+//==== End of class Quantizer ====
 
 } // namespace adikdrum
 

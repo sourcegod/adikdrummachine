@@ -41,6 +41,10 @@ DrumPlayer::DrumPlayer(int numSounds, int numSteps)
     curPattern_ = std::make_shared<AdikPattern>(2);
     patternData_ = curPattern_->getPatternData();
     curPattern_->setPosition(0, 0);
+    // quantizer_ = std::make_unique<Quantizer>(curPattern_, bpm_);
+    // Initialisation du quantificateur APRÈS que curPattern_ soit créé
+    // Il a besoin du pattern, d'une référence au BPM de DrumPlayer, et du nombre de sons.
+    quantizer_ = std::make_unique<Quantizer>(curPattern_, bpm_, numSounds_);
 
     quantResolutionMap[1] = numSteps_;       // Ronde = Mesure complète (16 steps)
     quantResolutionMap[2] = numSteps_ / 2;   // Blanche = Demi-mesure (8 steps)
@@ -686,7 +690,7 @@ bool DrumPlayer::mergePendingRecordings() {
 }
 //----------------------------------------
 
-// /*
+/*
 size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
     // --- PARTIE 1 : COMPENSATION DE LATENCE (INCHANGÉE) ---
     const double resetThresholdMs = 50.0;
@@ -799,7 +803,7 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
     return quantizedStep;
 }
 //----------------------------------------
-// */
+*/
 
 
 /*
@@ -886,7 +890,7 @@ double DrumPlayer::calculateAverageLatency() const {
     return sum / recentLatencies_.size();
 }
 //----------------------------------------
-
+/*
 void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
     if (resolution == 0 || quantResolutionMap.count(resolution)) {
         quantRecReso_ = resolution;
@@ -1077,6 +1081,85 @@ bool DrumPlayer::quantizeStepsFromSound() {
     return changed;
 }
 //----------------------------------------
+*/
+
+// Fonction pour définir la résolution de quantification pour l'enregistrement
+void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
+    if (quantizer_) {
+        quantizer_->setRecQuantizeResolution(resolution);
+    } else {
+        std::cerr << "Erreur: Quantizer non initialisé dans setRecQuantizeResolution." << std::endl;
+    }
+}
+
+// Fonction pour quantifier les pas enregistrés
+size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
+    if (quantizer_) {
+        // Mettez à jour la latence moyenne si nécessaire avant de quantifier.
+        // Si vous voulez que la latence moyenne soit calculée et appliquée, DrumPlayer doit la fournir au quantizer.
+        // Ou le quantizer gère sa propre latence s'il a accès aux timestamps bruts.
+        // Pour l'instant, supposons que quantizer gère la logique avec ce qu'il reçoit.
+        return quantizer_->quantizeRecordedSteps(currentStep, keyPressTime, lastUpdateTime_);
+    } else {
+        std::cerr << "Erreur: Quantizer non initialisé dans quantizeRecordedSteps." << std::endl;
+        return currentStep; // Retourne l'original ou une valeur par défaut en cas d'erreur
+    }
+}
+
+// Fonction pour définir la résolution de quantification pour la lecture/édition
+void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
+    if (quantizer_) {
+        quantizer_->setPlayQuantizeResolution(resolution);
+    } else {
+        std::cerr << "Erreur: Quantizer non initialisé dans setPlayQuantizeResolution." << std::endl;
+    }
+}
+
+// Fonction pour quantifier l'ensemble du pattern (pour la lecture/édition)
+void DrumPlayer::quantizePlayedSteps() {
+    if (quantizer_) {
+        // Cette fonction doit demander au quantificateur de quantifier le pattern entier
+        // en utilisant la résolution de lecture.
+        // Le quantificateur a déjà un pointeur vers le pattern.
+        // Vous devrez peut-être passer le BPM si le quantificateur ne le gère pas en interne.
+        quantizer_->quantizePlayedSteps(); // Passez le BPM au quantificateur
+    } else {
+        std::cerr << "Erreur: Quantizer non initialisé dans quantizePlayedSteps." << std::endl;
+    }
+}
+
+// Fonction pour générer des pas pour un son donné
+bool DrumPlayer::genStepsFromSound() {
+    if (quantizer_) {
+        auto soundIndex = lastSoundIndex_;
+        auto currentBar = curPattern_->getCurrentBar();
+        // Déléguer au quantificateur. Si votre AdikPattern gère les pas par barre,
+        // et que genStepsFromSound de Quantizer ne prend pas de barIndex,
+        // cette fonction dans DrumPlayer pourrait avoir besoin d'itérer sur toutes les barres.
+        // Actuellement, les fonctions de Quantizer ne prennent pas de barIndex.
+        // Si AdikPattern::getSoundSteps / setSoundSteps nécessitent un barIndex,
+        // vous devez soit modifier Quantizer pour prendre un barIndex, soit appeler
+        // genStepsFromSound pour chaque barre ici.
+        // Pour l'instant, je suppose que genStepsFromSound de Quantizer opère sur l'ensemble du pattern
+        // pour un son donné, ou qu'AdikPattern gère les barres de manière transparente.
+        return quantizer_->genStepsFromSound(currentBar, soundIndex);
+    } else {
+        std::cerr << "Erreur: Quantizer non initialisé dans genStepsFromSound." << std::endl;
+        return false;
+    }
+}
+
+// Fonction pour quantifier les pas existants pour un son donné
+bool DrumPlayer::quantizeStepsFromSound() {
+    if (quantizer_) {
+        auto soundIndex = lastSoundIndex_;
+        // Déléguer au quantificateur. Même considération pour barIndex que ci-dessus.
+        return quantizer_->quantizeStepsFromSound(soundIndex);
+    } else {
+        std::cerr << "Erreur: Quantizer non initialisé dans quantizeStepsFromSound." << std::endl;
+        return false;
+    }
+}
 
 //==== End of class DrumPlayer ====
 

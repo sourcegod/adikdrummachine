@@ -6,6 +6,7 @@
 #include "audiosound.h"
 #include "audiomixer.h" // Assurez-vous que l'inclusion est là
 #include "adikpattern.h"
+#include "quantizer.h"
 
 #include <cmath>
 #include <algorithm> // pour std::clamp
@@ -129,6 +130,10 @@ private:
     SoundPtr getSound(size_t soundIndex); 
     bool isValidForSoundOperation(const std::string& functionName) const; 
     size_t getQuantUnitSteps() const; 
+    // Instance de la classe Quantizer pour gérer toute la logique de quantification
+    // Nous utilisons un unique_ptr car DrumPlayer "possède" le quantificateur.
+    std::unique_ptr<Quantizer> quantizer_;
+
 
 
 };

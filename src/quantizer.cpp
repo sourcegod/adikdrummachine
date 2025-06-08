@@ -234,13 +234,13 @@ size_t Quantizer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_re
     return quantizedStep;
 }
 
-bool Quantizer::genStepsFromSound(int soundIndex, size_t barIndex) {
+bool Quantizer::genStepsFromSound(size_t barIndex, size_t soundIndex) {
     // 1. Validation des paramètres et du pattern
     if (!curPattern_) {
         std::cerr << "Erreur: Le pattern n'est pas valide dans Quantizer::genStepsFromSound. Aucune modification." << std::endl;
         return false;
     }
-    if (soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSounds_) {
+    if (static_cast<size_t>(soundIndex) >= numSounds_) {
         std::cerr << "Erreur: Index de son invalide (" << soundIndex << ") dans Quantizer::genStepsFromSound. Aucune modification." << std::endl;
         return false;
     }
@@ -307,9 +307,9 @@ bool Quantizer::genStepsFromSound(int soundIndex, size_t barIndex) {
 
 // Quantifie les pas existants pour un son donné selon la résolution de lecture/édition.
 // C'est utile pour "nettoyer" ou modifier un pattern déjà créé.
-bool Quantizer::quantizeStepsFromSound(int soundIndex) {
+bool Quantizer::quantizeStepsFromSound(size_t soundIndex) {
     // Vérifications initiales des paramètres
-    if (!curPattern_ || soundIndex < 0 || static_cast<size_t>(soundIndex) >= numSounds_) {
+    if (!curPattern_ || static_cast<size_t>(soundIndex) >= numSounds_) {
         std::cerr << "Erreur: Index de son ou pattern non valide dans quantizeStepsFromSound." << std::endl;
         return false;
     }
@@ -410,4 +410,5 @@ void Quantizer::quantizePlayedSteps() {
 
 
 //==== End of class Quantizer ====
+
 } // namespace adikdrum
