@@ -1091,6 +1091,7 @@ void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
         std::cerr << "Erreur: Quantizer non initialisé dans setRecQuantizeResolution." << std::endl;
     }
 }
+//----------------------------------------
 
 // Fonction pour quantifier les pas enregistrés
 size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
@@ -1105,6 +1106,7 @@ size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_r
         return currentStep; // Retourne l'original ou une valeur par défaut en cas d'erreur
     }
 }
+//----------------------------------------
 
 // Fonction pour définir la résolution de quantification pour la lecture/édition
 void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
@@ -1114,6 +1116,7 @@ void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
         std::cerr << "Erreur: Quantizer non initialisé dans setPlayQuantizeResolution." << std::endl;
     }
 }
+//----------------------------------------
 
 // Fonction pour quantifier l'ensemble du pattern (pour la lecture/édition)
 void DrumPlayer::quantizePlayedSteps() {
@@ -1127,6 +1130,7 @@ void DrumPlayer::quantizePlayedSteps() {
         std::cerr << "Erreur: Quantizer non initialisé dans quantizePlayedSteps." << std::endl;
     }
 }
+//----------------------------------------
 
 // Fonction pour générer des pas pour un son donné
 bool DrumPlayer::genStepsFromSound() {
@@ -1148,6 +1152,7 @@ bool DrumPlayer::genStepsFromSound() {
         return false;
     }
 }
+//----------------------------------------
 
 // Fonction pour quantifier les pas existants pour un son donné
 bool DrumPlayer::quantizeStepsFromSound() {
@@ -1160,6 +1165,7 @@ bool DrumPlayer::quantizeStepsFromSound() {
         return false;
     }
 }
+//----------------------------------------
 
 //==== End of class DrumPlayer ====
 

@@ -42,6 +42,7 @@ Quantizer::Quantizer(std::shared_ptr<AdikPattern> pattern, double& bpmRef, int n
     // due à l'arrondi et à la division entière. Le code DrumPlayer fourni n'implémente pas
     // un traitement spécifique pour les triolets au-delà de cette approche simple.
 }
+//----------------------------------------
 
 
 // Définit la résolution de quantification pour l'enregistrement.
@@ -53,6 +54,7 @@ void Quantizer::setRecQuantizeResolution(size_t resolution) {
         std::cerr << "Erreur: Résolution d'enregistrement " << resolution << " non reconnue." << std::endl;
     }
 }
+//----------------------------------------
 
 // Définit la résolution de quantification pour la lecture/édition.
 // Valide la résolution en vérifiant sa présence dans la map.
@@ -63,6 +65,7 @@ void Quantizer::setPlayQuantizeResolution(size_t resolution) {
         std::cerr << "Erreur: Résolution de lecture/édition " << resolution << " non reconnue." << std::endl;
     }
 }
+//----------------------------------------
 
 // Retourne la durée en millisecondes d'une mesure entière.
 // Dépend du BPM (Battements Par Minute). Une mesure est considérée comme 4 noires.
@@ -77,6 +80,7 @@ double Quantizer::getMeasureDurationMs() const {
     }
     return (60.0 / bpm_) * 1000.0 * 4.0;
 }
+//----------------------------------------
 
 // Retourne l'intervalle temporel en millisecondes pour une résolution de quantification donnée.
 // Utilise la map des résolutions pour trouver la proportion de mesure et la convertir en ms.
@@ -89,6 +93,7 @@ double Quantizer::getQuantizationIntervalMs(size_t resolution) const {
     std::cerr << "Erreur: Résolution de quantification " << resolution << " non trouvée dans la map. Retourne 0." << std::endl;
     return 0.0;
 }
+//----------------------------------------
 
 // Vérifie si une résolution donnée est de type triolet.
 // Les résolutions comme 3 (tierce de mesure), 6 (triolet de noire), 12 (triolet de croche), etc.,
@@ -97,6 +102,7 @@ bool Quantizer::isTripletResolution(size_t resolution) const {
     return resolution == 3 || resolution == 6 || resolution == 12 ||
            resolution == 24 || resolution == 48; // Liste des résolutions de triolets communes
 }
+//----------------------------------------
 
 // Trouve le pas de grille entier le plus proche pour une position temporelle donnée.
 // `numStepsInMeasure` représente le nombre total de pas dans une mesure (e.g., 16 pour 16èmes de note).
@@ -134,6 +140,7 @@ size_t Quantizer::getClosestGridStep(double targetTimeMs, size_t numStepsInMeasu
 
     return closestStep;
 }
+//----------------------------------------
 
 // Trouve le pas de triolet entier le plus proche pour une position temporelle donnée.
 // Cette fonction est plus spécifique et aligne le temps sur une subdivision de triolet,
@@ -174,6 +181,7 @@ size_t Quantizer::getClosestTripletStep(double initialSourceTimeMs, double tripl
 
     return getClosestGridStep(quantizedTimeMs, numStepsInMeasure);
 }
+//----------------------------------------
 
 
 // Quantifie les pas enregistrés par l'utilisateur (événements en temps réel).
@@ -233,6 +241,7 @@ size_t Quantizer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_re
 
     return quantizedStep;
 }
+//----------------------------------------
 
 bool Quantizer::genStepsFromSound(size_t barIndex, size_t soundIndex) {
     // 1. Validation des paramètres et du pattern
@@ -304,6 +313,7 @@ bool Quantizer::genStepsFromSound(size_t barIndex, size_t soundIndex) {
               << " terminée avec résolution " << quantPlayReso_ << "." << std::endl;
     return changed;
 }
+//----------------------------------------
 
 // Quantifie les pas existants pour un son donné selon la résolution de lecture/édition.
 // C'est utile pour "nettoyer" ou modifier un pattern déjà créé.
@@ -394,6 +404,7 @@ bool Quantizer::quantizeStepsFromSound(size_t soundIndex) {
     curPattern_->setSoundSteps(soundIndex, newQuantizedSteps);
     return true;
 }
+//----------------------------------------
 
 // Quantifie l'ensemble du pattern en itérant sur tous les sons.
 void Quantizer::quantizePlayedSteps() {
@@ -407,6 +418,7 @@ void Quantizer::quantizePlayedSteps() {
     }
     std::cout << "Quantification de tous les pas joués terminée." << std::endl;
 }
+//----------------------------------------
 
 
 //==== End of class Quantizer ====
