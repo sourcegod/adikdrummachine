@@ -226,12 +226,6 @@ void AdikPattern::genData() {
 }
 //----------------------------------------
 
-void AdikPattern::saveData() {
-    savedData_ = patternData_; // Copie profonde du patternData_ dans savedData_
-    std::cout << "Pattern actuel sauvegardé dans savedData_." << std::endl;
-}
-//----------------------------------------
-
 // Fonction utilitaire pour valider les indices
 bool AdikPattern::isValidIndex(size_t barIndex, int soundIndex, size_t stepIndex) const {
     if (barIndex >= numBars_) {
@@ -327,6 +321,19 @@ void AdikPattern::setSoundSteps(int soundIndex, const std::vector<bool>& newQuan
     // std::cout << "DEBUG: setSoundSteps pour le son " << soundIndex << " terminée.\n";
 }
 //----------------------------------------
+
+void AdikPattern::saveData() {
+    savedData_ = patternData_; // Copie profonde du patternData_ dans savedData_
+    std::cout << "Pattern actuel sauvegardé dans savedData_." << std::endl;
+}
+//----------------------------------------
+
+void AdikPattern::loadData() {
+    patternData_ = savedData_; // Copie profonde du savedData_ dans patternData_
+    std::cout << "savedData actuel chargé dans patternData_." << std::endl;
+}
+//----------------------------------------
+
 
 //==== End of class AdikPattern ====
 

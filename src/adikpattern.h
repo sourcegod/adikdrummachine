@@ -75,6 +75,7 @@ public:
     void setSoundSteps(int soundIndex, const std::vector<bool>& newQuantizedSteps);
     void saveData();
     const std::vector<std::vector<std::vector<bool>>>& getSavedData() const { return savedData_; }
+    void loadData();
 
 private:
     size_t numBars_; // Nombre de barres dans le pattern
