@@ -692,6 +692,7 @@ bool DrumPlayer::mergePendingRecordings() {
 
 /*
 size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
+    // Deprecated function
     // --- PARTIE 1 : COMPENSATION DE LATENCE (INCHANGÉE) ---
     const double resetThresholdMs = 50.0;
     double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_; // Durée d'un pas de base (seizième de note)
@@ -1095,12 +1096,42 @@ void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
 
 // Fonction pour quantifier les pas enregistrés
 size_t DrumPlayer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime) {
+    // --- PARTIE 1 : COMPENSATION DE LATENCE (INCHANGÉE) ---
+    const double resetThresholdMs = 50.0;
+    double secondsPerStep = (60.0 / bpm_) / stepsPerBeat_; // Durée d'un pas de base (seizième de note)
+    std::chrono::duration<double> rawLatency = keyPressTime - lastUpdateTime_;
+    double rawLatencyMs = rawLatency.count() * 1000.0;
+    double stepDurationMs = secondsPerStep * 1000.0;
+
+    if (!recentLatencies_.empty()) {
+        double currentAverage = calculateAverageLatency();
+        if (std::abs(rawLatencyMs - currentAverage) > resetThresholdMs) {
+            std::cout << "\nDEBUG: Changement significatif détecté (" << rawLatencyMs << "ms vs Moyenne " << currentAverage << "ms). Réinitialisation de l'historique de latence." << std::endl;
+            recentLatencies_.clear();
+        }
+    }
+    recentLatencies_.push_back(rawLatencyMs);
+    while (recentLatencies_.size() > maxRecentLatencies_) {
+        recentLatencies_.erase(recentLatencies_.begin());
+    }
+    double averageLatencyMs = calculateAverageLatency();
+    double compensatedLatencyMs = rawLatencyMs - averageLatencyMs;
+    // --- FIN DE LA PARTIE 1 ---
+
+    std::cout << "\nMesure: " << currentBar_ << ", Pas: " << currentStep_ << std::endl;
+    std::cout << "DEBUG: Latence brute frappe : " << rawLatencyMs << " ms (Moy: " << averageLatencyMs << " ms, Taille Hist: " << recentLatencies_.size() << ")" << std::endl;
+    std::cout << "DEBUG: Latence compensée : " << compensatedLatencyMs 
+        << " ms par rapport au début de la mesure: " << currentBar_ 
+        << ", Pas: " << currentStep << "." << std::endl;
+    std::cout << "DEBUG: Chaque pas de *base* dure " << stepDurationMs << " ms." << std::endl;
+
+
     if (quantizer_) {
         // Mettez à jour la latence moyenne si nécessaire avant de quantifier.
         // Si vous voulez que la latence moyenne soit calculée et appliquée, DrumPlayer doit la fournir au quantizer.
         // Ou le quantizer gère sa propre latence s'il a accès aux timestamps bruts.
         // Pour l'instant, supposons que quantizer gère la logique avec ce qu'il reçoit.
-        return quantizer_->quantizeRecordedSteps(currentStep, keyPressTime, lastUpdateTime_);
+        return quantizer_->quantizeRecordedSteps(currentStep, compensatedLatencyMs);
     } else {
         std::cerr << "Erreur: Quantizer non initialisé dans quantizeRecordedSteps." << std::endl;
         return currentStep; // Retourne l'original ou une valeur par défaut en cas d'erreur

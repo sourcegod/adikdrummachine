@@ -186,7 +186,7 @@ size_t Quantizer::getClosestTripletStep(double initialSourceTimeMs, double tripl
 
 // Quantifie les pas enregistrés par l'utilisateur (événements en temps réel).
 // Retourne le pas (index) quantifié le plus proche.
-size_t Quantizer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime, std::chrono::high_resolution_clock::time_point lastUpdateTime) {
+size_t Quantizer::quantizeRecordedSteps(size_t currentStep, double timeElapsed) {
     if (!curPattern_) {
         std::cerr << "Erreur: Pattern non valide dans quantizeRecordedSteps. Retourne le pas actuel." << std::endl;
         return currentStep;
@@ -207,12 +207,9 @@ size_t Quantizer::quantizeRecordedSteps(size_t currentStep, std::chrono::high_re
     // Durée d'un seul pas logique du pattern (ex: un 16ème de note si 16 pas/mesure).
     double stepDurationMs = totalPatternDurationMs / numStepsInPattern;
 
-    // Calculer le temps écoulé entre la dernière mise à jour du sequencer et la frappe de la touche.
-    double timeElapsedSinceLastUpdateMs = std::chrono::duration_cast<std::chrono::milliseconds>(keyPressTime - lastUpdateTime).count();
-
     // Calculer le temps "exact" de la frappe par rapport au début de la mesure/pattern.
     // On suppose que lastUpdateTime correspond au début du 'currentStep'.
-    double exactTimeInPatternMs = (currentStep * stepDurationMs) + timeElapsedSinceLastUpdateMs;
+    double exactTimeInPatternMs = (currentStep * stepDurationMs) + timeElapsed;
 
     // S'assurer que le temps exact est cyclique dans la mesure (0 à totalPatternDurationMs - epsilon).
     exactTimeInPatternMs = std::fmod(exactTimeInPatternMs, totalPatternDurationMs);
@@ -338,6 +335,7 @@ bool Quantizer::quantizeStepsFromSound(size_t soundIndex) {
 
     // Durée d'un pas logique dans le pattern (global).
     double stepDurationMs = totalPatternDurationMs / numStepsInPattern;
+    std::cout << "voici, stepDurationMs: " << stepDurationMs << ", totalPatternDurationMs: " <<  totalPatternDurationMs << "\n";
 
     // Récupérer le nombre de mesures et de pas par mesure depuis le pattern.
     // C'est essentiel pour pouvoir parcourir la structure en 3D.
@@ -385,13 +383,17 @@ bool Quantizer::quantizeStepsFromSound(size_t soundIndex) {
             double originalTimeMs = step * stepDurationMs;
 
             // Quantifier ce temps à l'intervalle le plus proche.
-            double quantizedTimeMs = std::round(originalTimeMs / quantIntervalMs) * quantIntervalMs;
+            // double quantizedTimeMs = std::round(originalTimeMs / quantIntervalMs) * quantIntervalMs;
+            double quantizedTimeMs = std::floor(originalTimeMs / quantIntervalMs) * quantIntervalMs;
 
+            
+            /*
             // S'assurer que le temps quantifié est cyclique et dans les limites du pattern.
             quantizedTimeMs = std::fmod(quantizedTimeMs, totalPatternDurationMs);
             if (quantizedTimeMs < 0) {
                 quantizedTimeMs += totalPatternDurationMs;
             }
+            */
 
             // Convertir le temps quantifié en un index de pas global et le marquer comme actif.
             size_t quantizedStepIndex = getClosestGridStep(quantizedTimeMs, numStepsInPattern);

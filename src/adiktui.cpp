@@ -459,8 +459,10 @@ void AdikTUI::handleGlobalKey(int key) {
     switch(key) {
         case ' ': adikDrum_->playPause(); break;
         case 'c': adikDrum_->toggleClick(); break;
+        // case 'D': adikDrum_->toggleDelay(); break;
+        case 'D': adikDrum_->clearPattern(); break; // 'K'
         case 'H': adikDrum_->genStepsFromSound(); break; // 'H'
-        case 'K': adikDrum_->clearPattern(); break; // 'K'
+        // case 'K': adikDrum_->clearPattern(); break; // 'K'
         case 'p': adikDrum_->demo(16); break;
         case 'v':
         case '.': adikDrum_->stopAllSounds(); break;
@@ -477,7 +479,6 @@ void AdikTUI::handleGlobalKey(int key) {
         case ']': adikDrum_->changePan(0.1f); break;
         case '{': adikDrum_->changeSpeed(-0.25f); break;
         case '}': adikDrum_->changeSpeed(0.25f); break;
-        case 'D': adikDrum_->toggleDelay(); break;
         case '<': adikDrum_->gotoStart(); break;
         case '>': adikDrum_->gotoEnd(); break;
         case 4: adikDrum_->clearCurrentSound(); break; // Ctrl+D
@@ -486,7 +487,7 @@ void AdikTUI::handleGlobalKey(int key) {
         // case 8: adikDrum_->toggleHelp(); break; // Ctrl+H
         case 11: adikDrum_->clearLastPlayedSound(); break; // Ctrl+K
         case 16: adikDrum_->loadPattern(); break; // Ctrl+P
-        case 18: 
+        case 18: // Ctrl+R 
         case 'r': adikDrum_->toggleRecord(); break; // Ctrl+R
         case 20: adikDrum_->test(); break; // Ctrl+T
         case 21: adikDrum_->showStatus(); break; // Ctrl+U

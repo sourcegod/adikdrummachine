@@ -39,7 +39,7 @@ public:
 
     // Fonctions de quantification des pas (transférées de DrumPlayer)
     // Retourne le pas quantifié
-    size_t quantizeRecordedSteps(size_t currentStep, std::chrono::high_resolution_clock::time_point keyPressTime, std::chrono::high_resolution_clock::time_point lastUpdateTime);
+    size_t quantizeRecordedSteps(size_t currentStep, double timeElapsed);
     
     // Génère des pas pour un son donné selon la résolution de lecture/édition
     bool genStepsFromSound(size_t barIndex, size_t soundIndex);
