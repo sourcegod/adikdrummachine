@@ -73,6 +73,8 @@ public:
     // Retourne true si l'opération a réussi, false si les indices sont invalides.
     bool toggleSoundStep(size_t barIndex, int soundIndex, size_t stepIndex);
     void setSoundSteps(int soundIndex, const std::vector<bool>& newQuantizedSteps);
+    void saveData();
+    const std::vector<std::vector<std::vector<bool>>>& getSavedData() const { return savedData_; }
 
 private:
     size_t numBars_; // Nombre de barres dans le pattern
@@ -81,6 +83,7 @@ private:
     size_t numSteps_; 
     size_t numSoundsPerBar_; // Nombre de sons par barre (fixe, par exemple 16)
     std::vector<std::vector<std::vector<bool>>> patternData_; // Structure pour stocker le pattern de batterie [barre][son][pas]
+    std::vector<std::vector<std::vector<bool>>> savedData_; // Structure pour stocker le pattern de batterie [barre][son][pas]
 
     // Fonction utilitaire pour la validation des indices
     bool isValidIndex(size_t barIndex, int soundIndex, size_t stepIndex) const;

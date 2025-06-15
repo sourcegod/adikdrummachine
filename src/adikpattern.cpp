@@ -226,6 +226,11 @@ void AdikPattern::genData() {
 }
 //----------------------------------------
 
+void AdikPattern::saveData() {
+    savedData_ = patternData_; // Copie profonde du patternData_ dans savedData_
+    std::cout << "Pattern actuel sauvegardé dans savedData_." << std::endl;
+}
+//----------------------------------------
 
 // Fonction utilitaire pour valider les indices
 bool AdikPattern::isValidIndex(size_t barIndex, int soundIndex, size_t stepIndex) const {
