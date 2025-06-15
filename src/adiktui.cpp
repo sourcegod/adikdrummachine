@@ -466,6 +466,8 @@ void AdikTUI::handleGlobalKey(int key) {
         case 'p': adikDrum_->demo(16); break;
         case 'v':
         case '.': adikDrum_->stopAllSounds(); break;
+        case 'W': adikDrum_->loadData(); break; // 'W'
+
         case '0': adikDrum_->playPause(); break;
         case '9': adikDrum_->triggerLastSound(); break;
         case '/': adikDrum_->changeShiftPad(-8); break;
@@ -491,6 +493,7 @@ void AdikTUI::handleGlobalKey(int key) {
         case 'r': adikDrum_->toggleRecord(); break; // Ctrl+R
         case 20: adikDrum_->test(); break; // Ctrl+T
         case 21: adikDrum_->showStatus(); break; // Ctrl+U
+        case 23: adikDrum_->saveData(); break; // Ctrl+W
 
         case KEY_PPAGE: adikDrum_->changeBar(-1); break;
         case KEY_NPAGE: adikDrum_->changeBar(1); break;
