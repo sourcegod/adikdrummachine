@@ -90,6 +90,8 @@ public:
     void quantizePlayedSteps();
     void genStepsFromSound();
     void quantizeStepsFromSound();
+    void saveData();
+    void loadData();
 
 
     void test();

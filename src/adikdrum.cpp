@@ -873,6 +873,52 @@ void AdikDrum::quantizeStepsFromSound() {
 }
 //----------------------------------------
 
+void AdikDrum::saveData() {
+    // Récupère le pattern courant
+    auto curPattern = drumPlayer_.curPattern_;
+    // Vérifie si le pattern est valide avant de générer des données
+    if (curPattern) {
+        // Génère les données du pattern directement dans l'objet AdikPattern
+        curPattern->saveData();
+    } else {
+        std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer." << std::endl;
+        msgText_ = "Erreur: Impossible de charger le pattern de démonstration.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    msgText_ = "Pattern courant sauvegardé.";
+    displayMessage(msgText_);
+
+    // Affiche la première barre du pattern (index 0) par défaut.
+    // Vous pourriez vouloir afficher la barre courante si vous en avez une.
+    displayGrid(curPattern->getPatternBar(0), cursorPos);
+}
+//----------------------------------------
+
+void AdikDrum::loadData() {
+    // Récupère le pattern courant
+    auto curPattern = drumPlayer_.curPattern_;
+    // Vérifie si le pattern est valide avant de générer des données
+    if (curPattern) {
+        // Génère les données du pattern directement dans l'objet AdikPattern
+        curPattern->loadData();
+    } else {
+        std::cerr << "Erreur: curPattern_ n'est pas initialisé dans DrumPlayer." << std::endl;
+        msgText_ = "Erreur: Impossible de charger le pattern de démonstration.";
+        displayMessage(msgText_);
+        return;
+    }
+
+    msgText_ = "Pattern sauvegarde rechargé.";
+    displayMessage(msgText_);
+    drumPlayer_.resetMute();
+
+    // Affiche la première barre du pattern (index 0) par défaut.
+    // Vous pourriez vouloir afficher la barre courante si vous en avez une.
+    displayGrid(curPattern->getPatternBar(0), cursorPos);
+}
+//----------------------------------------
 
 
 void AdikDrum::test() {
