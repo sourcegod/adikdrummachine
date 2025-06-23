@@ -891,8 +891,10 @@ double DrumPlayer::calculateAverageLatency() const {
     return sum / recentLatencies_.size();
 }
 //----------------------------------------
+
 /*
 void DrumPlayer::setRecQuantizeResolution(size_t resolution) {
+    // [Deprecated function ]
     if (resolution == 0 || quantResolutionMap.count(resolution)) {
         quantRecReso_ = resolution;
         std::cout << "Résolution d'enregistrement réglée sur : " << quantRecReso_ << std::endl;
@@ -914,6 +916,8 @@ void DrumPlayer::setPlayQuantizeResolution(size_t resolution) {
 //----------------------------------------
 
 void DrumPlayer::quantizePlayedSteps() {
+    // [Deprecated function]
+    // Note: this function can call ::quantizeStepsFromSound for more readability
     std::cout << "\nDEBUG: Début de la quantification du pattern en lecture avec résolution : " << quantPlayReso_ << std::endl;
     if (!curPattern_) {
         std::cerr << "ERREUR: curPattern_ n'est pas initialisé (nullptr) dans quantizePlayedSteps." << std::endl;
@@ -967,6 +971,7 @@ void DrumPlayer::quantizePlayedSteps() {
 //----------------------------------------
 
 bool DrumPlayer::genStepsFromSound() {
+    // [Deprecated function ]
     if (!isValidForSoundOperation("genStepsFromSound")) {
         return false;
     }
@@ -1013,6 +1018,7 @@ bool DrumPlayer::genStepsFromSound() {
 //----------------------------------------
 
 bool DrumPlayer::quantizeStepsFromSound() {
+    // [Deprecated function ]
     std::cout << "\nDEBUG: Début de la quantification du dernier son joué." << std::endl;
 
     if (!isValidForSoundOperation("quantizeStepsFromSound")) {
