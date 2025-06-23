@@ -992,6 +992,7 @@ bool DrumPlayer::genStepsFromSound() {
 
     bool changed = false;
 
+    // D'abord désactive les Pas déjà activés
     for (size_t stepIdx = 0; stepIdx < totalSteps; ++stepIdx) {
         if (currentBar[soundIndex][stepIdx]) {
             currentBar[soundIndex][stepIdx] = false;
@@ -999,6 +1000,7 @@ bool DrumPlayer::genStepsFromSound() {
         }
     }
 
+    // maintenant active les Pas selon le Pas quantizé: quantUnitSteps
     for (size_t stepIdx = 0; stepIdx < totalSteps; stepIdx += quantUnitSteps) {
         if (!currentBar[soundIndex][stepIdx]) {
             currentBar[soundIndex][stepIdx] = true;
@@ -1048,6 +1050,7 @@ bool DrumPlayer::quantizeStepsFromSound() {
         return false;
     }
 
+    // Désactive les Pas déjà activés
     for (size_t stepIdx = 0; stepIdx < numStepsInCurPattern; ++stepIdx) {
         if (currentBar[soundIndex][stepIdx]) {
             currentBar[soundIndex][stepIdx] = false;
@@ -1055,13 +1058,15 @@ bool DrumPlayer::quantizeStepsFromSound() {
         }
     }
 
+    // Calcule la quantification
     for (size_t initialSourceStep : stepsToQuantize) {
+        // Ici, Division entière d'un entier par un autre, le résultat est un entier
         size_t quantGridStartStep = (initialSourceStep / quantUnitSteps) * quantUnitSteps;
         size_t halfQuantUnitSteps = quantUnitSteps / 2;
         size_t positionInQuantUnit = initialSourceStep - quantGridStartStep;
 
+        // Calcul de la position final du Pas quantizé
         size_t quantizedTargetStep;
-
         if (positionInQuantUnit >= halfQuantUnitSteps) {
             quantizedTargetStep = quantGridStartStep + quantUnitSteps;
             if (quantizedTargetStep >= numStepsInCurPattern) {
@@ -1071,6 +1076,7 @@ bool DrumPlayer::quantizeStepsFromSound() {
             quantizedTargetStep = quantGridStartStep;
         }
 
+        // Activation du Pas quantizé
         if (!currentBar[soundIndex][quantizedTargetStep]) {
             currentBar[soundIndex][quantizedTargetStep] = true;
             changed = true;
@@ -1165,23 +1171,20 @@ void DrumPlayer::quantizePlayedSteps() {
 
 // Fonction pour générer des pas pour un son donné
 bool DrumPlayer::genStepsFromSound() {
+    bool changed = false;
     if (quantizer_) {
         auto soundIndex = lastSoundIndex_;
         auto currentBar = curPattern_->getCurrentBar();
-        // Déléguer au quantificateur. Si votre AdikPattern gère les pas par barre,
-        // et que genStepsFromSound de Quantizer ne prend pas de barIndex,
-        // cette fonction dans DrumPlayer pourrait avoir besoin d'itérer sur toutes les barres.
-        // Actuellement, les fonctions de Quantizer ne prennent pas de barIndex.
-        // Si AdikPattern::getSoundSteps / setSoundSteps nécessitent un barIndex,
-        // vous devez soit modifier Quantizer pour prendre un barIndex, soit appeler
-        // genStepsFromSound pour chaque barre ici.
-        // Pour l'instant, je suppose que genStepsFromSound de Quantizer opère sur l'ensemble du pattern
-        // pour un son donné, ou qu'AdikPattern gère les barres de manière transparente.
-        return quantizer_->genStepsFromSound(currentBar, soundIndex);
+        auto numBars = curPattern_->getNumBars();
+        // for (size_t barIndex; barIndex < numBars; barIndex++) {
+            return quantizer_->genStepsFromSound(currentBar, soundIndex);
+            changed = true;
+        // }
     } else {
         std::cerr << "Erreur: Quantizer non initialisé dans genStepsFromSound." << std::endl;
         return false;
     }
+    
 }
 //----------------------------------------
 
